@@ -194,30 +194,34 @@
 
 \subsection{Problem Statement}
 
-India has one of the most extensive and complex legal frameworks in the world. With hundreds of laws, thousands of sections, and constantly evolving amendments, it is extremely difficult for ordinary citizens to understand their legal rights and obligations. When a person faces a legal issue --- whether it is related to property, marriage, criminal matters, consumer rights, or digital privacy --- they often have no easy way to get a quick, reliable answer without consulting an expensive lawyer.
+The Indian legal system has hundreds of laws, thousands of sections, and an ever-changing set of amendments to those laws. These laws are mostly complicated, and an average person has very little or no knowledge about his/her legal rights due to this high complexity of laws. It is very difficult for a normal person to have a quick and straightforward response to a legal question about property, marriage, criminal behavior, or digital privacy.
 
-Existing legal information sources such as government websites, bare act PDFs, and legal databases are written in formal legal language that is hard to understand for someone without a law background. There is a clear gap: \textbf{common people need a simple, accessible, and intelligent tool that can read through these complex legal documents and answer their questions in plain, everyday language.}
+The available resources of legal information on the internet, such as government websites, legal databases or bare acts in PDF format, all of them use a legal language which is far beyond the understanding of a normal person. So in this case, there is a need for an easy to use and intelligent tool that can extract information from these documents and provide quick and east to understand answers to users.
+
 
 \subsection{Proposed Solution}
 
-The \textbf{Legal Query System} is a web-based AI assistant designed to bridge this gap. It allows users to ask legal questions in simple, natural language (for example, \textit{``What happens if someone breaks a contract?''} or \textit{``What are my rights if I am arrested?''}) and receive clear, well-explained answers that include proper legal citations --- the exact Act name, Section number, and relevant clause text.
+To solve this problem, the \textbf{Legal Query System} is an online AI assistant tool that makes it easier for the user to ask a legal question and receive a meaningful answer that has an appropriate citation from legal documents, which is necessary if you want to use the answer in any type of court proceeding.
 
-The system is built using a modern AI technique called \textbf{Retrieval-Augmented Generation (RAG)}, which ensures that every answer is grounded in actual legal documents rather than being made up by the AI. This makes the system both accurate and trustworthy.
+You can ask questions such as "What happens to someone when they break an agreement?" or "What are my rights after I am arrested?" and get a meaningful, clear, and well-defined answer with proper citations: Act number, section number, and the portion of the relevant clause from the applicable legislation.
+
+This system uses a modern artificial intelligence method of Retrieval-Augmented Generation (RAG), which guaranties that all answers provided are based on real-life legal documents rather than AI-based. This ensures that the system is accurate and reliable.
 
 \subsection{What is RAG (Retrieval-Augmented Generation)?}
 
-RAG is a technique that combines two powerful ideas to make AI systems more reliable:
+RAG is a technique that uses two ideas to make AI systems more reliable: 
 
 \begin{enumerate}
-  \item \textbf{Retrieval} --- Before answering a question, the system first searches through a knowledge base (in our case, Indian legal documents) and retrieves the most relevant sections that relate to the user's question.
-  \item \textbf{Generation} --- The retrieved sections are then given to a Large Language Model (LLM) as context, and the LLM uses this context to generate a well-written, accurate answer.
+  \item \textbf{Retrieval} --- When a user asks a question, before answering the question, the system first searches through a knowledge base and retrieves the most relevant sections that resemble the user's query.
+  \item \textbf{Generation} --- The sections which are retrieved by the systems are then passed into Large Language Model (LLM), which is used as context by LLM to generate accurate results.
 \end{enumerate}
 
-The key advantage of RAG over a plain AI chatbot is that \textbf{the AI does not rely on its own memory to answer legal questions}. Instead, it always refers back to the actual source documents. This dramatically reduces the chances of the AI ``hallucinating'' or making up incorrect information --- a critical requirement when dealing with legal matters.
+The main advantages of RAG over a normal AI chatbot is that the AI does not rely on its own memory to respond to user's query. Instead, it always refers to the original documents. This helps prevent hallucinations of AI or inaccurate responses when dealing with legal matters.
 
-\begin{infobox}
-\textbf{In simple terms:} Think of RAG like a very smart research assistant. When you ask a question, it first goes to the library (our legal database), finds the most relevant books and pages, reads them, and then explains the answer to you in simple words --- while also telling you exactly which book and page the information came from.
-\end{infobox}
+% \begin{infobox}
+% \textbf{In simple terms:} Think of RAG like a very smart research assistant. When you ask a question, it first goes to the library (our legal database), finds the most relevant books and pages, reads them, and then explains the answer to you in simple words --- while also telling you exactly which book and page the information came from.
+% \end{infobox}
+
 
 % ════════════════════════════════════════════════════════════════════════════
 \section{PDF Ingestion Pipeline}
@@ -437,30 +441,33 @@ The Legal Query System follows a \textbf{three-tier architecture} with clearly s
 The backend consists of two servers running simultaneously:
 
 \begin{enumerate}
-  \item \textbf{RAG API Server (Python / Flask --- Port 5000):} This server hosts the RAG pipeline. It exposes a \texttt{/api/query} endpoint that accepts a user's question and returns the AI-generated answer with citations. It also provides an \texttt{/api/ingest} endpoint to trigger re-ingestion of PDFs, and a \texttt{/api/health} endpoint for health checks. The RAG pipeline is loaded as a singleton (created once, reused for all requests) to avoid the overhead of loading models repeatedly.
+  \item \textbf{RAG API Server (Python / Flask --- Port 5000):} The RAG pipeline runs on this server. It reveals a /api/query endpoint that takes a question from the user and prints the answer generated by AI with references. It also offers an /api/ingest endpoint to cause re-ingestion of PDFs, and a /api/health endpoint to check health. The RAG pipeline is also loaded as a singleton (loaded once and reused on every request) to avoid the cost of loading models multiple times.
+  
 
-  \item \textbf{Application Server (Node.js / Express --- Port 3001):} This server handles user authentication, session management, and acts as a gateway to the RAG API. It connects to a \textbf{MongoDB} database to store user accounts and chat sessions. When a user sends a query through the frontend, this server authenticates the user, forwards the query to the RAG API, receives the response, saves the conversation in the database, and sends the result back to the frontend.
+  \item \textbf{Application Server (Node.js / Express --- Port 3001):} user authentication, session management, and access to the RAG API. It is also linked to a MongoDB database to store user accounts and chat sessions. When a user makes a query using the frontend, this server authenticates the user, directs the query to the RAG API, receives a response, logs the conversation in the database, and sends the result to the frontend.
 \end{enumerate}
 
 \subsection{Frontend Architecture}
 
-The frontend is built with \textbf{React.js} (using the Vite build tool for fast development) and provides four main pages:
+The frontend is developed with React.js (the Vite build tool is fast to develop with) and has four main pages:
 
 \begin{itemize}
-  \item \textbf{Login Page:} Allows existing users to sign in with their email and password.
-  \item \textbf{Signup Page:} Allows new users to create an account with their name, email, and password.
-  \item \textbf{Dashboard:} Displays all of the user's chat sessions, sorted by most recent. Users can create new sessions, view old ones, mark queries as solved, or delete sessions.
-  \item \textbf{Chat Page:} The main interaction page where users type their legal questions and receive AI-generated answers with expandable source citations. The chat interface supports multi-turn conversations and displays a legal disclaimer with each response.
+  \item \textbf{Login Page:} Gives the chance to existing users to log in using their email and password.
+  \item \textbf{Signup Page:} This is where new users can create an account with their name, email, and password.
+  \item \textbf{Dashboard:} Shows every chat session of the user, in reverse order of most recent. Users can create new sessions, see previous ones, categorize queries as solved, or delete sessions.
+
+  \item \textbf{Chat Page:} It is the primary interaction page where the user enters his/her legal query and gets answers in an AI-generated form with a collapsible reference list. The chat interface has multi-turn chat and a legal warning displayed with every reply.
 \end{itemize}
 
 \subsection{Authentication \& Session Management}
 
-The system implements secure user authentication using:
+The system adopts secure user authentication based on:
 
 \begin{itemize}
-  \item \textbf{JWT (JSON Web Tokens):} After a user logs in, the server issues a signed token that the frontend stores locally. This token is sent with every subsequent request to verify the user's identity.
-  \item \textbf{bcrypt Password Hashing:} User passwords are never stored in plain text. They are hashed using bcrypt with a salt factor of 12, making them virtually impossible to reverse-engineer.
-  \item \textbf{Chat Sessions:} Each user's conversations are stored as separate sessions in MongoDB, with full message history and source citations. Users can return to previous sessions to review past legal queries and answers.
+  \item \textbf{JWT (JSON Web Tokens):} Once a user has been authenticated, a signed token is issued by the server and is used locally by the frontend. With each further request, this token is included to verify the identity of the user.
+  \item \textbf{bcrypt Password Hashing:} User passwords are not stored in plain text. They are hashed with a salt factor of 12 which makes them virtually impossible to reverse-engineer.
+
+  \item \textbf{Chat Sessions:} Conversations of each user are stored as individual sessions in MongoDB, including a complete history of messages and sources. Users have the ability to go back to past sessions to revisit past legal queries and answers.
 \end{itemize}
 
 % ════════════════════════════════════════════════════════════════════════════
