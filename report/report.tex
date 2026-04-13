@@ -591,27 +591,34 @@ Used a singleton pattern to load the pipeline once and reuse it for all requests
 \section{Future Scope}
 
 \begin{itemize}
-  \item \textbf{Multi-Language Support:} Extending the system to accept queries and generate answers in Hindi and other regional Indian languages to serve a wider audience.
-  \item \textbf{Case Law Integration:} Adding Supreme Court and High Court judgments to the knowledge base, enabling the system to cite relevant case precedents along with bare Act text.
-  \item \textbf{Hybrid Search:} Combining semantic (vector) search with keyword-based (BM25) search for improved retrieval accuracy, especially for queries containing specific legal terms or section numbers.
-  \item \textbf{Voice Interface:} Adding speech-to-text and text-to-speech capabilities so that users can ask legal questions verbally --- particularly useful for users who are not comfortable typing.
-  \item \textbf{Document Upload:} Allowing users to upload their own legal documents (such as contracts or agreements) for the AI to analyse and explain.
-  \item \textbf{Advanced Citation Linking:} Providing clickable links that directly highlight the cited section text within the original PDF document.
-  \item \textbf{Admin Dashboard:} Building an admin panel to monitor usage statistics, manage documents, and view analytics on the most commonly asked legal topics.
-  \item \textbf{Fine-Tuned Embeddings:} Training custom embedding models specifically on Indian legal text to improve retrieval accuracy beyond what general-purpose models can achieve.
+  \item \textbf{Multi-Language Support:} Extending the system to languages like Hindi and other languages so it can be useful for a broad audience.
+  \item \textbf{Case Law Integration:} Adding the judgments of the Supreme Court of India and judgments of high courts to the knowledge base so that our system can use and cite those judgments while giving answers to the users.
+  \item \textbf{Hybrid Search:} using both semantic (vector) search and keyword-based (BM25) search to return better results for searches that contain specific terms or section numbers.
+  \item \textbf{Voice Interface:} adding speech-to-text and text-to-speech technology so that users can ask a question orally, which is beneficial for users who don’t want to type their question into the system.
+  \item \textbf{Document Upload:} enabling users to upload their own documents so that it can be analyzed and answered accordingly.
+  \item \textbf{Advanced Citation Linking:} Chat response provides the link, which is clickable and which directly highlights the cited section text on the original PDF document.
+
+
+  \item \textbf{Admin Dashboard:} The creation of an Administrative Panel for the purpose of tracking usage statistics, managing legal documents, and viewing analytics on the legal topics most frequently asked about by users.
+  \item \textbf{Fine-Tuned Embeddings:} Training custom models specifically on Indian legal text, thus allowing the user to obtain the best legal search results possible.
 \end{itemize}
 
 % ════════════════════════════════════════════════════════════════════════════
 \section{Conclusion}
 
-The Legal Query System demonstrates how modern AI techniques --- specifically Retrieval-Augmented Generation --- can be applied to make complex legal information accessible to ordinary citizens. By combining intelligent document processing, semantic search, and large language model generation, the system provides accurate, well-cited, and easy-to-understand answers to legal questions.
+% The Legal Query System demonstrates how modern AI techniques --- specifically Retrieval-Augmented Generation --- can be applied to make complex legal information accessible to ordinary citizens. By combining intelligent document processing, semantic search, and large language model generation, the system provides accurate, well-cited, and easy-to-understand answers to legal questions.
 
-The carefully designed PDF ingestion pipeline ensures that legal documents are broken into meaningful, well-labelled chunks that preserve the natural structure of Indian legislation. The RAG query pipeline ensures that every answer is grounded in actual source documents, with proper citations and relevance filtering to maintain accuracy and trust.
+The Legal Query System shows that how Retrieval-Augmented Generation (RAG), can help to make complex legal information more accessible to naive users Through the intetgration of intelligent document processing, semantic search and large language models, the Legal Query System provides accurate, well-validated and easily understandable answers to specific legal questions.
 
-With 18 major Indian laws in its knowledge base --- covering everything from constitutional rights and criminal law to cyber law, environmental protection, and motor vehicle regulations --- the system serves as a comprehensive first point of reference for anyone seeking to understand their legal rights and obligations under Indian law.
+The PDF ingestion pipeline has been designed so that each legal document will be given as input to RAG in a meaningful, well-labeled manner and always respects the natural structure of Indian legislation. The RAG query pipeline provides an answer that is based on an actual source document which is official and includes both a citation to that document and relevance filtering, both of which are designed to ensure that users will receive accurate answers to their queries and can therefore trust the answers they receive.
 
-While the system is not a substitute for professional legal counsel, it significantly lowers the barrier to accessing legal knowledge and empowers citizens to make more informed decisions about their legal matters.
+% The carefully designed PDF ingestion pipeline ensures that legal documents are broken into meaningful, well-labelled chunks that preserve the natural structure of Indian legislation. The RAG query pipeline ensures that every answer is grounded in actual source documents, with proper citations and relevance filtering to maintain accuracy and trust.
 
+
+
+We currently have a knowledge base of 18 major laws of India covering such topics as the Constitution, Criminal Law, Cyber Law, Environmental Protection and Motor Vehicle Regulations, this system is the ideal first source of reference for anyone who would like to understand their rights and responsibilities under Indian Law. While this system cannot replace a professional's advice, it provides easy access to legal knowledge and empowers individuals to be more informed when it comes to their own legal issues.
+
+While the system can not replace professional legal counsel, it drastically lowers the barrier to accessing legal knowledge and empowers citizens to make more informed decisions about their legal matters.
 \vspace{2cm}
 % \begin{center}
 % \color{primary!60}\rule{8cm}{0.5pt}\\[6pt]
