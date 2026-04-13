@@ -1,0 +1,615 @@
+\documentclass[12pt,a4paper]{article}
+
+% ─── Packages ───────────────────────────────────────────────────────────────
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm]{geometry}
+\usepackage{fontenc}
+\usepackage{inputenc}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{titlesec}
+\usepackage{titletoc}
+\usepackage{tocloft}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{mdframed}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds, calc}
+\usepackage{lmodern}
+\usepackage{ragged2e}
+\usepackage{emptypage}
+
+% ─── Colours ────────────────────────────────────────────────────────────────
+\definecolor{primary}{HTML}{1A365D}
+\definecolor{primarylight}{HTML}{2B6CB0}
+\definecolor{accent}{HTML}{2C7A7B}
+\definecolor{lightblue}{HTML}{EBF8FF}
+\definecolor{lightgreen}{HTML}{F0FFF4}
+\definecolor{nodeblue}{HTML}{D6EAF8}
+\definecolor{nodeborder}{HTML}{5DADE2}
+
+% ─── Hyperref Setup ─────────────────────────────────────────────────────────
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primary,
+    urlcolor=primarylight,
+    citecolor=accent,
+    pdftitle={Legal Query System --- Project Report},
+    pdfauthor={},
+    pdfsubject={AI-Powered Indian Legal Assistant using RAG},
+    bookmarksnumbered=true,
+    bookmarksopen=true
+}
+
+% ─── Section Title Formatting ─────────────────────────────────────────────
+\titleformat{\section}[block]
+  {\normalfont\Large\bfseries\color{primary}}
+  {\thesection.}{0.8em}{}
+  [\vspace{2pt}\color{primary}\rule{\linewidth}{1.5pt}]
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{primarylight}}
+  {\thesubsection}{0.8em}{}
+
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{accent}}
+  {\thesubsubsection}{0.8em}{}
+
+\titlespacing*{\section}{0pt}{10pt}{16pt}
+\titlespacing*{\subsection}{0pt}{14pt}{6pt}
+\titlespacing*{\subsubsection}{0pt}{10pt}{4pt}
+
+% ─── Table of Contents Styling ──────────────────────────────────────────────
+\renewcommand{\cftsecfont}{\bfseries\color{primary}}
+\renewcommand{\cftsecpagefont}{\bfseries\color{primary}}
+\renewcommand{\cftsubsecfont}{\color{primarylight}}
+\renewcommand{\cftsubsubsecfont}{\small\color{accent}}
+\setlength{\cftbeforesecskip}{8pt}
+
+% ─── Info / Highlight Boxes ─────────────────────────────────────────────────
+\newmdenv[
+  backgroundcolor=lightblue,
+  linecolor=primarylight,
+  linewidth=3pt,
+  leftline=true, rightline=false, topline=false, bottomline=false,
+  innerleftmargin=12pt,
+  innerrightmargin=10pt,
+  innertopmargin=8pt,
+  innerbottommargin=8pt,
+  skipabove=10pt,
+  skipbelow=10pt
+]{infobox}
+
+\newmdenv[
+  backgroundcolor=lightgreen,
+  linecolor=accent,
+  linewidth=3pt,
+  leftline=true, rightline=false, topline=false, bottomline=false,
+  innerleftmargin=12pt,
+  innerrightmargin=10pt,
+  innertopmargin=8pt,
+  innerbottommargin=8pt,
+  skipabove=10pt,
+  skipbelow=10pt
+]{highlightbox}
+
+% ─── TikZ Styles for Flowchart ──────────────────────────────────────────────
+\tikzset{
+  flownode/.style={
+    rectangle, rounded corners=4pt,
+    minimum width=2.2cm, minimum height=0.75cm,
+    text centered, text width=2cm,
+    draw=nodeborder, fill=nodeblue,
+    font=\small\bfseries, line width=0.8pt
+  },
+  dbnode/.style={
+    cylinder, shape border rotate=90,
+    aspect=0.3,
+    minimum width=2cm, minimum height=1cm,
+    text centered, text width=1.8cm,
+    draw=nodeborder, fill=nodeblue,
+    font=\small\bfseries, line width=0.8pt
+  },
+  arrow/.style={
+    -Stealth, line width=0.9pt, color=primary
+  },
+  dasharrow/.style={
+    -Stealth, dashed, line width=0.8pt, color=accent
+  },
+  phaselabel/.style={
+    font=\small\itshape\color{primary!70},
+    inner sep=2pt
+  }
+}
+
+% ─── Misc ───────────────────────────────────────────────────────────────────
+\setlist[itemize]{leftmargin=1.5em, itemsep=2pt, topsep=4pt}
+\setlist[enumerate]{leftmargin=1.5em, itemsep=2pt, topsep=4pt}
+\captionsetup{font=small, labelfont={bf,color=primary}, textfont=it}
+
+% ════════════════════════════════════════════════════════════════════════════
+\begin{document}
+
+% ─── Cover Page (Academic Style) ─────────────────────────────────────────────
+\begin{titlepage}
+  \centering
+  \vspace*{1cm}
+
+  % Institute Logo
+  \includegraphics[width=3cm]{logo.png}\\[0.6cm]
+
+  % Title block
+  {\fontsize{28}{34}\selectfont\bfseries\color{primary} Legal Query System}\\[0.4cm]
+  {\large\color{primarylight}\bfseries using Retrieval-Augmented Generation}\\[0.3cm]
+  {\normalsize\itshape\color{black} An AI-Powered Indian Legal Assistant}
+  \vspace{0.8cm}
+
+  \noindent\color{primary}\rule{\linewidth}{1.5pt}
+  \vspace{0.8cm}
+
+ {\large\bfseries A report submitted by}\\[0.6cm]
+  {\large\bfseries\color{primary} Sujal Kumar}\\[0.1cm]
+  {\normalsize 2023UGCS076}\\[0.4cm]
+  {\large\bfseries\color{primary} Tanishq Gupta}\\[0.1cm]
+  {\normalsize 2023UGCS074}\\[0.4cm]
+  {\large\bfseries\color{primary} Saurabh Shekhar}\\[0.1cm]
+  {\normalsize 2023UGCS040}\\[0.4cm]
+  {\large\bfseries\color{primary} Sujal Bhatu}\\[0.1cm]
+  {\normalsize 2023UGCS0119}\\[0.6cm]   % <-- this was the missing line break
+
+  {\normalsize\itshape under the supervision of}\\[0.4cm]
+  {\large\bfseries\color{primary} Dr.\ Koushlendra Kumar Singh}\\[0.2cm]
+  {\normalsize Assistant Professor}
+
+  % \vfill
+  % \noindent\color{primary}\rule{\linewidth}{1.5pt}
+  % \vspace{0.6cm}
+
+  {\normalsize
+    Dept.\ of Computer Science and Engineering\\[0.2cm]
+    National Institute of Technology Jamshedpur\\[0.2cm]
+    Jamshedpur -- 831014, India\\[0.4cm]
+    % \textbf{April 2026}
+  }
+\end{titlepage}
+
+\color{black}
+
+% ─── Table of Contents ──────────────────────────────────────────────────────
+\tableofcontents
+\thispagestyle{empty}
+\clearpage
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Introduction}
+
+\subsection{Problem Statement}
+
+India has one of the most extensive and complex legal frameworks in the world. With hundreds of laws, thousands of sections, and constantly evolving amendments, it is extremely difficult for ordinary citizens to understand their legal rights and obligations. When a person faces a legal issue --- whether it is related to property, marriage, criminal matters, consumer rights, or digital privacy --- they often have no easy way to get a quick, reliable answer without consulting an expensive lawyer.
+
+Existing legal information sources such as government websites, bare act PDFs, and legal databases are written in formal legal language that is hard to understand for someone without a law background. There is a clear gap: \textbf{common people need a simple, accessible, and intelligent tool that can read through these complex legal documents and answer their questions in plain, everyday language.}
+
+\subsection{Proposed Solution}
+
+The \textbf{Legal Query System} is a web-based AI assistant designed to bridge this gap. It allows users to ask legal questions in simple, natural language (for example, \textit{``What happens if someone breaks a contract?''} or \textit{``What are my rights if I am arrested?''}) and receive clear, well-explained answers that include proper legal citations --- the exact Act name, Section number, and relevant clause text.
+
+The system is built using a modern AI technique called \textbf{Retrieval-Augmented Generation (RAG)}, which ensures that every answer is grounded in actual legal documents rather than being made up by the AI. This makes the system both accurate and trustworthy.
+
+\subsection{What is RAG (Retrieval-Augmented Generation)?}
+
+RAG is a technique that combines two powerful ideas to make AI systems more reliable:
+
+\begin{enumerate}
+  \item \textbf{Retrieval} --- Before answering a question, the system first searches through a knowledge base (in our case, Indian legal documents) and retrieves the most relevant sections that relate to the user's question.
+  \item \textbf{Generation} --- The retrieved sections are then given to a Large Language Model (LLM) as context, and the LLM uses this context to generate a well-written, accurate answer.
+\end{enumerate}
+
+The key advantage of RAG over a plain AI chatbot is that \textbf{the AI does not rely on its own memory to answer legal questions}. Instead, it always refers back to the actual source documents. This dramatically reduces the chances of the AI ``hallucinating'' or making up incorrect information --- a critical requirement when dealing with legal matters.
+
+\begin{infobox}
+\textbf{In simple terms:} Think of RAG like a very smart research assistant. When you ask a question, it first goes to the library (our legal database), finds the most relevant books and pages, reads them, and then explains the answer to you in simple words --- while also telling you exactly which book and page the information came from.
+\end{infobox}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{PDF Ingestion Pipeline}
+
+Before the system can answer any legal queries, it must first process and understand all the legal documents. This is done through the \textbf{PDF Ingestion Pipeline} --- a series of steps that takes raw legal PDF files and converts them into a searchable, AI-ready database. The pipeline runs once (or whenever new documents are added) and prepares the knowledge base for the RAG system.
+
+\subsection{Text Extraction}
+
+The first step is extracting readable text from the PDF files. Legal documents in India are typically published as PDF files by the government. These PDFs contain formatted text with headers, footers, page numbers, and sometimes multi-column layouts.
+
+Our system uses \textbf{PyPDF2}, a Python library, to open each PDF file and extract text from every page. The extracted text is saved as a plain text file for further processing. During extraction, the system also adds page markers (such as ``PAGE 1'', ``PAGE 2'') to keep track of which content came from which page.
+
+\begin{infobox}
+\textbf{What happens here:} A PDF file like \textit{indian\_contract\_act\_1872.pdf} goes in, and a clean text file \textit{indian\_contract\_act\_1872.txt} comes out, containing all the text from every page of the PDF.
+\end{infobox}
+
+\subsection{Metadata Detection}
+
+Legal documents need proper identification --- the system must know which Act a piece of text belongs to, and what year it was enacted. Rather than manually entering this information for each document, our system \textbf{automatically detects metadata from the filename} of each PDF.
+
+The filename is parsed using a smart algorithm:
+\begin{itemize}
+  \item Underscores in the filename are replaced with spaces (e.g., \textit{indian\_contract\_act} becomes \textit{Indian Contract Act}).
+  \item A trailing four-digit number is recognised as the year (e.g., \textit{1872}).
+  \item The remaining part is title-cased to create a clean, readable Act name.
+  \item For special cases (like the Aadhaar Act or the Constitution), a manual mapping is used to get the exact correct name.
+\end{itemize}
+
+This metadata (Act name and year) is attached to every chunk of text extracted from that document, ensuring that when the AI cites a source, it can provide the exact name like \textit{``Indian Contract Act, 1872, Section 73''} instead of just a filename.
+
+\subsection{Legal Text Chunking}
+
+This is one of the most important and carefully designed parts of the pipeline. Legal documents are very long --- sometimes hundreds of pages. An AI model cannot process an entire document at once, so we need to break it into smaller, meaningful pieces called \textbf{``chunks.''} However, the way we chunk the text matters a lot --- we cannot just split it arbitrarily, or we would lose the meaning of legal sections.
+
+\subsubsection{Document-Based Chunking Strategy}
+
+Our chunking strategy is specifically designed for the structure of Indian legal documents. Indian Acts and laws follow a well-defined hierarchy:
+
+\begin{highlightbox}
+\textbf{Typical structure of an Indian legal document:} \textbf{Act Name} $\rightarrow$ multiple \textbf{Chapters} (e.g., Chapter I, Chapter II\ldots) $\rightarrow$ each Chapter contains multiple \textbf{Sections} (e.g., Section 1, Section 2\ldots) $\rightarrow$ each Section contains the actual legal text, definitions, provisions, and clauses.
+\end{highlightbox}
+
+Our system exploits this natural structure to create intelligent chunks through the following steps:
+
+\begin{enumerate}
+  \item \textbf{Raw Text Cleaning:} Before chunking, the extracted text is cleaned up. PDF artifacts like gazette headers, page markers, excessive whitespace, and formatting noise are removed.
+  \item \textbf{Section-Based Splitting:} The system uses pattern-matching to identify section boundaries. It looks for patterns like ``1. Short title and commencement'' or ``33A. Penalty for fraud'' --- a number (optionally followed by a letter), a period, and then the section title.
+  \item \textbf{Chapter Tracking:} As the system reads through the text, it also watches for chapter headers (like ``CHAPTER IV --- OF THE PERFORMANCE OF CONTRACTS''). Whenever it finds a chapter header, it updates the current chapter label.
+  \item \textbf{Preamble Handling:} Any text that appears before the first section (such as the preamble, definitions, or introductory statements) is captured as a separate ``Preamble'' chunk.
+  \item \textbf{Large Section Splitting:} If a section exceeds 3,000 characters, the system further splits it at sentence boundaries, looking for full stops or semicolons within a 1,500-character window.
+  \item \textbf{Fallback for Non-Standard Documents:} If a document does not follow standard section numbering, the system falls back to pure sentence-boundary splitting, creating sequential parts labelled ``Part 1'', ``Part 2'', etc.
+  \item \textbf{Short Section Filtering:} Very short text fragments (less than 70 characters) are automatically skipped, as these are typically table-of-contents entries or formatting artifacts.
+\end{enumerate}
+
+Each chunk is stored as a structured record containing both the text content and its associated metadata --- the Act name, year, source filename, chapter, section number, and section title.
+
+\begin{infobox}
+\textbf{Example Chunk:} \textbf{Act:} Indian Contract Act, 1872 \quad\textbf{Chapter:} VI --- Of the Consequences of Breach of Contract \quad \textbf{Section:} 73 --- Compensation for loss or damage caused by breach \quad \textbf{Text:} ``When a contract has been broken, the party who suffers by such breach is entitled to receive, as compensation\ldots''
+\end{infobox}
+
+\subsection{Vector Store Construction}
+
+Once all the legal documents have been extracted, cleaned, and chunked, the next step is to make them searchable by meaning rather than by keywords. This is done by converting each text chunk into a \textbf{vector embedding} --- a list of numbers that represents the meaning of the text --- and storing them in a \textbf{vector database}.
+
+Our system uses the following components:
+
+\begin{itemize}
+  \item \textbf{Sentence Transformers (all-MiniLM-L6-v2):} This pre-trained AI model converts any text into a 384-dimensional vector. Texts with similar meanings will have vectors that are close to each other in mathematical space.
+  \item \textbf{ChromaDB:} A vector database that stores all the embeddings and their associated metadata. It is optimised for fast similarity searches using \textbf{cosine similarity} as the distance metric.
+\end{itemize}
+
+All chunks are embedded in batches of 32 (for efficiency) and then added to ChromaDB in batches of 100. The resulting vector database is persisted to disk so that it does not need to be rebuilt every time the system starts --- it is a one-time computation.
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{RAG Query Pipeline}
+
+When a user asks a legal question, the system processes it through the \textbf{RAG Query Pipeline}. This pipeline takes the user's question, finds the most relevant legal content from the vector database, gives that content to an AI model for reasoning, and returns a well-structured, cited answer.
+
+\subsection{Semantic Retrieval}
+
+The first step in answering a query is finding the most relevant chunks from the legal database. This is called \textbf{semantic retrieval} because it searches by meaning, not just by keywords.
+
+When a user types a question (for example, \textit{``What is the punishment for theft?''}), the system:
+\begin{enumerate}
+  \item Converts the question into a vector embedding using the same Sentence Transformer model used during ingestion.
+  \item Searches the ChromaDB vector store for the \textbf{top 6 most similar chunks} (top-k retrieval). The similarity is calculated using cosine distance.
+  \item Returns these 6 chunks along with their metadata (Act name, section, chapter) and their similarity scores.
+\end{enumerate}
+
+The reason we retrieve 6 chunks is to give the AI model enough context to form a comprehensive answer. A legal question might span multiple sections or even multiple Acts.
+
+\subsection{Context Formatting}
+
+The retrieved chunks cannot be passed to the AI model as raw text --- they need to be organised and labelled properly. For each retrieved chunk, the system creates a header that includes:
+\begin{itemize}
+  \item The \textbf{Act name} (e.g., ``Bharatiya Nyaya Sanhita, 2023'')
+  \item The \textbf{Section number and title} (e.g., ``Section 303 --- Theft'')
+  \item The \textbf{Chapter} (e.g., ``CHAPTER XVII --- Of Offences Against Property'')
+  \item The \textbf{Relevance score} (e.g., ``Relevance: 89.34\%'')
+\end{itemize}
+
+All chunks are then joined together with separators, creating a single, well-formatted block of text that the AI model can read and reference.
+
+\subsection{LLM Generation}
+
+The core intelligence of the system comes from the \textbf{Large Language Model (LLM)}. Our system uses \textbf{Google Gemini 2.0 Flash}, accessed through the \textbf{Vertex AI} platform. This model reads the formatted context and the user's question, and generates a natural, human-readable answer.
+
+The LLM is guided by a carefully crafted \textbf{system prompt} that instructs it to:
+\begin{itemize}
+  \item First explain the answer in very simple, everyday language.
+  \item Then provide the formal legal explanation with proper citations (Act name, Section number, and exact clause text).
+  \item Never make up information --- if the provided context does not contain the answer, it should honestly say so.
+  \item For casual conversations (like greetings), respond naturally without legal jargon.
+  \item Always include a legal disclaimer at the end of substantive legal answers.
+\end{itemize}
+
+The model also supports \textbf{multi-turn conversations} --- it remembers the last 6 messages from the conversation history, allowing users to ask follow-up questions. The model's \textbf{temperature is set to 0.2} (a low value), which makes the responses more focused and deterministic --- important for legal accuracy.
+
+\subsection{Source Filtering}
+
+Not all retrieved chunks are equally relevant. To handle this, the system applies a \textbf{relevance threshold}. Any source with a similarity score below \textbf{0.45 (45\%)} is filtered out and not shown to the user as a citation. This ensures that:
+\begin{itemize}
+  \item When a user asks a genuine legal question, only the truly relevant sources are displayed.
+  \item When a user is just having a casual conversation (like saying ``hello''), no irrelevant legal citations are shown.
+\end{itemize}
+
+\subsection{Response Construction}
+
+The final step is assembling the complete response that is sent back to the user. The response contains two parts:
+\begin{enumerate}
+  \item \textbf{The Answer:} The natural-language explanation generated by the LLM, which includes the simple explanation, the legal reasoning, and the citations woven naturally into the text.
+  \item \textbf{The Source Citations:} A list of the filtered, relevant source documents, each containing the Act name, Section, Chapter, year, a cleaned excerpt of the source text, and the similarity score.
+\end{enumerate}
+
+This dual-response design allows the user interface to display the answer prominently while also providing expandable source citations that users can verify --- much like how a legal brief includes footnotes.
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{RAG Pipeline Flowchart}
+
+The following diagram provides a visual overview of the complete RAG pipeline --- from document ingestion to query answering.
+
+% ─── TikZ Flowchart ─────────────────────────────────────────────────────────
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0.5cm and 0.6cm]
+
+  % ── Offline Phase: Top Row ─────────────────────────────────────────────
+  \node[flownode] (pdf)    {PDF Files\\(Legal Acts)};
+  \node[flownode, right=of pdf]    (extract) {Text\\Extraction};
+  \node[flownode, right=of extract] (chunk)   {Legal\\Chunking};
+  \node[flownode, right=of chunk]  (embed)   {Sentence\\Embedding};
+  \node[dbnode,   right=of embed]  (chroma)  {ChromaDB\\Vector\\Store};
+
+  % arrows — offline
+  \draw[arrow] (pdf)     -- (extract);
+  \draw[arrow] (extract) -- (chunk);
+  \draw[arrow] (chunk)   -- (embed);
+  \draw[arrow] (embed)   -- (chroma);
+
+  % phase label — offline
+  \node[phaselabel, above=0.35cm of chunk] (offlabel) {--- \textit{Offline Ingestion Phase} ---};
+
+  % bounding box — offline
+  \begin{scope}[on background layer]
+    \node[draw=primary!30, dashed, rounded corners=6pt, fill=primary!4,
+          fit=(pdf)(extract)(chunk)(embed)(chroma)(offlabel),
+          inner sep=8pt] (offbox) {};
+  \end{scope}
+
+  % ── Online Phase: Bottom Row ───────────────────────────────────────────
+  \node[flownode, below=1.6cm of pdf]     (query)   {User\\Query};
+  \node[flownode, right=of query]         (qembed)  {Query\\Embedding};
+  \node[flownode, right=of qembed]        (topk)    {Top-k\\Retrieval};
+  \node[flownode, right=of topk]          (ctxfmt)  {Context\\Formatting};
+  \node[flownode, right=of ctxfmt]        (llm)     {Gemini\\2.0 Flash\\(LLM)};
+  \node[flownode, right=of llm]           (resp)    {Response +\\Citations};
+
+  % arrows — online
+  \draw[arrow] (query)  -- (qembed);
+  \draw[arrow] (qembed) -- (topk);
+  \draw[arrow] (topk)   -- (ctxfmt);
+  \draw[arrow] (ctxfmt) -- (llm);
+  \draw[arrow] (llm)    -- (resp);
+
+  % phase label — online
+  \node[phaselabel, above=0.35cm of topk] (onlabel) {--- \textit{Online Query Phase} ---};
+
+  % bounding box — online
+  \begin{scope}[on background layer]
+    \node[draw=accent!40, dashed, rounded corners=6pt, fill=accent!4,
+          fit=(query)(qembed)(topk)(ctxfmt)(llm)(resp)(onlabel),
+          inner sep=8pt] (onbox) {};
+  \end{scope}
+
+  % ── Cross-phase dashed link (ChromaDB → Top-k) ────────────────────────
+  \draw[dasharrow] (chroma.south) -- ++(0,-0.45) -| (topk.north);
+
+\end{tikzpicture}
+\caption{Complete RAG Pipeline --- PDF Ingestion (top) and Query Processing (bottom).}
+\label{fig:rag-flowchart}
+\end{figure}
+
+As shown in Figure~\ref{fig:rag-flowchart}, the system operates in two distinct phases:
+
+\begin{itemize}
+  \item \textbf{Offline Phase (PDF Ingestion):} This runs once (or when new documents are added). It processes all legal PDFs through text extraction, metadata detection, legal chunking, and vector store construction. The result is a ready-to-search vector database stored on disk.
+  \item \textbf{Online Phase (Query Processing):} This runs every time a user asks a question. The query flows through semantic retrieval, context formatting, LLM generation, source filtering, and response construction --- returning a cited answer in seconds.
+\end{itemize}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{System Architecture}
+
+The Legal Query System follows a \textbf{three-tier architecture} with clearly separated responsibilities.
+
+\subsection{Backend Architecture}
+
+The backend consists of two servers running simultaneously:
+
+\begin{enumerate}
+  \item \textbf{RAG API Server (Python / Flask --- Port 5000):} This server hosts the RAG pipeline. It exposes a \texttt{/api/query} endpoint that accepts a user's question and returns the AI-generated answer with citations. It also provides an \texttt{/api/ingest} endpoint to trigger re-ingestion of PDFs, and a \texttt{/api/health} endpoint for health checks. The RAG pipeline is loaded as a singleton (created once, reused for all requests) to avoid the overhead of loading models repeatedly.
+
+  \item \textbf{Application Server (Node.js / Express --- Port 3001):} This server handles user authentication, session management, and acts as a gateway to the RAG API. It connects to a \textbf{MongoDB} database to store user accounts and chat sessions. When a user sends a query through the frontend, this server authenticates the user, forwards the query to the RAG API, receives the response, saves the conversation in the database, and sends the result back to the frontend.
+\end{enumerate}
+
+\subsection{Frontend Architecture}
+
+The frontend is built with \textbf{React.js} (using the Vite build tool for fast development) and provides four main pages:
+
+\begin{itemize}
+  \item \textbf{Login Page:} Allows existing users to sign in with their email and password.
+  \item \textbf{Signup Page:} Allows new users to create an account with their name, email, and password.
+  \item \textbf{Dashboard:} Displays all of the user's chat sessions, sorted by most recent. Users can create new sessions, view old ones, mark queries as solved, or delete sessions.
+  \item \textbf{Chat Page:} The main interaction page where users type their legal questions and receive AI-generated answers with expandable source citations. The chat interface supports multi-turn conversations and displays a legal disclaimer with each response.
+\end{itemize}
+
+\subsection{Authentication \& Session Management}
+
+The system implements secure user authentication using:
+
+\begin{itemize}
+  \item \textbf{JWT (JSON Web Tokens):} After a user logs in, the server issues a signed token that the frontend stores locally. This token is sent with every subsequent request to verify the user's identity.
+  \item \textbf{bcrypt Password Hashing:} User passwords are never stored in plain text. They are hashed using bcrypt with a salt factor of 12, making them virtually impossible to reverse-engineer.
+  \item \textbf{Chat Sessions:} Each user's conversations are stored as separate sessions in MongoDB, with full message history and source citations. Users can return to previous sessions to review past legal queries and answers.
+\end{itemize}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Knowledge Base \& Legal Documents}
+
+The system's knowledge base contains \textbf{18 major Indian legal documents} covering a wide range of legal topics, as listed in Table~\ref{tab:knowledge-base}.
+
+\begin{longtable}{clp{4.5cm}}
+  \toprule
+  \textbf{\#} & \textbf{Document Name} & \textbf{Category} \\
+  \midrule
+  \endfirsthead
+  \toprule
+  \textbf{\#} & \textbf{Document Name} & \textbf{Category} \\
+  \midrule
+  \endhead
+  \bottomrule
+  \endfoot
+  1  & Constitution of India, 2024                                  & Constitutional Law \\
+  2  & Bharatiya Nyaya Sanhita, 2023                                & Criminal Law \\
+  3  & Bharatiya Nagarik Suraksha Sanhita, 2023                     & Criminal Procedure \\
+  4  & Bharatiya Sakshya Adhiniyam, 2023                            & Law of Evidence \\
+  5  & Indian Contract Act, 1872                                    & Civil Law \\
+  6  & Code of Civil Procedure, 1908                                & Civil Procedure \\
+  7  & Transfer of Property Act, 1882                               & Property Law \\
+  8  & Specific Relief Act, 1963                                    & Civil Law \\
+  9  & Hindu Marriage Act, 1955                                     & Family Law \\
+  10 & Special Marriage Act, 1954                                   & Family Law \\
+  11 & Protection of Women from Domestic Violence Act, 2005         & Family Law \\
+  12 & POCSO Act, 2012                                              & Child Protection \\
+  13 & Information Technology Act, 2000                             & Cyber \& Digital Law \\
+  14 & Aadhaar Act, 2016                                            & Identity \& Government Services \\
+  15 & Central Goods and Services Tax Act, 2017                     & Tax Law \\
+  16 & Environment Protection Act, 1986                             & Environmental Law \\
+  17 & Motor Vehicles Act, 1988                                     & Motor Vehicle Regulation \\
+  18 & Right to Information Act, 2005                               & Transparency \& Governance \\
+  \bottomrule
+  \caption{Knowledge base --- Indian legal documents included in the system.}
+  \label{tab:knowledge-base}
+\end{longtable}
+
+This diverse collection ensures that the system can answer questions across constitutional rights, criminal law, civil procedures, family matters, child protection, cyber law, tax, environmental issues, traffic regulations, and government transparency.
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Technology Stack}
+
+Table~\ref{tab:tech-stack} summarises the complete technology stack used to build the Legal Query System.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{>{\bfseries}p{3.5cm} p{5cm} p{5cm}}
+\toprule
+\textbf{Component} & \textbf{Technology} & \textbf{Purpose} \\
+\midrule
+Frontend            & React.js (Vite)                       & User interface with chat and dashboard \\
+Application Server  & Node.js / Express.js                  & Authentication, session management, API gateway \\
+RAG API Server      & Python / Flask                        & RAG pipeline --- retrieval and AI generation \\
+Database            & MongoDB                               & User accounts and chat session storage \\
+Vector Database     & ChromaDB                              & Storing and searching text embeddings \\
+Embedding Model     & Sentence Transformers (all-MiniLM-L6-v2) & Converting text to vector representations \\
+LLM                 & Google Gemini 2.0 Flash (Vertex AI)   & Generating natural-language legal answers \\
+PDF Processing      & PyPDF2                                & Extracting text from legal PDF documents \\
+Authentication      & JWT + bcrypt                          & Secure user login and password hashing \\
+HTTP Client         & Axios                                 & Frontend-to-backend and backend-to-RAG communication \\
+\bottomrule
+\end{tabular}
+\caption{Technology stack of the Legal Query System.}
+\label{tab:tech-stack}
+\end{table}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Key Features}
+
+\begin{enumerate}
+  \item \textbf{Natural Language Understanding:} Users can ask questions in plain English without knowing specific legal terminology. The semantic search finds relevant sections regardless of the exact wording used.
+  \item \textbf{Accurate Legal Citations:} Every answer includes properly cited references --- the Act name, Section number, Chapter, and relevant excerpt --- so users can verify the information independently.
+  \item \textbf{Multi-Turn Conversations:} The system remembers the context of the ongoing conversation (up to the last 6 messages), allowing users to ask follow-up questions naturally.
+  \item \textbf{Smart Response Behaviour:} The system distinguishes between casual greetings and actual legal questions. For greetings, it responds naturally. For legal questions, it provides structured, cited answers.
+  \item \textbf{Source Transparency:} Every response comes with expandable source citations that show the relevant text excerpts, similarity scores, and exact legal references.
+  \item \textbf{Session Management:} Users can create, revisit, and manage multiple query sessions --- useful for tracking different legal issues over time.
+  \item \textbf{Secure Authentication:} Protected user accounts with hashed passwords and JWT-based authentication ensure data privacy.
+  \item \textbf{Relevance Filtering:} A 45\% similarity threshold automatically filters out irrelevant sources, preventing noise in the citations.
+  \item \textbf{Legal Disclaimer:} Every substantive legal answer includes a disclaimer advising users to consult a qualified professional, ensuring responsible use.
+\end{enumerate}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Challenges \& Solutions}
+
+Table~\ref{tab:challenges} summarises the key technical challenges encountered during development and the solutions implemented to address them.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{6.5cm} p{7cm}}
+\toprule
+\textbf{Challenge} & \textbf{Solution} \\
+\midrule
+PDF text extraction produces noisy output with headers, footers, and formatting artifacts &
+Implemented a dedicated text cleaning step that removes gazette headers, page markers, and excessive whitespace using regular expressions \\
+\addlinespace
+Fixed-size text chunking breaks legal sections in the middle, losing meaning &
+Designed section-aware chunking that splits by legal section boundaries and only sub-splits large sections at sentence boundaries \\
+\addlinespace
+Some documents do not follow standard section numbering &
+Implemented a fallback strategy that splits by sentence boundaries and creates sequential parts \\
+\addlinespace
+Identifying Act names and years reliably from diverse filenames &
+Combined filename parsing (underscore removal, year extraction, title-casing) with a manual override map for special cases \\
+\addlinespace
+AI model generating citations for casual greetings &
+Added similarity-based source filtering (threshold 0.45) and explicit system prompt rules for casual conversation handling \\
+\addlinespace
+Long response times due to model loading &
+Used a singleton pattern to load the pipeline once and reuse it for all requests \\
+\bottomrule
+\end{tabular}
+\caption{Key development challenges and corresponding solutions.}
+\label{tab:challenges}
+\end{table}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Future Scope}
+
+\begin{itemize}
+  \item \textbf{Multi-Language Support:} Extending the system to accept queries and generate answers in Hindi and other regional Indian languages to serve a wider audience.
+  \item \textbf{Case Law Integration:} Adding Supreme Court and High Court judgments to the knowledge base, enabling the system to cite relevant case precedents along with bare Act text.
+  \item \textbf{Hybrid Search:} Combining semantic (vector) search with keyword-based (BM25) search for improved retrieval accuracy, especially for queries containing specific legal terms or section numbers.
+  \item \textbf{Voice Interface:} Adding speech-to-text and text-to-speech capabilities so that users can ask legal questions verbally --- particularly useful for users who are not comfortable typing.
+  \item \textbf{Document Upload:} Allowing users to upload their own legal documents (such as contracts or agreements) for the AI to analyse and explain.
+  \item \textbf{Advanced Citation Linking:} Providing clickable links that directly highlight the cited section text within the original PDF document.
+  \item \textbf{Admin Dashboard:} Building an admin panel to monitor usage statistics, manage documents, and view analytics on the most commonly asked legal topics.
+  \item \textbf{Fine-Tuned Embeddings:} Training custom embedding models specifically on Indian legal text to improve retrieval accuracy beyond what general-purpose models can achieve.
+\end{itemize}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Conclusion}
+
+The Legal Query System demonstrates how modern AI techniques --- specifically Retrieval-Augmented Generation --- can be applied to make complex legal information accessible to ordinary citizens. By combining intelligent document processing, semantic search, and large language model generation, the system provides accurate, well-cited, and easy-to-understand answers to legal questions.
+
+The carefully designed PDF ingestion pipeline ensures that legal documents are broken into meaningful, well-labelled chunks that preserve the natural structure of Indian legislation. The RAG query pipeline ensures that every answer is grounded in actual source documents, with proper citations and relevance filtering to maintain accuracy and trust.
+
+With 18 major Indian laws in its knowledge base --- covering everything from constitutional rights and criminal law to cyber law, environmental protection, and motor vehicle regulations --- the system serves as a comprehensive first point of reference for anyone seeking to understand their legal rights and obligations under Indian law.
+
+While the system is not a substitute for professional legal counsel, it significantly lowers the barrier to accessing legal knowledge and empowers citizens to make more informed decisions about their legal matters.
+
+\vspace{2cm}
+% \begin{center}
+% \color{primary!60}\rule{8cm}{0.5pt}\\[6pt]
+% {\small\itshape Legal Query System --- Project Report \quad|\quad April 2026}\\
+% {\small\itshape This report was prepared as part of the final project submission.}
+% \end{center}
+
+\end{document}
