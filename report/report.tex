@@ -283,39 +283,52 @@ Each chunk is stored as a structured record containing both the text content and
 \end{infobox}
 
 \subsection{Vector Store Construction}
+The last stage of processing the legal documents is to create a searchable collection of these documents based on their meaning rather than just keywords, and this is done by converting each chunk of text into a \textbf{vector embedding}, which is an array of numeric values representing the semantic meaning of the original text. The embeddings for the law documents will be stored in a \textbf{vector database}.
 
-Once all the legal documents have been extracted, cleaned, and chunked, the next step is to make them searchable by meaning rather than by keywords. This is done by converting each text chunk into a \textbf{vector embedding} --- a list of numbers that represents the meaning of the text --- and storing them in a \textbf{vector database}.
+
+
+
+
+% Once all the legal documents have been extracted, cleaned, and chunked, the next step is to make them searchable by meaning rather than by keywords. This is done by converting each text chunk into a \textbf{vector embedding} --- a list of numbers that represents the meaning of the text --- and storing them in a \textbf{vector database}.
 
 Our system uses the following components:
 
 \begin{itemize}
-  \item \textbf{Sentence Transformers (all-MiniLM-L6-v2):} This pre-trained AI model converts any text into a 384-dimensional vector. Texts with similar meanings will have vectors that are close to each other in mathematical space.
-  \item \textbf{ChromaDB:} A vector database that stores all the embeddings and their associated metadata. It is optimised for fast similarity searches using \textbf{cosine similarity} as the distance metric.
+  \item \textbf{Sentence Transformers (all-MiniLM-L6-v2):} An AI model that was pre-trained and which can encode any piece of text into a 384-dimensional vector. Texts which are similar meanings will have close mathematical value.
+  \item \textbf{ChromaDB:} A vector database that stores all of the embeddings and related metadata. ChromaDB has been optimised for rapid similarity searches using cosine similarity as the method of calculating distance.
+  
+  
+  % A vector database that stores all the embeddings and their associated metadata. It is optimised for fast similarity searches using \textbf{cosine similarity} as the distance metric.
 \end{itemize}
 
-All chunks are embedded in batches of 32 (for efficiency) and then added to ChromaDB in batches of 100. The resulting vector database is persisted to disk so that it does not need to be rebuilt every time the system starts --- it is a one-time computation.
+Each of the chunks will be embedded in batches of 32 to improve efficiency and then stored in ChromaDB in batches of 100. A persistent copy of the resulting vector database will be saved to disk, so it will only need to be computed once when the database is created. Afterwards, the vector database will be ready for use without having to be rebuilt every time the application is started.
 
 % ════════════════════════════════════════════════════════════════════════════
 \section{RAG Query Pipeline}
 
-When a user asks a legal question, the system processes it through the \textbf{RAG Query Pipeline}. This pipeline takes the user's question, finds the most relevant legal content from the vector database, gives that content to an AI model for reasoning, and returns a well-structured, cited answer.
+When a user inquires about a legal matter, the legal question is processed through the RAG Query Pipeline, which finds the most similar legal content in the vector database based on the cosine similarity and provides the AI model with this content, from which reasoning is performed and an appropriately cited and structured response is returned to the user.
+
 
 \subsection{Semantic Retrieval}
 
-The first step in answering a query is finding the most relevant chunks from the legal database. This is called \textbf{semantic retrieval} because it searches by meaning, not just by keywords.
+
+The process of answering a legal question involves first locating the most relevant pieces of the legal database. The practice of locating relevant pieces within the legal database is known as \textbf{semantic retrieval}. Semantic retrieval is a form of retrieval that queries to locate results that are semantically related to the user query, rather than using just words.
+
+
 
 When a user types a question (for example, \textit{``What is the punishment for theft?''}), the system:
 \begin{enumerate}
-  \item Converts the question into a vector embedding using the same Sentence Transformer model used during ingestion.
-  \item Searches the ChromaDB vector store for the \textbf{top 6 most similar chunks} (top-k retrieval). The similarity is calculated using cosine distance.
+  \item The user's question is then converted from natural language to a vector embedding by the same Sentence Transformer model which was used during ingestion.
+
+  \item The top 6 most similar chunks (top-k nearest neighbor rate) based on semantic similarity are returned, with similarity calculated using cosine distance through the ChromaDB vector store.
   \item Returns these 6 chunks along with their metadata (Act name, section, chapter) and their similarity scores.
 \end{enumerate}
 
-The reason we retrieve 6 chunks is to give the AI model enough context to form a comprehensive answer. A legal question might span multiple sections or even multiple Acts.
+The AI model uses this 6 piece collection of content to provide adequate context for an accurate answer to the user's question, as a legal question can refer to multiple act sections or multiple acts. 
 
 \subsection{Context Formatting}
 
-The retrieved chunks cannot be passed to the AI model as raw text --- they need to be organised and labelled properly. For each retrieved chunk, the system creates a header that includes:
+The AI model cannot use the retrieved chunks just as a singular string of text but it   must first properly organize the data from the 6 pieces into key sections containing labelled headings.
 \begin{itemize}
   \item The \textbf{Act name} (e.g., ``Bharatiya Nyaya Sanhita, 2023'')
   \item The \textbf{Section number and title} (e.g., ``Section 303 --- Theft'')
@@ -323,41 +336,42 @@ The retrieved chunks cannot be passed to the AI model as raw text --- they need 
   \item The \textbf{Relevance score} (e.g., ``Relevance: 89.34\%'')
 \end{itemize}
 
-All chunks are then joined together with separators, creating a single, well-formatted block of text that the AI model can read and reference.
-
+All chunks are then joined together as well-formated block of text which is then read and referenced by AI model.
 \subsection{LLM Generation}
 
-The core intelligence of the system comes from the \textbf{Large Language Model (LLM)}. Our system uses \textbf{Google Gemini 2.0 Flash}, accessed through the \textbf{Vertex AI} platform. This model reads the formatted context and the user's question, and generates a natural, human-readable answer.
+we are using  \textbf{Google Gemini 2.0 Flash} for the core intelligence of the system, accessed through the \textbf{Vertex AI} platform. This model will process the formatted context with the user’s query and generate a natural, readable answer. 
 
-The LLM is guided by a carefully crafted \textbf{system prompt} that instructs it to:
+We used following \textbf{system prompt} to guide the LLM: 
 \begin{itemize}
   \item First explain the answer in very simple, everyday language.
   \item Then provide the formal legal explanation with proper citations (Act name, Section number, and exact clause text).
   \item Never make up information --- if the provided context does not contain the answer, it should honestly say so.
-  \item For casual conversations (like greetings), respond naturally without legal jargon.
-  \item Always include a legal disclaimer at the end of substantive legal answers.
+  \item For non-legel conversation(like greeting), respond naturally without legel details.
+  \item Always include a legal disclaimer at the end of legal answers.
 \end{itemize}
 
-The model also supports \textbf{multi-turn conversations} --- it remembers the last 6 messages from the conversation history, allowing users to ask follow-up questions. The model's \textbf{temperature is set to 0.2} (a low value), which makes the responses more focused and deterministic --- important for legal accuracy.
+The LLM has the ability to have multiple turns to a conversation, will keep up with the last 6 messages of the conversation that can assist users with their follow-up questions to what was previously provided to them. The LLM has a temperature of 0.2 (a significantly lower number) it responds with specific and consistent responses, which is critical in the area of law. 
 
 \subsection{Source Filtering}
 
-Not all retrieved chunks are equally relevant. To handle this, the system applies a \textbf{relevance threshold}. Any source with a similarity score below \textbf{0.45 (45\%)} is filtered out and not shown to the user as a citation. This ensures that:
+All retrieved chunks are not equally relevant, so to handle this, the system applies a \textbf{relevance threshold} of \textbf{0.45 (45\%)}; any chunk with a similarity score below the threshold will be filtered out and not shown to the user as a citation.
+
+
 \begin{itemize}
-  \item When a user asks a genuine legal question, only the truly relevant sources are displayed.
-  \item When a user is just having a casual conversation (like saying ``hello''), no irrelevant legal citations are shown.
+  \item If a user is asking a legitimate question of law, only relevant sources will be shown
+  \item If a user is casually chatting (like saying ``hello''), then irrelevant legal citations will not be provided.
 \end{itemize}
 
 \subsection{Response Construction}
 
-The final step is assembling the complete response that is sent back to the user. The response contains two parts:
+The last step is building and sending the response to the user. There will be two components of the response
 \begin{enumerate}
-  \item \textbf{The Answer:} The natural-language explanation generated by the LLM, which includes the simple explanation, the legal reasoning, and the citations woven naturally into the text.
-  \item \textbf{The Source Citations:} A list of the filtered, relevant source documents, each containing the Act name, Section, Chapter, year, a cleaned excerpt of the source text, and the similarity score.
+  \item \textbf{The Answer:} The LLM will produce a Natural Language Answer that includes a simple response, a Legal Reasoning response and sources embedded with the answer as Natural Language.
+
+  \item \textbf{The Source Citations:} A list of filtered relevant source documents will be shown to the user. Each entry will have the Act name, Section, Chapter and year, a cleaned excerpt of the source text plus the similarity score.
 \end{enumerate}
 
-This dual-response design allows the user interface to display the answer prominently while also providing expandable source citations that users can verify --- much like how a legal brief includes footnotes.
-
+This dual response design allows the user interface to display the answer prominently and provide expandable source citations for the user to verify them. Like a legal brief contains footnotes.
 % ════════════════════════════════════════════════════════════════════════════
 \section{RAG Pipeline Flowchart}
 
