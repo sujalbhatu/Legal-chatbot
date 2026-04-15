@@ -226,32 +226,34 @@ The main advantages of RAG over a normal AI chatbot is that the AI does not rely
 % ════════════════════════════════════════════════════════════════════════════
 \section{PDF Ingestion Pipeline}
 
-Before the system can answer any legal queries, it must first process and understand all the legal documents. This is done through the \textbf{PDF Ingestion Pipeline} --- a series of steps that takes raw legal PDF files and converts them into a searchable, AI-ready database. The pipeline runs once (or whenever new documents are added) and prepares the knowledge base for the RAG system.
+To successfully respond to legal requests, the system first must analyze and comprehend all uploaded legal documents. The process used for this is referred to as the PDF Ingestion Pipeline, in which various components are executed on the raw existing legal PDFs to prepare an appropriate searchable database that is ready for subsequent use by the Artificial Intelligence (AI) system. The pipeline is executed only once (or when there are newly uploaded documents) to establish the knowledge base for the RAG system.
 
 \subsection{Text Extraction}
 
-The first step is extracting readable text from the PDF files. Legal documents in India are typically published as PDF files by the government. These PDFs contain formatted text with headers, footers, page numbers, and sometimes multi-column layouts.
+The initial phase of the PDF Ingestion Pipeline will consist of Extracting Readable Text from the PDF Files. In India, legal documents are almost always provided as a PDF format, which have formatted text, include headers and footers, page numbers and may be formatted as multiple columns
 
-Our system uses \textbf{PyPDF2}, a Python library, to open each PDF file and extract text from every page. The extracted text is saved as a plain text file for further processing. During extraction, the system also adds page markers (such as ``PAGE 1'', ``PAGE 2'') to keep track of which content came from which page.
+To extract the text from PDF documents our system utilizes the \textbf{PyPDF2} library in the Python programming language to open each PDF file and retrieve all text from each page in each PDF document. The extracted text will be stored as a plain text file for subsequent processing. The extracted text will also include a page marker denoting which page it originated (e.g., "PAGE 1" or "PAGE 2") to identify where each piece of extracted text belongs by page number.
 
-\begin{infobox}
-\textbf{What happens here:} A PDF file like \textit{indian\_contract\_act\_1872.pdf} goes in, and a clean text file \textit{indian\_contract\_act\_1872.txt} comes out, containing all the text from every page of the PDF.
-\end{infobox}
+% 
+
+
+% \begin{infobox}
+% \textbf{What happens here:} A PDF file like \textit{indian\_contract\_act\_1872.pdf} goes in, and a clean text file \textit{indian\_contract\_act\_1872.txt} comes out, containing all the text from every page of the PDF.
+% \end{infobox}
 
 \subsection{Metadata Detection}
 
-Legal documents need proper identification --- the system must know which Act a piece of text belongs to, and what year it was enacted. Rather than manually entering this information for each document, our system \textbf{automatically detects metadata from the filename} of each PDF.
+There needs to be sufficient identification of legal documents, this means that the type of act and also the ~Year it was established. Our system automatically detects metadata from the filename of each PDF.
 
-The filename is parsed using a smart algorithm:
+The filename is processed using the following algorithm:
 \begin{itemize}
-  \item Underscores in the filename are replaced with spaces (e.g., \textit{indian\_contract\_act} becomes \textit{Indian Contract Act}).
-  \item A trailing four-digit number is recognised as the year (e.g., \textit{1872}).
+  \item Replaces underscores found in the filename with spaces (e.g., \textit{indian\_contract\_act} becomes \textit{Indian Contract Act}).
+  \item The last four digits in the filename are identified as a Year (e.g., \textit{1872}).
   \item The remaining part is title-cased to create a clean, readable Act name.
   \item For special cases (like the Aadhaar Act or the Constitution), a manual mapping is used to get the exact correct name.
 \end{itemize}
 
-This metadata (Act name and year) is attached to every chunk of text extracted from that document, ensuring that when the AI cites a source, it can provide the exact name like \textit{``Indian Contract Act, 1872, Section 73''} instead of just a filename.
-
+This metadata (act name/year) will be attached to every chunk of text extracted from the specific document so that when AI quotes a source, it will quote the full act name with Year, e.g., \textit{``Indian Contract Act, 1872, Section 73''} instead of just a filename.
 \subsection{Legal Text Chunking}
 
 This is one of the most important and carefully designed parts of the pipeline. Legal documents are very long --- sometimes hundreds of pages. An AI model cannot process an entire document at once, so we need to break it into smaller, meaningful pieces called \textbf{``chunks.''} However, the way we chunk the text matters a lot --- we cannot just split it arbitrarily, or we would lose the meaning of legal sections.
