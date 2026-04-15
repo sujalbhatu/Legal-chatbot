@@ -487,9 +487,11 @@ The system adopts secure user authentication based on:
 \end{itemize}
 
 % ════════════════════════════════════════════════════════════════════════════
+% ════════════════════════════════════════════════════════════════════════════
 \section{Knowledge Base \& Legal Documents}
 
-The system's knowledge base contains \textbf{18 major Indian legal documents} covering a wide range of legal topics, as listed in Table~\ref{tab:knowledge-base}.
+% The system's knowledge base contains \textbf{18 major Indian legal documents} covering a wide range of legal topics, as listed in Table~\ref{tab:knowledge-base}.
+Table~\ref{tab:knowledge-base} contains an overview of 18 essential pieces of Indian Law documents on various topics of law that will form the base of the system's knowledge base.
 
 \begin{longtable}{clp{4.5cm}}
   \toprule
@@ -525,12 +527,15 @@ The system's knowledge base contains \textbf{18 major Indian legal documents} co
   \label{tab:knowledge-base}
 \end{longtable}
 
-This diverse collection ensures that the system can answer questions across constitutional rights, criminal law, civil procedures, family matters, child protection, cyber law, tax, environmental issues, traffic regulations, and government transparency.
+% This diverse collection ensures that the system can answer questions across constitutional rights, criminal law, civil procedures, family matters, child protection, cyber law, tax, environmental issues, traffic regulations, and government transparency.
+% These documents are intended to facilitate the System's ability to field requests for information on Constitutional Law, Criminal Law, Civil Procedure, Family Law, Child Protection, Cyber Law, Taxation, Environmental Law, Traffic Law and Government Transparency.
+The above documents will enable the system to answer queries about various topics such as Constitutional Law, Criminal Law, Civil Procedure \& Family Law, Child Law, Cyber Law, Tax Law, Environmental Law, Traffic Law, and Transparency of Government.
 
 % ════════════════════════════════════════════════════════════════════════════
 \section{Technology Stack}
 
-Table~\ref{tab:tech-stack} summarises the complete technology stack used to build the Legal Query System.
+% Table~\ref{tab:tech-stack} summarises the complete technology stack used to build the Legal Query System.
+Table~\ref{tab:tech-stack} is an overview of the entire technological infrastructure used to build the Legal Query System.
 
 \begin{table}[H]
 \centering
@@ -558,21 +563,35 @@ HTTP Client         & Axios                                 & Frontend-to-backen
 \section{Key Features}
 
 \begin{enumerate}
-  \item \textbf{Natural Language Understanding:} Users can ask questions in plain English without knowing specific legal terminology. The semantic search finds relevant sections regardless of the exact wording used.
-  \item \textbf{Accurate Legal Citations:} Every answer includes properly cited references --- the Act name, Section number, Chapter, and relevant excerpt --- so users can verify the information independently.
-  \item \textbf{Multi-Turn Conversations:} The system remembers the context of the ongoing conversation (up to the last 6 messages), allowing users to ask follow-up questions naturally.
-  \item \textbf{Smart Response Behaviour:} The system distinguishes between casual greetings and actual legal questions. For greetings, it responds naturally. For legal questions, it provides structured, cited answers.
-  \item \textbf{Source Transparency:} Every response comes with expandable source citations that show the relevant text excerpts, similarity scores, and exact legal references.
-  \item \textbf{Session Management:} Users can create, revisit, and manage multiple query sessions --- useful for tracking different legal issues over time.
-  \item \textbf{Secure Authentication:} Protected user accounts with hashed passwords and JWT-based authentication ensure data privacy.
-  \item \textbf{Relevance Filtering:} A 45\% similarity threshold automatically filters out irrelevant sources, preventing noise in the citations.
-  \item \textbf{Legal Disclaimer:} Every substantive legal answer includes a disclaimer advising users to consult a qualified professional, ensuring responsible use.
+  % \item \textbf{Natural Language Understanding:} Users can ask questions in plain English without knowing specific legal terminology. The semantic search finds relevant sections regardless of the exact wording used.
+  % \item \textbf{Accurate Legal Citations:} Every answer includes properly cited references --- the Act name, Section number, Chapter, and relevant excerpt --- so users can verify the information independently.
+  % \item \textbf{Multi-Turn Conversations:} The system remembers the context of the ongoing conversation (up to the last 6 messages), allowing users to ask follow-up questions naturally.
+  % \item \textbf{Smart Response Behaviour:} The system distinguishes between casual greetings and actual legal questions. For greetings, it responds naturally. For legal questions, it provides structured, cited answers.
+  % \item \textbf{Source Transparency:} Every response comes with expandable source citations that show the relevant text excerpts, similarity scores, and exact legal references.
+  % \item \textbf{Session Management:} Users can create, revisit, and manage multiple query sessions --- useful for tracking different legal issues over time.
+  \item \textbf{Natural Language Understanding:} Users are able to ask questions in plain English without knowing the exact legal terminology and the semantic search allows users to find the relevant sections of documents without knowing the exact words used.
+  \item \textbf{Legal Citation Accuracy:} All responses include; the act title, section number, chapter and relevant excerpt in order that users may independently verify the information.
+  \item \textbf{Multi-transactional interactions:} The system retains the context of the last 6 messages in order for users to ask follow-on questions in a natural way.
+  \item \textbf{Intelligent Response Behaviour:} The system differentiates between a casual greeting and an actual legal question; it replies in a casual manner to greetings and in a structured legislated manner to legal questions.
+  \item \textbf{Source Transparency:} All responses will have expandable source citations with relevant text excerpts, similarity scores, and specific legal reference.
+  \item \textbf{Session Management:} Users will be able to report, re-visit and create new sessions.
+
+  \item \textbf{Secure User Authentication:} Hashed password plus JWT authentication for privacy
+  % \item \textbf{Secure Authentication:} Protected user accounts with hashed passwords and JWT-based authentication ensure data privacy.
+  
+  % \item \textbf{Relevance Filtering:} A 45\% similarity threshold automatically filters out irrelevant sources, preventing noise in the citations.
+  \item \textbf{Relevance Filtering:} To eliminate citations with less than 45\% similarity.
+
+  \item \textbf{Legal Disclaimer:} {Every significant legal answer has logic with a warning to "consult qualified}
+for proper use)
+  % \item \textbf{Legal Disclaimer:} Every substantive legal answer includes a disclaimer advising users to consult a qualified professional, ensuring responsible use.
 \end{enumerate}
 
-% ════════════════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════════════════
 \section{Challenges \& Solutions}
 
-Table~\ref{tab:challenges} summarises the key technical challenges encountered during development and the solutions implemented to address them.
+% Table~\ref{tab:challenges} summarises the key technical challenges encountered during development and the solutions implemented to address them.
+The challenges that arose during the development phase and how they were solved are displayed in Table~\ref{tab:challenges} below: 
 
 \begin{table}[H]
 \centering
@@ -580,23 +599,65 @@ Table~\ref{tab:challenges} summarises the key technical challenges encountered d
 \toprule
 \textbf{Challenge} & \textbf{Solution} \\
 \midrule
-PDF text extraction produces noisy output with headers, footers, and formatting artifacts &
-Implemented a dedicated text cleaning step that removes gazette headers, page markers, and excessive whitespace using regular expressions \\
+% PDF text extraction produces noisy output with headers, footers, and formatting artifacts &
+% Implemented a dedicated text cleaning step that removes gazette headers, page markers, and excessive whitespace using regular expressions \\
+Pictures of pages with PDF text extraction produce noisy text with gazette header pagination and formatting artifacts. &
+Creation of a separate, cleaning step that removes all gazette headings, page marker, and excessive whitespace by using regular expressions \\
+
 \addlinespace
-Fixed-size text chunking breaks legal sections in the middle, losing meaning &
-Designed section-aware chunking that splits by legal section boundaries and only sub-splits large sections at sentence boundaries \\
+Fixed size text chunking – because the legal sections are broken in half at fixed-size text chunking, the legal section information may be lost. &
+Section aware chunking was created to "chunk" by legal section boundary when "chunked”. All legal section chunks greater than max length will also be broken at the end of each sentence. \\
 \addlinespace
-Some documents do not follow standard section numbering &
-Implemented a fallback strategy that splits by sentence boundaries and creates sequential parts \\
+Some documents do not contain the standard section numbering format &
+A fallback method of splitting by (sentence) boundaries will occur in this scenario, ultimately creating sequential parts.  \\
+
 \addlinespace
-Identifying Act names and years reliably from diverse filenames &
-Combined filename parsing (underscore removal, year extraction, title-casing) with a manual override map for special cases \\
+Act names and years are consistently identified even when using different filename formats. &
+When possible, the filenames were parseable with the removal of underscores, extracting the year of the legislation and ultimately (title-cased) the Act names.  \\
+
 \addlinespace
-AI model generating citations for casual greetings &
-Added similarity-based source filtering (threshold 0.45) and explicit system prompt rules for casual conversation handling \\
+There is now a model for AI citation that generates citations for “toy” or casual greetings. &
+The system now contains a threshold applied to classify similar ("0.45") sources as acceptable for classification as a citation for casual conversation. \\
+
 \addlinespace
-Long response times due to model loading &
-Used a singleton pattern to load the pipeline once and reuse it for all requests \\
+% Time for generating responses from the AI citation system takes an excessive amount of time to retrieve (due to the amount of time required to load the model) &
+% Each request sent to the AI citation system will now only require one retrieval of the model; the model will be stored in singleton pattern and reused for all requests \\
+Retrieval time is more because of the loading of the model &
+Pipeline is loaded once as a pattern and reused for all requests. \\
+% \bottomrule
+% \end{tabular}
+% \caption{Key development challenges and corresponding solutions.}
+% \label{tab:challenges}
+% \end{table}
+
+% ════════════════════════════════════════════════════════════════════════════
+% \section{Challenges \& Solutions}
+
+% Table~\ref{tab:challenges} summarises the key technical challenges encountered during development and the solutions implemented to address them.
+
+% \begin{table}[H]
+% \centering
+% \begin{tabular}{p{6.5cm} p{7cm}}
+% \toprule
+% \textbf{Challenge} & \textbf{Solution} \\
+% \midrule
+% PDF text extraction produces noisy output with headers, footers, and formatting artifacts &
+% Implemented a dedicated text cleaning step that removes gazette headers, page markers, and excessive whitespace using regular expressions \\
+% \addlinespace
+% Fixed-size text chunking breaks legal sections in the middle, losing meaning &
+% Designed section-aware chunking that splits by legal section boundaries and only sub-splits large sections at sentence boundaries \\
+% \addlinespace
+% Some documents do not follow standard section numbering &
+% Implemented a fallback strategy that splits by sentence boundaries and creates sequential parts \\
+% \addlinespace
+% Identifying Act names and years reliably from diverse filenames &
+% Combined filename parsing (underscore removal, year extraction, title-casing) with a manual override map for special cases \\
+% \addlinespace
+% AI model generating citations for casual greetings &
+% Added similarity-based source filtering (threshold 0.45) and explicit system prompt rules for casual conversation handling \\
+% \addlinespace
+% Long response times due to model loading &
+% Used a singleton pattern to load the pipeline once and reuse it for all requests \\
 \bottomrule
 \end{tabular}
 \caption{Key development challenges and corresponding solutions.}
