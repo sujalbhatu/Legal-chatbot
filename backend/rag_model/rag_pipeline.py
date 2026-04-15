@@ -4,6 +4,7 @@ Uses ChromaDB for retrieval and Vertex AI (Gemini) for generation.
 """
 
 import os
+import re
 import json
 from pathlib import Path
 from chromadb import PersistentClient
@@ -42,7 +43,19 @@ DO NOT use rigid formatting or headers like "1. Simple Explanation" or "2. Forma
 
 **STRICT RULES YOU MUST FOLLOW:**
 
-1. **Casual Talk & General Knowledge**: If the user is just saying hello, asking your name, or asking what you can do, DO NOT use the 3-part structure, and DO NOT use legal jargon. Just reply naturally like a human. When describing your knowledge, mention general topics (e.g., "I know about identity protection, data privacy, government benefits, and penalties for fraud") instead of citing specific Act names (like "Aadhaar Act 2016"), so normal users can easily understand.
+1. **Casual Talk & General Knowledge**: If the user is just saying hello, asking your name, or asking what you can do, DO NOT use the 3-part structure, and DO NOT use legal jargon. Just reply naturally like a human. When describing your knowledge, mention the broad topics you cover in simple, user-friendly language. Your knowledge base covers the following areas:
+   - The Constitution of India (fundamental rights, duties, governance structure)
+   - Criminal law (offences, punishments, criminal procedures, evidence rules — including the new Bharatiya Nyaya Sanhita, Bharatiya Nagarik Suraksha Sanhita, and Bharatiya Sakshya Adhiniyam)
+   - Civil law (civil procedures, property transfer, contract law, specific relief)
+   - Family & marriage law (Hindu marriage, special marriage, domestic violence protection)
+   - Child protection (POCSO Act — protection of children from sexual offences)
+   - Digital & cyber law (IT Act — cybercrime, e-commerce, data protection)
+   - Identity & government services (Aadhaar — identity protection, government benefits)
+   - Consumer & tax law (GST — goods and services tax)
+   - Environmental law (environment protection)
+   - Motor vehicle regulations (driving licenses, traffic rules, insurance, penalties)
+   - Right to Information (transparency and access to government information)
+   Present these naturally: for example, "I can help you with topics like constitutional rights, criminal and civil law, marriage and family law, cyber law, property law, tax law, environmental law, motor vehicle rules, child protection, and more." Do NOT list specific Act names unless the user explicitly asks for them.
 
 2. **Citation is mandatory for legal questions**: Every legal claim you make MUST cite the exact Act name, Section number, and clause text from the provided context directly in the paragraphs.
 
@@ -86,6 +99,27 @@ class LegalRAGPipeline:
         )
         
         print("RAG Pipeline ready!")
+    
+    @staticmethod
+    def clean_source_text(text: str, max_length: int = 1200) -> str:
+        """Clean chunk text for display in the frontend."""
+        # Remove leading section numbers like "101. " (already shown in metadata)
+        text = re.sub(r'^\s*\d+[A-Z]?\.\s+', '', text)
+        # Collapse multiple whitespace into single space
+        text = re.sub(r'\s+', ' ', text).strip()
+        # Truncate at a sentence boundary if too long
+        if len(text) > max_length:
+            truncated = text[:max_length]
+            # Find last sentence-ending punctuation
+            for punct in ['. ', '; ']:
+                pos = truncated.rfind(punct)
+                if pos > max_length // 2:
+                    truncated = truncated[:pos + 1]
+                    break
+            else:
+                truncated = truncated.rsplit(' ', 1)[0] + '…'
+            text = truncated
+        return text
     
     def retrieve(self, query: str, top_k: int = 6) -> list:
         """Retrieve relevant legal chunks for a query."""
@@ -180,8 +214,8 @@ class LegalRAGPipeline:
         # Step 4: Format sources for frontend
         formatted_sources = []
         for src in sources:
-            # Filter out weak matches (casual talk) so they aren't shown as citations
-            if src['similarity'] >= 0.30:
+            # Filter out weak matches (casual talk / off-topic) so they aren't shown as citations
+            if src['similarity'] >= 0.45:
                 meta = src['metadata']
                 formatted_sources.append({
                     "act_name": meta.get('act_name', 'Unknown'),
@@ -189,13 +223,13 @@ class LegalRAGPipeline:
                     "section_title": meta.get('section_title', ''),
                     "chapter": meta.get('chapter', ''),
                     "year": meta.get('year', ''),
-                    "text": src['text'],
+                    "text": self.clean_source_text(src['text']),
                     "similarity": src['similarity']
                 })
         
         return {
             "answer": answer,
-            "sources": formatted_sources
+            "sources": formatted_sources[:]  # Return only top 2 most relevant sources
         }
 
 
