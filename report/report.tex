@@ -256,7 +256,8 @@ The filename is processed using the following algorithm:
 This metadata (act name/year) will be attached to every chunk of text extracted from the specific document so that when AI quotes a source, it will quote the full act name with Year, e.g., \textit{``Indian Contract Act, 1872, Section 73''} instead of just a filename.
 \subsection{Legal Text Chunking}
 
-This is one of the most important and carefully designed parts of the pipeline. Legal documents are very long --- sometimes hundreds of pages. An AI model cannot process an entire document at once, so we need to break it into smaller, meaningful pieces called \textbf{``chunks.''} However, the way we chunk the text matters a lot --- we cannot just split it arbitrarily, or we would lose the meaning of legal sections.
+
+It is the most significant part of the pipeline structured with proper planning. Legal documents used as a knowledge base can sometimes be very long , even a few hundred pages. Any LLM cannot process the entire large document in a single scan, and therefore we are required to break it down into smaller and meaningful pieces known as the \textbf{``chunks``}. Also, the way we divide the chunks has a huge impact on the working of the project , so we cannot just split it in a random manner, because it could lead to a loss of the meaning of the legal sections.
 
 \subsubsection{Document-Based Chunking Strategy}
 
@@ -266,23 +267,26 @@ Our chunking strategy is specifically designed for the structure of Indian legal
 \textbf{Typical structure of an Indian legal document:} \textbf{Act Name} $\rightarrow$ multiple \textbf{Chapters} (e.g., Chapter I, Chapter II\ldots) $\rightarrow$ each Chapter contains multiple \textbf{Sections} (e.g., Section 1, Section 2\ldots) $\rightarrow$ each Section contains the actual legal text, definitions, provisions, and clauses.
 \end{highlightbox}
 
-Our system exploits this natural structure to create intelligent chunks through the following steps:
+To make intelligent chunks, our system uses this natural structure in the following steps:
 
 \begin{enumerate}
-  \item \textbf{Raw Text Cleaning:} Before chunking, the extracted text is cleaned up. PDF artifacts like gazette headers, page markers, excessive whitespace, and formatting noise are removed.
-  \item \textbf{Section-Based Splitting:} The system uses pattern-matching to identify section boundaries. It looks for patterns like ``1. Short title and commencement'' or ``33A. Penalty for fraud'' --- a number (optionally followed by a letter), a period, and then the section title.
-  \item \textbf{Chapter Tracking:} As the system reads through the text, it also watches for chapter headers (like ``CHAPTER IV --- OF THE PERFORMANCE OF CONTRACTS''). Whenever it finds a chapter header, it updates the current chapter label.
-  \item \textbf{Preamble Handling:} Any text that appears before the first section (such as the preamble, definitions, or introductory statements) is captured as a separate ``Preamble'' chunk.
-  \item \textbf{Large Section Splitting:} If a section exceeds 3,000 characters, the system further splits it at sentence boundaries, looking for full stops or semicolons within a 1,500-character window.
+  \item \textbf{Raw Text Cleaning:} To carry out the chunking operation, we used the data cleaning operation on the text obtained after the extraction of the data in the pdf. In the cleaning process we pulled off the artifacts that comprise of gazette headers, page markers, too much whitespace and noise in the formatting.
+  \item \textbf{Section-Based Splitting:} In this approach we simply adopt pattern-matching technique in an effort to identify the section boundaries. Here it is actually searching by such patterns as: 1. Short title and commencement or 33A. Penalty for fraud which is basically a number followed by a letter (which may or may not be present) followed by a period followed by a title of the section.
+  \item \textbf{Chapter Tracking:} The system is also tracking the appearance of chapter heads as it reads through the text (such as, the appearance of the chapter IV in the text, which is the heading of the chapter, which here is of the performance of contracts). Each time it encounters a chapter header, it changes the one at hand.
+
+  \item \textbf{Preamble Handling:}Text preceding the first part (e.g. the preamble, definitions or introductory statements) is captured as a distinct chunk termed as a Preamble.
+  \item \textbf{Large Section Splitting:} In case a section contains more than 3,000 characters, the system continues to subdivide it into sentences, searching full stops or semicolons in a 1,500-character window.
+
   \item \textbf{Fallback for Non-Standard Documents:} If a document does not follow standard section numbering, the system falls back to pure sentence-boundary splitting, creating sequential parts labelled ``Part 1'', ``Part 2'', etc.
-  \item \textbf{Short Section Filtering:} Very short text fragments (less than 70 characters) are automatically skipped, as these are typically table-of-contents entries or formatting artifacts.
+  \item \textbf{Short Section Filtering:} Text fragments shorter than 70 characters are automatically skipped, since they are usually entries in a table of contents or formatting artefacts.
 \end{enumerate}
 
-Each chunk is stored as a structured record containing both the text content and its associated metadata --- the Act name, year, source filename, chapter, section number, and section title.
+Each portion is written as a structured record with the textual content and the metadata of the content - the name of the Act, the year, the name of the source file, the chapter, the section number, and the section title.
 
-\begin{infobox}
-\textbf{Example Chunk:} \textbf{Act:} Indian Contract Act, 1872 \quad\textbf{Chapter:} VI --- Of the Consequences of Breach of Contract \quad \textbf{Section:} 73 --- Compensation for loss or damage caused by breach \quad \textbf{Text:} ``When a contract has been broken, the party who suffers by such breach is entitled to receive, as compensation\ldots''
-\end{infobox}
+% \begin{infobox}
+% \textbf{Example Chunk:} \textbf{Act:} Indian Contract Act, 1872 \quad\textbf{Chapter:} VI --- Of the Consequences of Breach of Contract \quad \textbf{Section:} 73 --- Compensation for loss or damage caused by breach \quad \textbf{Text:} ``When a contract has been broken, the party who suffers by such breach is entitled to receive, as compensation\ldots''
+% \end{infobox}
+
 
 \subsection{Vector Store Construction}
 The last stage of processing the legal documents is to create a searchable collection of these documents based on their meaning rather than just keywords, and this is done by converting each chunk of text into a \textbf{vector embedding}, which is an array of numeric values representing the semantic meaning of the original text. The embeddings for the law documents will be stored in a \textbf{vector database}.
