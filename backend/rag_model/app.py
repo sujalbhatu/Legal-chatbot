@@ -22,7 +22,7 @@ def get_pipeline():
 
 @app.route('/api/query', methods=['POST'])
 def query():
-    """Process a legal query through the RAG pipeline."""
+    """Process a legal query through the RAG pipeline with multilingual support."""
     try:
         data = request.get_json()
         
@@ -34,14 +34,17 @@ def query():
             return jsonify({"error": "Query cannot be empty"}), 400
         
         chat_history = data.get('chat_history', [])
+        language = data.get('language', None)  # Optional language override
         
         pipeline = get_pipeline()
-        result = pipeline.query(user_query, chat_history)
+        result = pipeline.query(user_query, chat_history, language)
         
         return jsonify({
             "success": True,
             "answer": result['answer'],
-            "sources": result['sources']
+            "sources": result['sources'],
+            "language": result['language'],
+            "language_name": result['language_name']
         })
     
     except Exception as e:
