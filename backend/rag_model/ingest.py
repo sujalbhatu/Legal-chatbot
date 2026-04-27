@@ -242,8 +242,8 @@ def build_vector_store(chunks_dir: str, vector_db_dir: str):
     from sentence_transformers import SentenceTransformer
     import gc
     
-    print("Loading embedding model...")
-    model = SentenceTransformer('all-MiniLM-L6-v2')
+    print("Loading specialized legal embedding model: law-ai/InLegalBERT...")
+    model = SentenceTransformer('law-ai/InLegalBERT')
     
     # Initialize ChromaDB
     client = PersistentClient(path=str(vector_db_dir))
@@ -263,8 +263,8 @@ def build_vector_store(chunks_dir: str, vector_db_dir: str):
     print(f"Found {len(chunk_files)} chunk file(s)")
     
     total_chunks = 0
-    embedding_batch_size = 16  # Reduced to avoid memory overflow
-    db_batch_size = 50  # Reduced to avoid memory overflow
+    embedding_batch_size = 8
+    db_batch_size = 32
     
     # Process chunks in memory-efficient batches
     batch_texts = []
@@ -331,7 +331,7 @@ def build_vector_store(chunks_dir: str, vector_db_dir: str):
 
 def ingest_all():
     """Full ingestion pipeline: PDF -> Text -> Chunks -> Vector Store."""
-    pdf_files = list((RAW_PDFS_DIR / "indiacode_pdfs").glob("**/*.pdf"))
+    pdf_files = list(RAW_PDFS_DIR.glob("**/*.pdf"))
     
     if not pdf_files:
         print("No PDF files found in data/raw_pdfs/indiacode_pdfs/")

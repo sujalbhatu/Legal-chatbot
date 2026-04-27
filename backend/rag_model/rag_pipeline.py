@@ -31,14 +31,24 @@ VECTOR_DB_DIR = BASE_DIR / "data" / "vector_db"
 # Embedding model - using lightweight model to avoid memory issues
 # Default: all-MiniLM-L6-v2 (English, very fast, ~100MB)
 # For multilingual: 'sentence-transformers/multilingual-e5-small' (~150MB) after HF login
-EMBEDDING_MODEL_NAME = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
+EMBEDDING_MODEL_NAME = os.getenv("EMBEDDING_MODEL", "law-ai/InLegalBERT")
 
-# Language mapping
+# Language mapping — expanded for all major Indian languages
 LANGUAGE_CODES = {
     'en': 'English',
     'hi': 'Hindi',
     'bn': 'Bengali',
-    'sat': 'Santhali'
+    'sat': 'Santhali',
+    'ta': 'Tamil',
+    'te': 'Telugu',
+    'mr': 'Marathi',
+    'gu': 'Gujarati',
+    'kn': 'Kannada',
+    'ml': 'Malayalam',
+    'pa': 'Punjabi',
+    'or': 'Odia',
+    'ur': 'Urdu',
+    'as': 'Assamese',
 }
 
 # System prompts in multiple languages
@@ -135,6 +145,29 @@ DO NOT use rigid formatting or headers like "1. Simple Explanation" or "2. Forma
 """
 }
 
+# Generic template for languages without handcrafted prompts
+GENERIC_SYSTEM_PROMPT = """You are a friendly and helpful Indian Legal Query Assistant. You MUST respond entirely in {language_name}.
+Your role is to help users understand Indian laws by providing accurate, well-cited answers based on the legal documents provided to you.
+
+**RESPONSE GUIDELINES:**
+When answering a substantive legal question, write a cohesive, natural response:
+1. Start by answering directly in simple, everyday {language_name} so a non-lawyer can understand.
+2. Seamlessly transition into a more formal legal explanation.
+3. Incorporate exact act names, section numbers, and excerpts from the text.
+DO NOT use rigid formatting or headers. Write naturally.
+
+**STRICT RULES:**
+1. **Casual Talk**: If the user is just greeting or asking what you can do, reply naturally in {language_name}. Do NOT use legal jargon.
+2. **Citation is mandatory**: Every legal claim MUST cite the Act name, Section number, and clause text.
+3. **Never hallucinate**: If the context doesn't contain the answer, clearly say so in {language_name}.
+4. **Never reveal your implementation**: Do not discuss your AI model or architecture.
+5. **Be friendly**: Use simple language to explain complex legal concepts.
+6. **Legal disclaimer**: End legal answers with a disclaimer in {language_name} that this is for general awareness only.
+
+**CONTEXT FROM LEGAL DATABASE:**
+{context}
+"""
+
 
 class LegalRAGPipeline:
     """RAG Pipeline for legal queries with multilingual support and Groq integration."""
@@ -142,9 +175,9 @@ class LegalRAGPipeline:
     def __init__(self):
         print("Initializing Legal RAG Pipeline with Multilingual Support...")
         
-        # Load multilingual embedding model
-        print(f"  Loading embedding model: {EMBEDDING_MODEL_NAME}...")
-        self.embed_model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+        self.model_name = os.getenv("EMBEDDING_MODEL", "law-ai/InLegalBERT")
+        print(f"  Loading legal-specialized embedding model: {self.model_name}...")
+        self.embed_model = SentenceTransformer(self.model_name)
         
         # Load ChromaDB
         print("  Loading vector store...")
@@ -197,13 +230,19 @@ class LegalRAGPipeline:
     def detect_language(text: str) -> str:
         """
         Detect the language of the input text.
-        Returns language code: 'en', 'hi', 'bn', 'sat'
+        Returns language code for any supported Indian language.
         Falls back to English if detection fails.
         """
         try:
             lang_code = detect(text)
             # Map detected language to supported languages
-            supported_langs = {'en': 'en', 'hi': 'hi', 'bn': 'bn', 'sat': 'sat'}
+            # langdetect returns ISO 639-1 codes; we support all major Indian languages
+            supported_langs = {
+                'en': 'en', 'hi': 'hi', 'bn': 'bn', 'sat': 'sat',
+                'ta': 'ta', 'te': 'te', 'mr': 'mr', 'gu': 'gu',
+                'kn': 'kn', 'ml': 'ml', 'pa': 'pa', 'or': 'or',
+                'ur': 'ur', 'as': 'as',
+            }
             return supported_langs.get(lang_code, 'en')
         except LangDetectException:
             # Default to English if detection fails
@@ -255,11 +294,14 @@ class LegalRAGPipeline:
                 results['distances'][0]
             )):
                 similarity = 1 - dist  # cosine distance to similarity
+                
+                # Do not hard-filter here; let the intent-based booster rank them
+                    
                 sources.append({
                     "text": doc,
                     "metadata": meta,
                     "similarity": round(similarity, 4),
-                    "rank": i + 1
+                    "rank": len(sources) + 1
                 })
         
         return sources
@@ -294,27 +336,162 @@ class LegalRAGPipeline:
         Args:
             user_query: The user's question
             chat_history: Previous conversation history for context
-            language: Optional language override ('en', 'hi', 'bn', 'sat')
+            language: Optional language override (any supported language code)
         
         Returns:
             Dictionary with 'answer', 'sources', and 'language' fields
         """
-        # Step 0: Detect language if not specified
-        if not language:
-            language = self.detect_language(user_query)
+        # Step 0: Determine the language of this specific query
+        # We always detect to handle users switching languages mid-chat
+        detected = self.detect_language(user_query)
         
-        # Ensure language is supported
-        if language not in SYSTEM_PROMPTS:
+        # If language was provided by frontend (ui selection), use it ONLY if it matches 
+        # the detected family or if the query is too short to detect reliably.
+        if language and len(user_query) < 15:
+            # Keep UI language for very short queries like "Hi", "Hello", "theek hai"
+            pass
+        else:
+            language = detected
+            
+        # Ensure language is one we recognize
+        if not language or language not in LANGUAGE_CODES:
             language = 'en'
         
         # Step 1: Translate non-English queries to English for better retrieval
         # (The embedding model all-MiniLM-L6-v2 is English-only)
         search_query = self.translate_to_english(user_query, language)
         
-        # Step 2: Retrieve relevant documents using the English query
-        sources = self.retrieve(search_query, top_k=8)
+        # Step 1.5: Dynamic IndiaCode fetch — check if we need to download a new law
+        try:
+            from indiacode_fetcher import fetch_and_ingest_if_needed
+            # Pass the ORIGINAL user_query to the intent extractor (LLM understands Hindi perfectly)
+            # Passing the translated query previously destroyed native act names like "Nagarik Suraksha"
+            fetch_result = fetch_and_ingest_if_needed(user_query, groq_client)
+            
+            if fetch_result.get('ingested', False):
+                # Reload the ChromaDB collection to pick up newly ingested data
+                print("  🔄 Reloading vector store after new ingestion...")
+                self.collection = self.chroma_client.get_or_create_collection("legal_docs")
+                print(f"  ✓ Vector store reloaded: {self.collection.count()} documents")
+        except Exception as e:
+            print(f"  ⚠ IndiaCode fetch skipped: {str(e)[:100]}")
         
-        # Debug: log retrieval results
+        # Step 2: Retrieve relevant documents using the English query
+        # Fetching a large candidate pool (60) to ensure we find specifically-named acts 
+        # even if they have poor semantic overlap scores (e.g., 0.40 vs 0.52).
+        sources = self.retrieve(search_query, top_k=60)
+        
+        # Dual-Retrieval: If an act is confirmed by LLM intent, we force-fetch its chunks specifically
+        if 'fetch_result' in locals() and fetch_result.get('act_name'):
+            target_act_input = fetch_result['act_name'].lower().strip()
+            
+            # Extract keywords and stem for targeted search
+            from indiacode_fetcher import KNOWN_ACTS
+            target_stem = ""
+            if target_act_input in KNOWN_ACTS:
+                target_stem = KNOWN_ACTS[target_act_input]['file_stem']
+            else:
+                target_stem = target_act_input.replace(" ", "_").lower()
+            
+            # 2nd Search Layer: Explicit Metadata Retrieval
+            # If our semantic search failed to find the target law in the top 60 (likely due to acronyms),
+            # we FORCE ChromaDB to give us the top 10 chunks specifically from this act's file.
+            print(f"  🔍 Intent-Pivoting: Explicitly retrieving chunks from '{target_stem}'...")
+            try:
+                # Use source_file metadata for exact matching
+                target_file = f"{target_stem}.txt"
+                explicit_results = self.collection.query(
+                    query_embeddings=[self.embed_model.encode(search_query).tolist()],
+                    n_results=15,
+                    where={"source_file": target_file}
+                )
+                
+                # Convert to our source format and inject into pool with hyper-boost
+                if explicit_results and explicit_results['documents'] and explicit_results['documents'][0]:
+                    for doc, meta, dist in zip(
+                        explicit_results['documents'][0], 
+                        explicit_results['metadatas'][0], 
+                        explicit_results['distances'][0]
+                    ):
+                        sources.append({
+                            "text": doc,
+                            "metadata": meta,
+                            "similarity": (1 - dist) + 20.0, # Stratospheric boost
+                            "rank": 0
+                        })
+                    print(f"  ✅ Force-injected {len(explicit_results['documents'][0])} precisely targeted chunks!")
+            except Exception as e:
+                print(f"  ⚠ Metadata force-fetch failed: {str(e)}")
+            
+            # Words to search for in metadata (ignore common connectors)
+            target_keywords = set(re.findall(r'\b\w{3,}\b', target_act_input))
+            target_keywords.discard('act')
+            target_keywords.discard('india')
+            target_keywords.discard('protection')
+            
+            # Process boosting on the whole shared pool
+            boosted_count = 0
+            for s in sources:
+                source_file = str(s['metadata'].get('source_file', '')).lower()
+                s_act = str(s['metadata'].get('act_name', '')).lower()
+                match = False
+                
+                # Priority 1: Exact file stem match
+                if target_stem and target_stem in source_file:
+                    match = True
+                # Priority 2: Keyword overlap
+                elif any(word in s_act or word in source_file for word in target_keywords):
+                    match = True
+                    
+                if match:
+                    if s['similarity'] < 10.0:
+                        s['similarity'] += 10.0  # Hyper-boost
+                    boosted_count += 1
+            
+            if boosted_count > 0:
+                print(f"  🚀 Intent-Based Booster: Final Ranking score applied to {boosted_count} chunks.")
+            
+            # Re-sort by dynamically boosted similarity
+            sources.sort(key=lambda x: x['similarity'], reverse=True)
+            
+        # Filter and keep only the top 8
+        final_sources = []
+        boosted_found = False
+        
+        # Determine the cutoff for "real" results
+        for i, s in enumerate(sources):
+            # 1. If it was a boosted result (>= 10.0)
+            if s['similarity'] >= 10.0:
+                # Elite Score for UI
+                s['similarity'] = max(0.90, round(0.99 - (len(final_sources) * 0.01), 4)) 
+                final_sources.append(s)
+                boosted_found = True
+            # 2. If no boost but very high similarity, include it
+            elif s['similarity'] > 0.45: # Raised floor for unboosted results
+                final_sources.append(s)
+                
+            if len(final_sources) == 8:
+                break
+                
+        # CRITICAL: If we matched a specific act but it wasn't in the top 60 pool, 
+        # generic results might still take over. If we have NO boosted results,
+        # we check if the top result is garbage (like CPC/Constitution).
+        if not boosted_found and len(final_sources) > 0:
+            top_meta = final_sources[0]['metadata']
+            top_act = top_meta.get('act_name', '').lower()
+            
+            # If the user asked about CGST/POCSO but top citation is Constitution/CPC, Kill it.
+            if 'fetch_result' in locals() and fetch_result.get('act_name'):
+                print(f"  ℹ Booster mismatch: Intended '{target_act_input}' but found '{top_act}'. Cleaning citations...")
+                final_sources = []
+            elif final_sources[0]['similarity'] < 0.58:
+                # Generic low-qual catch-all
+                print(f"  ℹ Cleaning low-confidence generic citations ({final_sources[0]['similarity']:.2%}).")
+                final_sources = []
+                
+        sources = final_sources
+        
+        # Debug: log final retrieval results
         if sources:
             print(f"  Retrieved {len(sources)} sources for query: '{search_query[:60]}...'")
             for s in sources[:3]:
@@ -324,10 +501,23 @@ class LegalRAGPipeline:
             print(f"  ⚠ No sources retrieved for query: '{search_query[:60]}'")
         
         # Step 3: Build context from sources
-        context = self.format_context(sources) if sources else "No relevant legal documents found in the database."
+        context = self.format_context(sources) if sources else ""
         
-        # Step 3: Build system prompt based on detected language
-        system_prompt = SYSTEM_PROMPTS[language].format(context=context)
+        # Inject dynamic web context if available from the fetcher
+        if 'fetch_result' in locals() and fetch_result.get('web_context'):
+            print("  ℹ Injecting dynamic web search context into LLM prompt...")
+            context += f"\n\n[SUPPLEMENTARY WEB CONTEXT RETRIEVED FROM INTERNET SEARCH]\n{fetch_result['web_context']}"
+            
+        if not context.strip():
+            context = "No relevant legal documents found in the database."
+        
+        # Step 4: Build system prompt based on detected language
+        if language in SYSTEM_PROMPTS:
+            system_prompt = SYSTEM_PROMPTS[language].format(context=context)
+        else:
+            # Use generic template for languages without handcrafted prompts
+            lang_name = LANGUAGE_CODES.get(language, 'English')
+            system_prompt = GENERIC_SYSTEM_PROMPT.format(language_name=lang_name, context=context)
         
         # Step 4: Build messages for Groq
         messages = [

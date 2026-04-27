@@ -79,6 +79,74 @@ def ingest():
         }), 500
 
 
+@app.route('/api/fetch-law', methods=['POST'])
+def fetch_law():
+    """Manually trigger fetching a law from IndiaCode by act name."""
+    try:
+        data = request.get_json()
+        
+        if not data or 'act_name' not in data:
+            return jsonify({"error": "Missing 'act_name' field"}), 400
+        
+        act_name = data['act_name'].strip()
+        if not act_name:
+            return jsonify({"error": "Act name cannot be empty"}), 400
+        
+        from indiacode_fetcher import (
+            check_existing_knowledge_base, search_indiacode,
+            download_pdf, ingest_single_pdf
+        )
+        
+        # Check if already in KB
+        if check_existing_knowledge_base(act_name):
+            return jsonify({
+                "success": True,
+                "message": f"'{act_name}' already exists in the knowledge base.",
+                "already_exists": True
+            })
+        
+        # Search and download
+        pdf_url = search_indiacode(act_name)
+        if not pdf_url:
+            return jsonify({
+                "success": False,
+                "message": f"Could not find PDF for '{act_name}' on IndiaCode."
+            })
+        
+        pdf_path = download_pdf(pdf_url, act_name)
+        if not pdf_path:
+            return jsonify({
+                "success": False,
+                "message": f"Failed to download PDF for '{act_name}'."
+            })
+        
+        # Ingest
+        success = ingest_single_pdf(pdf_path)
+        
+        if success:
+            # Reload pipeline
+            global _pipeline
+            _pipeline = None
+            
+            return jsonify({
+                "success": True,
+                "message": f"Successfully fetched and ingested '{act_name}'.",
+                "already_exists": False
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "message": f"PDF downloaded but ingestion failed for '{act_name}'."
+            })
+    
+    except Exception as e:
+        print(f"Error fetching law: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
 @app.route('/api/health', methods=['GET'])
 def health():
     """Health check endpoint."""
