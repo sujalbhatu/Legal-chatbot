@@ -19,6 +19,11 @@ const messageSchema = new mongoose.Schema({
         text: String,
         similarity: Number
     }],
+    language: {
+        type: String,
+        enum: ['en', 'hi', 'bn', 'sat'],
+        default: 'en'
+    },
     timestamp: {
         type: Date,
         default: Date.now
