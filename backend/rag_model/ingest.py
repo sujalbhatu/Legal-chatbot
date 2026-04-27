@@ -240,6 +240,7 @@ def build_vector_store(chunks_dir: str, vector_db_dir: str):
     """Build ChromaDB vector store from all chunk files."""
     from chromadb import PersistentClient
     from sentence_transformers import SentenceTransformer
+    import gc
     
     print("Loading embedding model...")
     model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -258,12 +259,17 @@ def build_vector_store(chunks_dir: str, vector_db_dir: str):
         metadata={"hnsw:space": "cosine"}
     )
     
-    all_texts = []
-    all_metadatas = []
-    all_ids = []
-    
     chunk_files = list(Path(chunks_dir).glob("*.jsonl"))
     print(f"Found {len(chunk_files)} chunk file(s)")
+    
+    total_chunks = 0
+    embedding_batch_size = 16  # Reduced to avoid memory overflow
+    db_batch_size = 50  # Reduced to avoid memory overflow
+    
+    # Process chunks in memory-efficient batches
+    batch_texts = []
+    batch_metadatas = []
+    batch_ids = []
     
     for chunk_file in chunk_files:
         with open(chunk_file, 'r', encoding='utf-8') as f:
@@ -281,37 +287,54 @@ def build_vector_store(chunks_dir: str, vector_db_dir: str):
                         flat_metadata[k] = str(v)
                 
                 doc_id = f"{chunk_file.stem}_{line_num}"
-                all_texts.append(text)
-                all_metadatas.append(flat_metadata)
-                all_ids.append(doc_id)
+                batch_texts.append(text)
+                batch_metadatas.append(flat_metadata)
+                batch_ids.append(doc_id)
+                
+                # Process when batch reaches size limit
+                if len(batch_texts) >= db_batch_size:
+                    print(f"Processing batch of {len(batch_texts)} chunks...")
+                    embeddings = model.encode(batch_texts, show_progress_bar=False, batch_size=embedding_batch_size)
+                    
+                    collection.add(
+                        documents=batch_texts,
+                        metadatas=batch_metadatas,
+                        ids=batch_ids,
+                        embeddings=embeddings.tolist()
+                    )
+                    
+                    total_chunks += len(batch_texts)
+                    print(f"  Added {total_chunks} chunks total to ChromaDB")
+                    
+                    # Clear batch and memory
+                    batch_texts = []
+                    batch_metadatas = []
+                    batch_ids = []
+                    gc.collect()
     
-    if not all_texts:
-        print("No chunks found to index!")
-        return
-    
-    print(f"Embedding {len(all_texts)} chunks...")
-    embeddings = model.encode(all_texts, show_progress_bar=True, batch_size=32)
-    
-    # Add to ChromaDB in batches
-    batch_size = 100
-    for i in range(0, len(all_texts), batch_size):
-        end = min(i + batch_size, len(all_texts))
+    # Process remaining chunks
+    if batch_texts:
+        print(f"Processing final batch of {len(batch_texts)} chunks...")
+        embeddings = model.encode(batch_texts, show_progress_bar=False, batch_size=embedding_batch_size)
+        
         collection.add(
-            documents=all_texts[i:end],
-            metadatas=all_metadatas[i:end],
-            ids=all_ids[i:end],
-            embeddings=embeddings[i:end].tolist()
+            documents=batch_texts,
+            metadatas=batch_metadatas,
+            ids=batch_ids,
+            embeddings=embeddings.tolist()
         )
+        
+        total_chunks += len(batch_texts)
     
-    print(f"Successfully indexed {len(all_texts)} chunks into ChromaDB")
+    print(f"Successfully indexed {total_chunks} chunks into ChromaDB")
 
 
 def ingest_all():
     """Full ingestion pipeline: PDF -> Text -> Chunks -> Vector Store."""
-    pdf_files = list(RAW_PDFS_DIR.glob("*.pdf"))
+    pdf_files = list((RAW_PDFS_DIR / "indiacode_pdfs").glob("**/*.pdf"))
     
     if not pdf_files:
-        print("No PDF files found in data/raw_pdfs/")
+        print("No PDF files found in data/raw_pdfs/indiacode_pdfs/")
         return
     
     print(f"Found {len(pdf_files)} PDF file(s)")
