@@ -4,1126 +4,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Legal Query System — Project Report</title>
+    <title>Technical Report: Multilingual Legal RAG System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,400&family=Source+Sans+3:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
-
         :root {
-            --primary: #1a365d;
-            --primary-light: #2b6cb0;
-            --accent: #2c7a7b;
-            --text: #1a202c;
-            --text-secondary: #4a5568;
-            --bg: #ffffff;
-            --bg-light: #f7fafc;
-            --border: #e2e8f0;
-            --highlight: #ebf8ff;
+            --primary: #1a237e;
+            --secondary: #0d47a1;
+            --accent: #2962ff;
+            --text: #333;
+            --light: #f5f7fa;
+            --white: #ffffff;
+            --border: #e0e6ed;
         }
 
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
+            -webkit-print-color-adjust: exact;
         }
 
         body {
-            font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+            font-family: 'Inter', sans-serif;
+            background: var(--light);
             color: var(--text);
-            background: var(--bg);
-            line-height: 1.8;
-            font-size: 14px;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
         }
 
-        /* ───────── Cover Page ───────── */
-        .cover-page {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            background: linear-gradient(135deg, #1a365d 0%, #2c5282 40%, #2b6cb0 100%);
-            color: white;
-            padding: 60px;
-            page-break-after: always;
-        }
-
-        .cover-page .logo-icon {
-            font-size: 72px;
-            margin-bottom: 30px;
-        }
-
-        .cover-page h1 {
-            font-family: 'Merriweather', serif;
-            font-size: 42px;
-            font-weight: 900;
-            letter-spacing: -0.5px;
-            margin-bottom: 10px;
-        }
-
-        .cover-page .subtitle {
-            font-size: 20px;
-            font-weight: 300;
-            opacity: 0.9;
-            margin-bottom: 50px;
-            max-width: 600px;
-        }
-
-        .cover-page .meta-info {
-            font-size: 15px;
-            opacity: 0.85;
-            line-height: 2.2;
-        }
-
-        .cover-page .meta-info strong {
-            font-weight: 600;
-        }
-
-        .cover-page .divider-line {
-            width: 80px;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.5);
-            margin: 30px auto;
-            border-radius: 2px;
-        }
-
-        /* ───────── Table of Contents ───────── */
-        .toc-page {
-            padding: 80px 80px 60px;
-            page-break-after: always;
-        }
-
-        .toc-page h2 {
-            font-family: 'Merriweather', serif;
-            font-size: 28px;
-            color: var(--primary);
-            margin-bottom: 30px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid var(--primary);
-        }
-
-        .toc-list {
-            list-style: none;
-            counter-reset: toc-counter;
-        }
-
-        .toc-list li {
-            counter-increment: toc-counter;
-            padding: 10px 0;
-            border-bottom: 1px dotted var(--border);
-            font-size: 15px;
-        }
-
-        .toc-list li::before {
-            content: counter(toc-counter) ".";
-            font-weight: 700;
-            color: var(--primary);
-            margin-right: 12px;
-            display: inline-block;
-            width: 30px;
-        }
-
-        .toc-list li a {
-            color: var(--text);
-            text-decoration: none;
-        }
-
-        .toc-sub {
-            list-style: none;
-            margin-left: 42px;
-            margin-top: 5px;
-        }
-
-        .toc-sub li {
-            font-size: 13.5px;
-            color: var(--text-secondary);
-            border-bottom: 1px dotted #edf2f7;
-            padding: 6px 0;
-        }
-
-        .toc-sub li::before {
-            content: "▸ ";
-            color: var(--accent);
-            font-weight: 700;
-            margin-right: 6px;
-        }
-
-        /* ───────── Content Pages ───────── */
-        .content {
-            padding: 60px 80px;
+        .container {
             max-width: 900px;
-            margin: 0 auto;
+            margin: 40px auto;
+            background: var(--white);
+            padding: 60px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
         }
 
-        h2.section-title {
-            font-family: 'Merriweather', serif;
-            font-size: 26px;
+        header {
+            border-bottom: 3px solid var(--primary);
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+        }
+
+        h1 {
             color: var(--primary);
-            margin-top: 50px;
-            margin-bottom: 20px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid var(--primary);
-            page-break-after: avoid;
-        }
-
-        h2.section-title:first-of-type {
-            margin-top: 0;
-        }
-
-        h3.sub-title {
-            font-family: 'Merriweather', serif;
-            font-size: 19px;
-            color: var(--primary-light);
-            margin-top: 30px;
-            margin-bottom: 12px;
-            page-break-after: avoid;
-        }
-
-        h4.sub-sub-title {
-            font-size: 16px;
+            font-size: 32px;
+            margin: 0;
             font-weight: 700;
-            color: var(--accent);
-            margin-top: 22px;
-            margin-bottom: 8px;
-            page-break-after: avoid;
         }
 
-        p {
-            margin-bottom: 14px;
-            text-align: justify;
+        .subtitle {
+            color: var(--secondary);
+            font-size: 18px;
+            margin-top: 5px;
+            font-weight: 400;
         }
 
-        ul,
-        ol {
-            margin-left: 22px;
-            margin-bottom: 14px;
-        }
-
-        li {
-            margin-bottom: 6px;
-        }
-
-        .info-box {
-            background: var(--highlight);
-            border-left: 4px solid var(--primary-light);
-            padding: 16px 20px;
-            margin: 18px 0;
-            border-radius: 0 6px 6px 0;
-            font-size: 13.5px;
-        }
-
-        .info-box strong {
+        h2 {
             color: var(--primary);
+            border-left: 5px solid var(--accent);
+            padding-left: 15px;
+            margin-top: 40px;
+            font-size: 24px;
         }
 
-        .highlight-box {
-            background: #f0fff4;
-            border-left: 4px solid var(--accent);
-            padding: 16px 20px;
-            margin: 18px 0;
-            border-radius: 0 6px 6px 0;
-            font-size: 13.5px;
+        h3 {
+            color: var(--secondary);
+            font-size: 19px;
+            margin-top: 25px;
+        }
+
+        p,
+        li {
+            font-size: 16px;
+            color: #444;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .tech-card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        .tech-card strong {
+            display: block;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .features-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .features-list li {
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%232962ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>') no-repeat 0 5px;
+            padding-left: 30px;
+            margin-bottom: 12px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 18px 0;
-            font-size: 13.5px;
+            margin: 25px 0;
         }
 
-        table th {
+        th {
             background: var(--primary);
             color: white;
-            padding: 10px 14px;
             text-align: left;
-            font-weight: 600;
+            padding: 12px;
         }
 
-        table td {
-            padding: 9px 14px;
+        td {
             border-bottom: 1px solid var(--border);
+            padding: 12px;
         }
 
-        table tr:nth-child(even) {
-            background: var(--bg-light);
-        }
-
-        .flowchart-container {
+        .diagram {
+            background: #f1f5f9;
+            padding: 30px;
+            border-radius: 8px;
             text-align: center;
+            font-family: monospace;
+            white-space: pre-wrap;
             margin: 30px 0;
-            page-break-inside: avoid;
+            border: 1px dashed var(--secondary);
         }
 
-        .flowchart-container img {
-            max-width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-        }
-
-        .flowchart-caption {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 10px;
-            font-style: italic;
-        }
-
-        .page-break {
-            page-break-before: always;
-        }
-
-        .tech-badge {
-            display: inline-block;
-            background: var(--primary);
-            color: white;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            margin: 2px 3px;
-        }
-
-        .footer-note {
-            margin-top: 60px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-            font-size: 12px;
-            color: var(--text-secondary);
-            text-align: center;
-        }
-
-        /* ───────── Print Styles ───────── */
         @media print {
             body {
-                font-size: 12.5px;
+                background: white;
             }
 
-            .content {
-                padding: 40px 50px;
+            .container {
+                box-shadow: none;
+                margin: 0;
+                width: 100%;
+                max-width: none;
+                padding: 20px;
             }
 
-            .cover-page {
-                padding: 40px;
+            .no-print {
+                display: none;
             }
+        }
 
-            .toc-page {
-                padding: 50px;
-            }
+        .footer {
+            margin-top: 60px;
+            font-size: 14px;
+            color: #888;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
 
-            h2.section-title {
-                font-size: 22px;
-            }
+        .btn-print {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--accent);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(41, 98, 255, 0.3);
+            transition: transform 0.2s;
+        }
 
-            h3.sub-title {
-                font-size: 17px;
-            }
+        .btn-print:hover {
+            transform: scale(1.05);
         }
     </style>
 </head>
 
 <body>
 
-    <!-- ════════════════════════ COVER PAGE ════════════════════════ -->
-    <div class="cover-page">
-        <div class="logo-icon">⚖️</div>
-        <h1>Legal Query System</h1>
-        <p class="subtitle">
-            An AI-Powered Indian Legal Assistant Built with
-            Retrieval-Augmented Generation (RAG)
-        </p>
-        <div class="divider-line"></div>
-        <div class="meta-info">
-            <strong>Project Report</strong><br>
-            Final Submission<br><br>
-            <strong>Date:</strong> April 2026<br>
+    <a href="#" class="btn-print no-print" onclick="window.print()">Print to PDF</a>
+
+    <div class="container">
+        <header>
+            <h1>Multilingual Legal Query System</h1>
+            <p class="subtitle">Technical Specification & Architecture Report</p>
+        </header>
+
+        <section id="executive-summary">
+            <h2>Executive Summary</h2>
+            <p>
+                The Multilingual Legal Query System is a sophisticated <strong>Retrieval-Augmented Generation
+                    (RAG)</strong> platform designed to democratize access to Indian Law. It enables citizens and legal
+                professionals to query a localized database of Indian Acts using 14 regional languages, providing
+                high-precision, well-cited legal advice through a hybrid AI architecture.
+            </p>
+        </section>
+
+        <section id="technology-stack">
+            <h2>Technology Stack</h2>
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <strong>Large Language Model (LLM)</strong>
+                    Groq Engine (Llama-3.3-70B / GPT-OSS-20B)
+                </div>
+                <div class="tech-card">
+                    <strong>Embedding Model</strong>
+                    law-ai/InLegalBERT (State-of-the-Art Legal Transformer)
+                </div>
+                <div class="tech-card">
+                    <strong>Vector Database</strong>
+                    ChromaDB (Persistent Document Storage)
+                </div>
+                <div class="tech-card">
+                    <strong>Frontend & Backend</strong>
+                    React.js, Node.js (Express), and Python (Flask)
+                </div>
+            </div>
+        </section>
+
+        <section id="architecture">
+            <h2>Architecture & Data Flow</h2>
+            <div class="diagram">
+                [User Query: Bengali] -> [LangDetect] -> [Translator] -> [English Intent]
+                |
+                v
+                [ChromaDB] <- [Vector Match / Intent-Pivoting Booster] <- [InLegalBERT] | v [Top 8 Legal Chunks] ->
+                    [Context Generator] -> [Groq LLM]
+                    |
+                    v
+                    [Cited Response in Bengali] <- [Prompt Injection (User Language)] </div>
+
+                        <h3>Key Components</h3>
+                        <ul class="features-list">
+                            <li><strong>InLegalBERT Specialization:</strong> Unlike generic models, our embeddings are
+                                pre-trained on Indian High Court and Supreme Court judgments.</li>
+                            <li><strong>Intent-Pivoting Logic:</strong> A secondary retrieval layer that force-fetches
+                                specific laws (e.g., CGST, POCSO) by metadata if semantic scores are low.</li>
+                            <li><strong>The Translation Bridge:</strong> A custom logic that uses English as a
+                                high-fidelity intermediate language for legal research while maintaining native-language
+                                responses.</li>
+                        </ul>
+        </section>
+
+        <section id="multilingual-support">
+            <h2>Multilingual Capabilities</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Language Group</th>
+                        <th>Supported Languages</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Handcrafted Prompts</strong></td>
+                        <td>English, Hindi, Bengali, Santhali</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Regional Support</strong></td>
+                        <td>Tamil, Telugu, Marathi, Gujarati, Kannada, Malayalam, Punjabi, Odia, Urdu, Assamese</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="legal-dataset">
+            <h2>Current Legal Coverage</h2>
+            <p>The system is currently indexed with over <strong>6,700 high-quality legal chunks</strong> covering:</p>
+            <ul class="features-list">
+                <li>Constitution of India (2024 Edition)</li>
+                <li>Central Goods and Services Tax (CGST) Act, 2017</li>
+                <li>Code of Civil Procedure (CPC), 1908</li>
+                <li>POCSO (Protection of Children from Sexual Offences) Act, 2012</li>
+                <li>New Criminal Laws (BNS, BNSS, BSA 2023)</li>
+                <li>...and 13 other major Indian Legal Acts.</li>
+            </ul>
+        </section>
+
+        <div class="footer">
+            Generated by Antigravity AI Console | &copy; 2026 - Legal Query System Project
         </div>
     </div>
 
-    <!-- ════════════════════════ TABLE OF CONTENTS ════════════════════════ -->
-    <div class="toc-page">
-        <h2>Table of Contents</h2>
-        <ol class="toc-list">
-            <li><a href="#introduction">Introduction</a>
-                <ul class="toc-sub">
-                    <li>Problem Statement</li>
-                    <li>Proposed Solution</li>
-                    <li>What is RAG (Retrieval-Augmented Generation)?</li>
-                </ul>
-            </li>
-            <li><a href="#ingestion">PDF Ingestion Pipeline</a>
-                <ul class="toc-sub">
-                    <li>Text Extraction</li>
-                    <li>Metadata Detection</li>
-                    <li>Legal Text Chunking</li>
-                    <li>Vector Store Construction</li>
-                </ul>
-            </li>
-            <li><a href="#rag-pipeline">RAG Query Pipeline</a>
-                <ul class="toc-sub">
-                    <li>Semantic Retrieval</li>
-                    <li>Context Formatting</li>
-                    <li>LLM Generation</li>
-                    <li>Source Filtering</li>
-                    <li>Response Construction</li>
-                </ul>
-            </li>
-            <li><a href="#flowchart">RAG Pipeline Flowchart</a></li>
-            <li><a href="#architecture">System Architecture</a>
-                <ul class="toc-sub">
-                    <li>Backend Architecture</li>
-                    <li>Frontend Architecture</li>
-                    <li>Authentication & Session Management</li>
-                </ul>
-            </li>
-            <li><a href="#knowledge-base">Knowledge Base & Legal Documents</a></li>
-            <li><a href="#tech-stack">Technology Stack</a></li>
-            <li><a href="#features">Key Features</a></li>
-            <li><a href="#challenges">Challenges & Solutions</a></li>
-            <li><a href="#future">Future Scope</a></li>
-            <li><a href="#conclusion">Conclusion</a></li>
-        </ol>
-    </div>
-
-    <!-- ════════════════════════ CONTENT ════════════════════════ -->
-    <div class="content">
-
-        <!-- ─────── 1. INTRODUCTION ─────── -->
-        <h2 class="section-title" id="introduction">1. Introduction</h2>
-
-        <h3 class="sub-title">1.1 Problem Statement</h3>
-        <p>
-            India has one of the most extensive and complex legal frameworks in the world. With hundreds of laws,
-            thousands of sections, and constantly evolving amendments, it is extremely difficult for ordinary citizens
-            to understand their legal rights and obligations. When a person faces a legal issue — whether it is related
-            to property, marriage, criminal matters, consumer rights, or digital privacy — they often have no easy way
-            to get a quick, reliable answer without consulting an expensive lawyer.
-        </p>
-        <p>
-            Existing legal information sources such as government websites, bare act PDFs, and legal databases are
-            written in formal legal language that is hard to understand for someone without a law background. There is a
-            clear gap: <strong>common people need a simple, accessible, and intelligent tool that can read through these
-                complex legal documents and answer their questions in plain, everyday language.</strong>
-        </p>
-
-        <h3 class="sub-title">1.2 Proposed Solution</h3>
-        <p>
-            The <strong>Legal Query System</strong> is a web-based AI assistant designed to bridge this gap. It allows
-            users to ask legal questions in simple, natural language (for example, <em>"What happens if someone breaks a
-                contract?"</em> or <em>"What are my rights if I am arrested?"</em>) and receive clear, well-explained
-            answers that include proper legal citations — the exact Act name, Section number, and relevant clause text.
-        </p>
-        <p>
-            The system is built using a modern AI technique called <strong>Retrieval-Augmented Generation
-                (RAG)</strong>, which ensures that every answer is grounded in actual legal documents rather than being
-            made up by the AI. This makes the system both accurate and trustworthy.
-        </p>
-
-        <h3 class="sub-title">1.3 What is RAG (Retrieval-Augmented Generation)?</h3>
-        <p>
-            RAG is a technique that combines two powerful ideas to make AI systems more reliable:
-        </p>
-        <ol>
-            <li><strong>Retrieval</strong> — Before answering a question, the system first searches through a knowledge
-                base (in our case, Indian legal documents) and retrieves the most relevant sections that relate to the
-                user's question.</li>
-            <li><strong>Generation</strong> — The retrieved sections are then given to a Large Language Model (LLM) as
-                context, and the LLM uses this context to generate a well-written, accurate answer.</li>
-        </ol>
-        <p>
-            The key advantage of RAG over a plain AI chatbot is that <strong>the AI does not rely on its own memory to
-                answer legal questions</strong>. Instead, it always refers back to the actual source documents. This
-            dramatically reduces the chances of the AI "hallucinating" or making up incorrect information — a critical
-            requirement when dealing with legal matters.
-        </p>
-
-        <div class="info-box">
-            <strong>In simple terms:</strong> Think of RAG like a very smart research assistant. When you ask a
-            question, it first goes to the library (our legal database), finds the most relevant books and pages, reads
-            them, and then explains the answer to you in simple words — while also telling you exactly which book and
-            page the information came from.
-        </div>
-
-        <!-- ─────── 2. PDF INGESTION PIPELINE ─────── -->
-        <h2 class="section-title page-break" id="ingestion">2. PDF Ingestion Pipeline</h2>
-        <p>
-            Before the system can answer any legal queries, it must first process and understand all the legal
-            documents. This is done through the <strong>PDF Ingestion Pipeline</strong> — a series of steps that takes
-            raw legal PDF files and converts them into a searchable, AI-ready database. The pipeline runs once (or
-            whenever new documents are added) and prepares the knowledge base for the RAG system.
-        </p>
-
-        <h3 class="sub-title">2.1 Text Extraction</h3>
-        <p>
-            The first step is extracting readable text from the PDF files. Legal documents in India are typically
-            published as PDF files by the government. These PDFs contain formatted text with headers, footers, page
-            numbers, and sometimes multi-column layouts.
-        </p>
-        <p>
-            Our system uses <strong>PyPDF2</strong>, a Python library, to open each PDF file and extract text from every
-            page. The extracted text is saved as a plain text file for further processing. During extraction, the system
-            also adds page markers (such as "PAGE 1", "PAGE 2") to keep track of which content came from which page —
-            this helps during debugging and verification.
-        </p>
-        <div class="info-box">
-            <strong>What happens here:</strong> A PDF file like <em>indian_contract_act_1872.pdf</em> goes in, and a
-            clean text file <em>indian_contract_act_1872.txt</em> comes out, containing all the text from every page of
-            the PDF.
-        </div>
-
-        <h3 class="sub-title">2.2 Metadata Detection</h3>
-        <p>
-            Legal documents need proper identification — the system must know which Act a piece of text belongs to, and
-            what year it was enacted. Rather than manually entering this information for each document, our system
-            <strong>automatically detects metadata from the filename</strong> of each PDF.
-        </p>
-        <p>
-            The filename is parsed using a smart algorithm:
-        </p>
-        <ul>
-            <li>Underscores in the filename are replaced with spaces (e.g., <em>indian_contract_act</em> becomes
-                <em>Indian Contract Act</em>).</li>
-            <li>A trailing four-digit number is recognized as the year (e.g., <em>1872</em>).</li>
-            <li>The remaining part is title-cased to create a clean, readable Act name.</li>
-            <li>For special cases (like the Aadhaar Act or the Constitution), a manual mapping is used to get the exact
-                correct name.</li>
-        </ul>
-        <p>
-            This metadata (Act name and year) is attached to every chunk of text extracted from that document, ensuring
-            that when the AI cites a source, it can provide the exact name like <em>"Indian Contract Act, 1872, Section
-                73"</em> instead of just a filename.
-        </p>
-
-        <h3 class="sub-title">2.3 Legal Text Chunking</h3>
-        <p>
-            This is one of the most important and carefully designed parts of the pipeline. Legal documents are very
-            long — sometimes hundreds of pages. An AI model cannot process an entire document at once, so we need to
-            break it into smaller, meaningful pieces called <strong>"chunks."</strong> However, the way we chunk the
-            text matters a lot — we cannot just split it arbitrarily, or we would lose the meaning of legal sections.
-        </p>
-
-        <h4 class="sub-sub-title">How Our Document-Based Chunking Strategy Works</h4>
-        <p>
-            Our chunking strategy is specifically designed for the structure of Indian legal documents. Indian Acts and
-            laws follow a well-defined structure:
-        </p>
-
-        <div class="highlight-box">
-            <strong>Typical structure of an Indian legal document:</strong><br>
-            <strong>Act Name</strong> → contains multiple <strong>Chapters</strong> (e.g., Chapter I, Chapter II…) →
-            each Chapter contains multiple <strong>Sections</strong> (e.g., Section 1, Section 2…) → each Section
-            contains the actual legal text, definitions, provisions, and clauses.
-        </div>
-
-        <p>
-            Our system exploits this natural structure to create intelligent chunks:
-        </p>
-        <ol>
-            <li>
-                <strong>Raw Text Cleaning:</strong> Before chunking, the extracted text is cleaned up. PDF artifacts
-                like gazette headers (e.g., "THE GAZETTE OF INDIA EXTRAORDINARY"), page markers, excessive whitespace,
-                and formatting noise are removed. This ensures that only the actual legal content is processed.
-            </li>
-            <li>
-                <strong>Section-Based Splitting:</strong> The system uses a pattern-matching approach to identify
-                section boundaries in the text. It looks for patterns like "1. Short title and commencement" or "33A.
-                Penalty for fraud" — a number (optionally followed by a letter), a period, and then the section title.
-                This is how sections are numbered in Indian legislation, and the system uses this pattern to split the
-                text at every section boundary.
-            </li>
-            <li>
-                <strong>Chapter Tracking:</strong> As the system reads through the text, it also watches for chapter
-                headers (like "CHAPTER IV — OF THE PERFORMANCE OF CONTRACTS"). Whenever it finds a chapter header, it
-                updates the current chapter label. This means every chunk knows which chapter it belongs to, enabling
-                better citation.
-            </li>
-            <li>
-                <strong>Preamble Handling:</strong> Any text that appears before the first section (such as the
-                preamble, definitions of the Act, or introductory statements) is captured as a separate "Preamble" chunk
-                so that it is not lost.
-            </li>
-            <li>
-                <strong>Large Section Splitting:</strong> Some sections in legal documents can be very lengthy (for
-                example, Section 34 of the Aadhaar Act or certain constitutional articles). If a section exceeds 3,000
-                characters, the system further splits it at <strong>sentence boundaries</strong> — it looks for full
-                stops or semicolons followed by a space, and splits at the nearest one within a 1,500-character window.
-                This ensures that even the sub-parts of a large section are complete, grammatically correct sentences
-                rather than being cut in the middle of a clause.
-            </li>
-            <li>
-                <strong>Fallback for Non-Standard Documents:</strong> If a document does not follow the standard section
-                numbering (for example, the Preamble of the Constitution or an unnumbered schedule), the system falls
-                back to pure sentence-boundary splitting, creating sequential parts labeled "Part 1", "Part 2", etc.
-            </li>
-            <li>
-                <strong>Short Section Filtering:</strong> Very short text fragments (less than 70 characters) are
-                automatically skipped. These are typically table-of-contents entries or formatting artifacts that would
-                not be useful for answering legal queries.
-            </li>
-        </ol>
-
-        <p>
-            Each chunk is stored as a structured record containing both the text content and its associated metadata —
-            the Act name, year, source filename, chapter, section number, and section title. This rich metadata is what
-            enables precise legal citations later.
-        </p>
-
-        <div class="info-box">
-            <strong>Example Chunk:</strong><br>
-            <strong>Act:</strong> Indian Contract Act, 1872 &nbsp;|&nbsp; <strong>Chapter:</strong> CHAPTER VI — Of the
-            Consequences of Breach of Contract &nbsp;|&nbsp; <strong>Section:</strong> 73 — Compensation for loss or
-            damage caused by breach<br>
-            <strong>Text:</strong> "When a contract has been broken, the party who suffers by such breach is entitled to
-            receive, as compensation for loss or damage caused to him thereby, such as naturally arose in the usual
-            course of things from such breach…"
-        </div>
-
-        <h3 class="sub-title">2.4 Vector Store Construction</h3>
-        <p>
-            Once all the legal documents have been extracted, cleaned, and chunked, the next step is to make them
-            searchable by meaning rather than by keywords. This is done by converting each text chunk into a
-            <strong>vector embedding</strong> — a list of numbers that represents the meaning of the text — and storing
-            them in a <strong>vector database</strong>.
-        </p>
-        <p>
-            Our system uses the following components for this step:
-        </p>
-        <ul>
-            <li><strong>Sentence Transformers (all-MiniLM-L6-v2):</strong> This is a pre-trained AI model that converts
-                any text into a 384-dimensional vector (a list of 384 numbers). Texts with similar meanings will have
-                vectors that are close to each other in this mathematical space. For example, the chunks about "breach
-                of contract" and "compensation for breaking an agreement" would have vectors that are very similar.</li>
-            <li><strong>ChromaDB:</strong> This is a vector database that stores all the embeddings and their associated
-                metadata. It is optimized for fast similarity searches — when a user asks a question, the system can
-                quickly find the chunks whose meanings are closest to the question.</li>
-        </ul>
-        <p>
-            The vector store is configured to use <strong>cosine similarity</strong> as the distance metric, which
-            measures the angle between two vectors. A cosine similarity of 1 means the texts are perfectly similar in
-            meaning, while 0 means they are completely unrelated.
-        </p>
-        <p>
-            All chunks are embedded in batches of 32 (for efficiency) and then added to ChromaDB in batches of 100. The
-            resulting vector database is persisted to disk so that it does not need to be rebuilt every time the system
-            starts — it is a one-time computation.
-        </p>
-
-
-        <!-- ─────── 3. RAG QUERY PIPELINE ─────── -->
-        <h2 class="section-title page-break" id="rag-pipeline">3. RAG Query Pipeline</h2>
-        <p>
-            When a user asks a legal question, the system processes it through the <strong>RAG Query Pipeline</strong>.
-            This pipeline takes the user's question, finds the most relevant legal content from the vector database,
-            gives that content to an AI model for reasoning, and returns a well-structured, cited answer. Here is a
-            breakdown of each step:
-        </p>
-
-        <h3 class="sub-title">3.1 Semantic Retrieval</h3>
-        <p>
-            The first step in answering a query is finding the most relevant chunks from the legal database. This is
-            called <strong>semantic retrieval</strong> because it searches by meaning, not just by keywords.
-        </p>
-        <p>
-            When a user types a question (for example, <em>"What is the punishment for theft?"</em>), the system:
-        </p>
-        <ol>
-            <li>Converts the question into a vector embedding using the same Sentence Transformer model that was used
-                during ingestion.</li>
-            <li>Searches the ChromaDB vector store for the <strong>top 6 most similar chunks</strong> (called top-k
-                retrieval). The similarity is calculated using cosine distance.</li>
-            <li>Returns these 6 chunks along with their metadata (Act name, section, chapter) and their similarity
-                scores.</li>
-        </ol>
-        <p>
-            The reason we retrieve 6 chunks (instead of just 1 or 2) is to give the AI model enough context to form a
-            comprehensive answer. A legal question might span multiple sections or even multiple Acts, and having 6
-            relevant pieces of text gives the model a more complete picture.
-        </p>
-
-        <h3 class="sub-title">3.2 Context Formatting</h3>
-        <p>
-            The retrieved chunks cannot be passed to the AI model as raw text — they need to be organized and labeled
-            properly so that the model can understand where each piece of information comes from. This step creates a
-            structured <strong>context string</strong>.
-        </p>
-        <p>
-            For each retrieved chunk, the system creates a header that includes:
-        </p>
-        <ul>
-            <li>The <strong>Act name</strong> (e.g., "Bharatiya Nyaya Sanhita, 2023")</li>
-            <li>The <strong>Section number and title</strong> (e.g., "Section 303 — Theft")</li>
-            <li>The <strong>Chapter</strong> (e.g., "CHAPTER XVII — Of Offences Against Property")</li>
-            <li>The <strong>Relevance score</strong> (e.g., "Relevance: 89.34%")</li>
-        </ul>
-        <p>
-            All chunks are then joined together with separators, creating a single, well-formatted block of text that
-            the AI model can read and reference. This formatting is crucial — it gives the AI model clear signals about
-            which Act and section each piece of text belongs to, enabling accurate citations.
-        </p>
-
-        <h3 class="sub-title">3.3 LLM Generation</h3>
-        <p>
-            The core intelligence of the system comes from the <strong>Large Language Model (LLM)</strong>. Our system
-            uses <strong>Google Gemini 2.0 Flash</strong>, accessed through the <strong>Vertex AI</strong> platform.
-            This model reads the formatted context (the relevant legal chunks) and the user's question, and generates a
-            natural, human-readable answer.
-        </p>
-        <p>
-            The LLM is guided by a carefully crafted <strong>system prompt</strong> that instructs it to:
-        </p>
-        <ul>
-            <li>First explain the answer in very simple, everyday language so that anyone can understand it.</li>
-            <li>Then provide the formal legal explanation with proper citations (Act name, Section number, and exact
-                clause text).</li>
-            <li>Never make up information — if the provided context does not contain the answer, it should honestly say
-                so.</li>
-            <li>For casual conversations (like greetings), respond naturally without legal jargon.</li>
-            <li>Always include a legal disclaimer at the end of substantive legal answers.</li>
-        </ul>
-        <p>
-            The model also supports <strong>multi-turn conversations</strong> — it remembers the last 6 messages from
-            the conversation history, allowing users to ask follow-up questions like <em>"Can you explain Section 73 in
-                more detail?"</em> without having to repeat the context.
-        </p>
-        <p>
-            The model's <strong>temperature is set to 0.2</strong> (a low value), which makes the responses more focused
-            and deterministic — important for legal accuracy where creative or variable responses are not desirable.
-        </p>
-
-        <h3 class="sub-title">3.4 Source Filtering</h3>
-        <p>
-            Not all retrieved chunks are equally relevant. Some may have been retrieved simply because they share a few
-            common words with the question but are not actually related to the topic. To handle this, the system applies
-            a <strong>relevance threshold</strong>.
-        </p>
-        <p>
-            Any source with a similarity score below <strong>0.45 (45%)</strong> is filtered out and not shown to the
-            user as a citation. This ensures that:
-        </p>
-        <ul>
-            <li>When a user asks a genuine legal question, only the truly relevant sources are displayed.</li>
-            <li>When a user is just having a casual conversation (like saying "hello"), no irrelevant legal citations
-                are shown — the system recognizes that a greeting has low similarity with all legal documents and
-                filters everything out.</li>
-        </ul>
-        <p>
-            This filtering step is essential for maintaining user trust. Showing irrelevant citations would confuse
-            users and undermine the credibility of the system.
-        </p>
-
-        <h3 class="sub-title">3.5 Response Construction</h3>
-        <p>
-            The final step is assembling the complete response that is sent back to the user. The response contains two
-            parts:
-        </p>
-        <ol>
-            <li><strong>The Answer:</strong> The natural-language explanation generated by the LLM, which includes the
-                simple explanation, the legal reasoning, and the citations woven naturally into the text.</li>
-            <li><strong>The Source Citations:</strong> A list of the filtered, relevant source documents, each
-                containing the Act name, Section, Chapter, year, a cleaned excerpt of the source text, and the
-                similarity score. The source text is cleaned for display — leading section numbers are removed (since
-                they are already shown in metadata), excessive whitespace is collapsed, and long texts are truncated at
-                sentence boundaries to keep them readable.</li>
-        </ol>
-        <p>
-            This dual-response design allows the user interface to display the answer prominently while also providing
-            expandable source citations that users can click to verify the information — much like how a legal brief
-            includes footnotes.
-        </p>
-
-
-        <!-- ─────── 4. FLOWCHART ─────── -->
-        <h2 class="section-title page-break" id="flowchart">4. RAG Pipeline Flowchart</h2>
-        <p>
-            The following diagram provides a visual overview of the complete RAG pipeline — from document ingestion to
-            query answering:
-        </p>
-        <div class="flowchart-container">
-            <img src="rag_pipeline_flowchart.png" alt="RAG Pipeline Flowchart">
-            <p class="flowchart-caption">Figure 1: Complete RAG Pipeline — PDF Ingestion (top) and Query Processing
-                (bottom)</p>
-        </div>
-
-        <p>
-            As shown in the diagram, the system operates in two distinct phases:
-        </p>
-        <ul>
-            <li><strong>Offline Phase (PDF Ingestion):</strong> This runs once (or when new documents are added). It
-                processes all legal PDFs through text extraction, metadata detection, legal chunking, and vector store
-                construction. The result is a ready-to-search vector database stored on disk.</li>
-            <li><strong>Online Phase (Query Processing):</strong> This runs every time a user asks a question. The query
-                flows through semantic retrieval, context formatting, LLM generation, source filtering, and response
-                construction — returning a cited answer in seconds.</li>
-        </ul>
-
-
-        <!-- ─────── 5. SYSTEM ARCHITECTURE ─────── -->
-        <h2 class="section-title page-break" id="architecture">5. System Architecture</h2>
-        <p>
-            The Legal Query System follows a <strong>three-tier architecture</strong> with clearly separated
-            responsibilities:
-        </p>
-
-        <h3 class="sub-title">5.1 Backend Architecture</h3>
-        <p>
-            The backend consists of two servers running simultaneously:
-        </p>
-        <ol>
-            <li>
-                <strong>RAG API Server (Python/Flask — Port 5000):</strong> This server hosts the RAG pipeline. It
-                exposes a <code>/api/query</code> endpoint that accepts a user's question and returns the AI-generated
-                answer with citations. It also provides an <code>/api/ingest</code> endpoint to trigger re-ingestion of
-                PDFs, and a <code>/api/health</code> endpoint for health checks. The RAG pipeline is loaded as a
-                singleton (created once, reused for all requests) to avoid the overhead of loading models repeatedly.
-            </li>
-            <li>
-                <strong>Application Server (Node.js/Express — Port 3001):</strong> This server handles user
-                authentication, session management, and acts as a gateway to the RAG API. It connects to a
-                <strong>MongoDB</strong> database to store user accounts and chat sessions. When a user sends a query
-                through the frontend, this server first authenticates the user, then forwards the query to the RAG API,
-                receives the response, saves the conversation in the database, and sends the result back to the
-                frontend.
-            </li>
-        </ol>
-
-        <h3 class="sub-title">5.2 Frontend Architecture</h3>
-        <p>
-            The frontend is built with <strong>React.js</strong> (using the Vite build tool for fast development) and
-            provides four main pages:
-        </p>
-        <ul>
-            <li><strong>Login Page:</strong> Allows existing users to sign in with their email and password.</li>
-            <li><strong>Signup Page:</strong> Allows new users to create an account with their name, email, and
-                password.</li>
-            <li><strong>Dashboard:</strong> Displays all of the user's chat sessions, sorted by most recent. Users can
-                create new sessions, view old ones, mark queries as solved, or delete sessions.</li>
-            <li><strong>Chat Page:</strong> The main interaction page where users type their legal questions and receive
-                AI-generated answers with expandable source citations. The chat interface supports multi-turn
-                conversations and displays a legal disclaimer with each response.</li>
-        </ul>
-
-        <h3 class="sub-title">5.3 Authentication & Session Management</h3>
-        <p>
-            The system implements secure user authentication using:
-        </p>
-        <ul>
-            <li><strong>JWT (JSON Web Tokens):</strong> After a user logs in, the server issues a signed token that the
-                frontend stores locally. This token is sent with every subsequent request to verify the user's identity.
-            </li>
-            <li><strong>bcrypt Password Hashing:</strong> User passwords are never stored in plain text. They are hashed
-                using bcrypt with a salt factor of 12, making them virtually impossible to reverse-engineer.</li>
-            <li><strong>Chat Sessions:</strong> Each user's conversations are stored as separate sessions in MongoDB,
-                with full message history and source citations. Users can return to previous sessions to review past
-                legal queries and answers.</li>
-        </ul>
-
-
-        <!-- ─────── 6. KNOWLEDGE BASE ─────── -->
-        <h2 class="section-title page-break" id="knowledge-base">6. Knowledge Base & Legal Documents</h2>
-        <p>
-            The system's knowledge base contains <strong>18 major Indian legal documents</strong> covering a wide range
-            of legal topics:
-        </p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Document Name</th>
-                    <th>Category</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>Constitution of India, 2024</td>
-                    <td>Constitutional Law</td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Bharatiya Nyaya Sanhita, 2023</td>
-                    <td>Criminal Law</td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>Bharatiya Nagarik Suraksha Sanhita, 2023</td>
-                    <td>Criminal Procedure</td>
-                </tr>
-                <tr>
-                    <td>4</td>
-                    <td>Bharatiya Sakshya Adhiniyam, 2023</td>
-                    <td>Law of Evidence</td>
-                </tr>
-                <tr>
-                    <td>5</td>
-                    <td>Indian Contract Act, 1872</td>
-                    <td>Civil Law</td>
-                </tr>
-                <tr>
-                    <td>6</td>
-                    <td>Code of Civil Procedure, 1908</td>
-                    <td>Civil Procedure</td>
-                </tr>
-                <tr>
-                    <td>7</td>
-                    <td>Transfer of Property Act, 1882</td>
-                    <td>Property Law</td>
-                </tr>
-                <tr>
-                    <td>8</td>
-                    <td>Specific Relief Act, 1963</td>
-                    <td>Civil Law</td>
-                </tr>
-                <tr>
-                    <td>9</td>
-                    <td>Hindu Marriage Act, 1955</td>
-                    <td>Family Law</td>
-                </tr>
-                <tr>
-                    <td>10</td>
-                    <td>Special Marriage Act, 1954</td>
-                    <td>Family Law</td>
-                </tr>
-                <tr>
-                    <td>11</td>
-                    <td>Protection of Women from Domestic Violence Act, 2005</td>
-                    <td>Family Law</td>
-                </tr>
-                <tr>
-                    <td>12</td>
-                    <td>POCSO Act, 2012</td>
-                    <td>Child Protection</td>
-                </tr>
-                <tr>
-                    <td>13</td>
-                    <td>Information Technology Act, 2000</td>
-                    <td>Cyber & Digital Law</td>
-                </tr>
-                <tr>
-                    <td>14</td>
-                    <td>Aadhaar Act, 2016</td>
-                    <td>Identity & Government Services</td>
-                </tr>
-                <tr>
-                    <td>15</td>
-                    <td>Central Goods and Services Tax Act, 2017</td>
-                    <td>Tax Law</td>
-                </tr>
-                <tr>
-                    <td>16</td>
-                    <td>Environment Protection Act, 1986</td>
-                    <td>Environmental Law</td>
-                </tr>
-                <tr>
-                    <td>17</td>
-                    <td>Motor Vehicles Act, 1988</td>
-                    <td>Motor Vehicle Regulation</td>
-                </tr>
-                <tr>
-                    <td>18</td>
-                    <td>Right to Information Act, 2005</td>
-                    <td>Transparency & Governance</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <p>
-            This diverse collection ensures that the system can answer questions across constitutional rights, criminal
-            law, civil procedures, family matters, child protection, cyber law, tax, environmental issues, traffic
-            regulations, and government transparency.
-        </p>
-
-
-        <!-- ─────── 7. TECHNOLOGY STACK ─────── -->
-        <h2 class="section-title" id="tech-stack">7. Technology Stack</h2>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Component</th>
-                    <th>Technology</th>
-                    <th>Purpose</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Frontend</td>
-                    <td>React.js (Vite)</td>
-                    <td>User interface with chat and dashboard</td>
-                </tr>
-                <tr>
-                    <td>Application Server</td>
-                    <td>Node.js / Express.js</td>
-                    <td>Authentication, session management, API gateway</td>
-                </tr>
-                <tr>
-                    <td>RAG API Server</td>
-                    <td>Python / Flask</td>
-                    <td>RAG pipeline — retrieval and AI generation</td>
-                </tr>
-                <tr>
-                    <td>Database</td>
-                    <td>MongoDB</td>
-                    <td>User accounts and chat session storage</td>
-                </tr>
-                <tr>
-                    <td>Vector Database</td>
-                    <td>ChromaDB</td>
-                    <td>Storing and searching text embeddings</td>
-                </tr>
-                <tr>
-                    <td>Embedding Model</td>
-                    <td>Sentence Transformers (all-MiniLM-L6-v2)</td>
-                    <td>Converting text to vector representations</td>
-                </tr>
-                <tr>
-                    <td>LLM</td>
-                    <td>Google Gemini 2.0 Flash (Vertex AI)</td>
-                    <td>Generating natural-language legal answers</td>
-                </tr>
-                <tr>
-                    <td>PDF Processing</td>
-                    <td>PyPDF2</td>
-                    <td>Extracting text from legal PDF documents</td>
-                </tr>
-                <tr>
-                    <td>Authentication</td>
-                    <td>JWT + bcrypt</td>
-                    <td>Secure user login and password hashing</td>
-                </tr>
-                <tr>
-                    <td>HTTP Client</td>
-                    <td>Axios</td>
-                    <td>Frontend-to-backend and backend-to-RAG communication</td>
-                </tr>
-            </tbody>
-        </table>
-
-
-        <!-- ─────── 8. KEY FEATURES ─────── -->
-        <h2 class="section-title page-break" id="features">8. Key Features</h2>
-        <ol>
-            <li><strong>Natural Language Understanding:</strong> Users can ask questions in plain English without
-                knowing specific legal terminology. The semantic search finds relevant sections regardless of the exact
-                wording used.</li>
-            <li><strong>Accurate Legal Citations:</strong> Every answer includes properly cited references — the Act
-                name, Section number, Chapter, and relevant excerpt — so users can verify the information independently.
-            </li>
-            <li><strong>Multi-Turn Conversations:</strong> The system remembers the context of the ongoing conversation
-                (up to the last 6 messages), allowing users to ask follow-up questions naturally.</li>
-            <li><strong>Smart Response Behavior:</strong> The system distinguishes between casual greetings and actual
-                legal questions. For greetings, it responds naturally. For legal questions, it provides structured,
-                cited answers.</li>
-            <li><strong>Source Transparency:</strong> Every response comes with expandable source citations that show
-                the relevant text excerpts, similarity scores, and exact legal references.</li>
-            <li><strong>Session Management:</strong> Users can create, revisit, and manage multiple query sessions —
-                useful for tracking different legal issues over time.</li>
-            <li><strong>Secure Authentication:</strong> Protected user accounts with hashed passwords and JWT-based
-                authentication ensure data privacy.</li>
-            <li><strong>Relevance Filtering:</strong> A 45% similarity threshold automatically filters out irrelevant
-                sources, preventing noise in the citations.</li>
-            <li><strong>Legal Disclaimer:</strong> Every substantive legal answer includes a disclaimer advising users
-                to consult a qualified professional, ensuring responsible use.</li>
-        </ol>
-
-
-        <!-- ─────── 9. CHALLENGES & SOLUTIONS ─────── -->
-        <h2 class="section-title" id="challenges">9. Challenges & Solutions</h2>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Challenge</th>
-                    <th>Solution</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>PDF text extraction produces noisy output with headers, footers, and formatting artifacts</td>
-                    <td>Implemented a dedicated text cleaning step that removes gazette headers, page markers, and
-                        excessive whitespace using regular expressions</td>
-                </tr>
-                <tr>
-                    <td>Fixed-size text chunking breaks legal sections in the middle, losing meaning</td>
-                    <td>Designed section-aware chunking that splits by legal section boundaries and only sub-splits
-                        large sections at sentence boundaries</td>
-                </tr>
-                <tr>
-                    <td>Some documents do not follow standard section numbering</td>
-                    <td>Implemented a fallback strategy that splits by sentence boundaries and creates sequential parts
-                    </td>
-                </tr>
-                <tr>
-                    <td>Identifying Act names and years reliably from diverse filenames</td>
-                    <td>Combined filename parsing (underscore removal, year extraction, title-casing) with a manual
-                        override map for special cases</td>
-                </tr>
-                <tr>
-                    <td>AI model generating citations for casual greetings</td>
-                    <td>Added similarity-based source filtering (threshold 0.45) and explicit system prompt rules for
-                        casual conversation handling</td>
-                </tr>
-                <tr>
-                    <td>Long response times due to model loading</td>
-                    <td>Used a singleton pattern to load the pipeline once and reuse it for all requests</td>
-                </tr>
-            </tbody>
-        </table>
-
-
-        <!-- ─────── 10. FUTURE SCOPE ─────── -->
-        <h2 class="section-title page-break" id="future">10. Future Scope</h2>
-        <ul>
-            <li><strong>Multi-Language Support:</strong> Extending the system to accept queries and generate answers in
-                Hindi and other regional Indian languages to serve a wider audience.</li>
-            <li><strong>Case Law Integration:</strong> Adding Supreme Court and High Court judgments to the knowledge
-                base, enabling the system to cite relevant case precedents along with bare Act text.</li>
-            <li><strong>Hybrid Search:</strong> Combining semantic (vector) search with keyword-based (BM25) search for
-                improved retrieval accuracy, especially for queries containing specific legal terms or section numbers.
-            </li>
-            <li><strong>Voice Interface:</strong> Adding speech-to-text and text-to-speech capabilities so that users
-                can ask legal questions verbally — particularly useful for users who are not comfortable typing.</li>
-            <li><strong>Document Upload:</strong> Allowing users to upload their own legal documents (such as contracts
-                or agreements) for the AI to analyze and explain.</li>
-            <li><strong>Advanced Citation Linking:</strong> Providing clickable links that directly highlight the cited
-                section text within the original PDF document.</li>
-            <li><strong>Admin Dashboard:</strong> Building an admin panel to monitor usage statistics, manage documents,
-                and view analytics on the most commonly asked legal topics.</li>
-            <li><strong>Fine-Tuned Embeddings:</strong> Training custom embedding models specifically on Indian legal
-                text to improve retrieval accuracy beyond what general-purpose models can achieve.</li>
-        </ul>
-
-
-        <!-- ─────── 11. CONCLUSION ─────── -->
-        <h2 class="section-title" id="conclusion">11. Conclusion</h2>
-        <p>
-            The Legal Query System demonstrates how modern AI techniques — specifically Retrieval-Augmented Generation —
-            can be applied to make complex legal information accessible to ordinary citizens. By combining intelligent
-            document processing, semantic search, and large language model generation, the system provides accurate,
-            well-cited, and easy-to-understand answers to legal questions.
-        </p>
-        <p>
-            The carefully designed PDF ingestion pipeline ensures that legal documents are broken into meaningful,
-            well-labeled chunks that preserve the natural structure of Indian legislation. The RAG query pipeline
-            ensures that every answer is grounded in actual source documents, with proper citations and relevance
-            filtering to maintain accuracy and trust.
-        </p>
-        <p>
-            With 18 major Indian laws in its knowledge base — covering everything from constitutional rights and
-            criminal law to cyber law, environmental protection, and motor vehicle regulations — the system serves as a
-            comprehensive first point of reference for anyone seeking to understand their legal rights and obligations
-            under Indian law.
-        </p>
-        <p>
-            While the system is not a substitute for professional legal counsel, it significantly lowers the barrier to
-            accessing legal knowledge and empowers citizens to make more informed decisions about their legal matters.
-        </p>
-
-        <div class="footer-note">
-            Legal Query System — Project Report &nbsp;|&nbsp; April 2026<br>
-            <em>This report was prepared as part of the final project submission.</em>
-        </div>
-
-    </div> <!-- end content -->
 </body>
 
 </html>

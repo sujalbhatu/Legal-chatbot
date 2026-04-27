@@ -143,9 +143,10 @@ router.post('/sessions/:id/query', async (req, res) => {
                 query: query.trim(),
                 chat_history: chatHistory
             };
-            
+
             // Include language if provided (optional - RAG API will auto-detect if not provided)
-            if (language && ['en', 'hi', 'bn', 'sat'].includes(language)) {
+            const validLangs = ['en', 'hi', 'bn', 'sat', 'ta', 'te', 'mr', 'gu', 'kn', 'ml', 'pa', 'or', 'ur', 'as'];
+            if (language && validLangs.includes(language)) {
                 payload.language = language;
             }
 
