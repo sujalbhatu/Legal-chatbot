@@ -112,10 +112,10 @@ router.delete('/sessions/:id', async (req, res) => {
     }
 });
 
-// POST /api/chat/sessions/:id/query — send query to RAG
+// POST /api/chat/sessions/:id/query — send query to RAG with multilingual support
 router.post('/sessions/:id/query', async (req, res) => {
     try {
-        const { query } = req.body;
+        const { query, language } = req.body;
 
         if (!query || !query.trim()) {
             return res.status(400).json({ error: 'Query cannot be empty.' });
@@ -136,13 +136,20 @@ router.post('/sessions/:id/query', async (req, res) => {
             content: m.content
         }));
 
-        // Call RAG API
+        // Call RAG API with multilingual support
         let ragResponse;
         try {
-            const response = await axios.post(`${RAG_API_URL}/api/query`, {
+            const payload = {
                 query: query.trim(),
                 chat_history: chatHistory
-            }, { timeout: 60000 });
+            };
+            
+            // Include language if provided (optional - RAG API will auto-detect if not provided)
+            if (language && ['en', 'hi', 'bn', 'sat'].includes(language)) {
+                payload.language = language;
+            }
+
+            const response = await axios.post(`${RAG_API_URL}/api/query`, payload, { timeout: 60000 });
 
             ragResponse = response.data;
         } catch (ragError) {
@@ -161,14 +168,16 @@ router.post('/sessions/:id/query', async (req, res) => {
         session.messages.push({
             role: 'user',
             content: query.trim(),
-            sources: []
+            sources: [],
+            language: ragResponse.language || 'en'
         });
 
         // Add assistant response
         session.messages.push({
             role: 'assistant',
             content: ragResponse.answer || 'I apologize, but I was unable to generate a response.',
-            sources: ragResponse.sources || []
+            sources: ragResponse.sources || [],
+            language: ragResponse.language || 'en'
         });
 
         await session.save();
@@ -178,6 +187,8 @@ router.post('/sessions/:id/query', async (req, res) => {
 
         res.json({
             messages: lastMessages,
+            language: ragResponse.language,
+            language_name: ragResponse.language_name,
             session: {
                 _id: session._id,
                 title: session.title,

@@ -226,35 +226,38 @@ The main advantages of RAG over a normal AI chatbot is that the AI does not rely
 % ════════════════════════════════════════════════════════════════════════════
 \section{PDF Ingestion Pipeline}
 
-Before the system can answer any legal queries, it must first process and understand all the legal documents. This is done through the \textbf{PDF Ingestion Pipeline} --- a series of steps that takes raw legal PDF files and converts them into a searchable, AI-ready database. The pipeline runs once (or whenever new documents are added) and prepares the knowledge base for the RAG system.
+To successfully respond to legal requests, the system first must analyze and comprehend all uploaded legal documents. The process used for this is referred to as the PDF Ingestion Pipeline, in which various components are executed on the raw existing legal PDFs to prepare an appropriate searchable database that is ready for subsequent use by the Artificial Intelligence (AI) system. The pipeline is executed only once (or when there are newly uploaded documents) to establish the knowledge base for the RAG system.
 
 \subsection{Text Extraction}
 
-The first step is extracting readable text from the PDF files. Legal documents in India are typically published as PDF files by the government. These PDFs contain formatted text with headers, footers, page numbers, and sometimes multi-column layouts.
+The initial phase of the PDF Ingestion Pipeline will consist of Extracting Readable Text from the PDF Files. In India, legal documents are almost always provided as a PDF format, which have formatted text, include headers and footers, page numbers and may be formatted as multiple columns
 
-Our system uses \textbf{PyPDF2}, a Python library, to open each PDF file and extract text from every page. The extracted text is saved as a plain text file for further processing. During extraction, the system also adds page markers (such as ``PAGE 1'', ``PAGE 2'') to keep track of which content came from which page.
+To extract the text from PDF documents our system utilizes the \textbf{PyPDF2} library in the Python programming language to open each PDF file and retrieve all text from each page in each PDF document. The extracted text will be stored as a plain text file for subsequent processing. The extracted text will also include a page marker denoting which page it originated (e.g., "PAGE 1" or "PAGE 2") to identify where each piece of extracted text belongs by page number.
 
-\begin{infobox}
-\textbf{What happens here:} A PDF file like \textit{indian\_contract\_act\_1872.pdf} goes in, and a clean text file \textit{indian\_contract\_act\_1872.txt} comes out, containing all the text from every page of the PDF.
-\end{infobox}
+% 
+
+
+% \begin{infobox}
+% \textbf{What happens here:} A PDF file like \textit{indian\_contract\_act\_1872.pdf} goes in, and a clean text file \textit{indian\_contract\_act\_1872.txt} comes out, containing all the text from every page of the PDF.
+% \end{infobox}
 
 \subsection{Metadata Detection}
 
-Legal documents need proper identification --- the system must know which Act a piece of text belongs to, and what year it was enacted. Rather than manually entering this information for each document, our system \textbf{automatically detects metadata from the filename} of each PDF.
+There needs to be sufficient identification of legal documents, this means that the type of act and also the ~Year it was established. Our system automatically detects metadata from the filename of each PDF.
 
-The filename is parsed using a smart algorithm:
+The filename is processed using the following algorithm:
 \begin{itemize}
-  \item Underscores in the filename are replaced with spaces (e.g., \textit{indian\_contract\_act} becomes \textit{Indian Contract Act}).
-  \item A trailing four-digit number is recognised as the year (e.g., \textit{1872}).
+  \item Replaces underscores found in the filename with spaces (e.g., \textit{indian\_contract\_act} becomes \textit{Indian Contract Act}).
+  \item The last four digits in the filename are identified as a Year (e.g., \textit{1872}).
   \item The remaining part is title-cased to create a clean, readable Act name.
   \item For special cases (like the Aadhaar Act or the Constitution), a manual mapping is used to get the exact correct name.
 \end{itemize}
 
-This metadata (Act name and year) is attached to every chunk of text extracted from that document, ensuring that when the AI cites a source, it can provide the exact name like \textit{``Indian Contract Act, 1872, Section 73''} instead of just a filename.
-
+This metadata (act name/year) will be attached to every chunk of text extracted from the specific document so that when AI quotes a source, it will quote the full act name with Year, e.g., \textit{``Indian Contract Act, 1872, Section 73''} instead of just a filename.
 \subsection{Legal Text Chunking}
 
-This is one of the most important and carefully designed parts of the pipeline. Legal documents are very long --- sometimes hundreds of pages. An AI model cannot process an entire document at once, so we need to break it into smaller, meaningful pieces called \textbf{``chunks.''} However, the way we chunk the text matters a lot --- we cannot just split it arbitrarily, or we would lose the meaning of legal sections.
+
+It is the most significant part of the pipeline structured with proper planning. Legal documents used as a knowledge base can sometimes be very long , even a few hundred pages. Any LLM cannot process the entire large document in a single scan, and therefore we are required to break it down into smaller and meaningful pieces known as the \textbf{``chunks``}. Also, the way we divide the chunks has a huge impact on the working of the project , so we cannot just split it in a random manner, because it could lead to a loss of the meaning of the legal sections.
 
 \subsubsection{Document-Based Chunking Strategy}
 
@@ -264,23 +267,26 @@ Our chunking strategy is specifically designed for the structure of Indian legal
 \textbf{Typical structure of an Indian legal document:} \textbf{Act Name} $\rightarrow$ multiple \textbf{Chapters} (e.g., Chapter I, Chapter II\ldots) $\rightarrow$ each Chapter contains multiple \textbf{Sections} (e.g., Section 1, Section 2\ldots) $\rightarrow$ each Section contains the actual legal text, definitions, provisions, and clauses.
 \end{highlightbox}
 
-Our system exploits this natural structure to create intelligent chunks through the following steps:
+To make intelligent chunks, our system uses this natural structure in the following steps:
 
 \begin{enumerate}
-  \item \textbf{Raw Text Cleaning:} Before chunking, the extracted text is cleaned up. PDF artifacts like gazette headers, page markers, excessive whitespace, and formatting noise are removed.
-  \item \textbf{Section-Based Splitting:} The system uses pattern-matching to identify section boundaries. It looks for patterns like ``1. Short title and commencement'' or ``33A. Penalty for fraud'' --- a number (optionally followed by a letter), a period, and then the section title.
-  \item \textbf{Chapter Tracking:} As the system reads through the text, it also watches for chapter headers (like ``CHAPTER IV --- OF THE PERFORMANCE OF CONTRACTS''). Whenever it finds a chapter header, it updates the current chapter label.
-  \item \textbf{Preamble Handling:} Any text that appears before the first section (such as the preamble, definitions, or introductory statements) is captured as a separate ``Preamble'' chunk.
-  \item \textbf{Large Section Splitting:} If a section exceeds 3,000 characters, the system further splits it at sentence boundaries, looking for full stops or semicolons within a 1,500-character window.
+  \item \textbf{Raw Text Cleaning:} To carry out the chunking operation, we used the data cleaning operation on the text obtained after the extraction of the data in the pdf. In the cleaning process we pulled off the artifacts that comprise of gazette headers, page markers, too much whitespace and noise in the formatting.
+  \item \textbf{Section-Based Splitting:} In this approach we simply adopt pattern-matching technique in an effort to identify the section boundaries. Here it is actually searching by such patterns as: 1. Short title and commencement or 33A. Penalty for fraud which is basically a number followed by a letter (which may or may not be present) followed by a period followed by a title of the section.
+  \item \textbf{Chapter Tracking:} The system is also tracking the appearance of chapter heads as it reads through the text (such as, the appearance of the chapter IV in the text, which is the heading of the chapter, which here is of the performance of contracts). Each time it encounters a chapter header, it changes the one at hand.
+
+  \item \textbf{Preamble Handling:}Text preceding the first part (e.g. the preamble, definitions or introductory statements) is captured as a distinct chunk termed as a Preamble.
+  \item \textbf{Large Section Splitting:} In case a section contains more than 3,000 characters, the system continues to subdivide it into sentences, searching full stops or semicolons in a 1,500-character window.
+
   \item \textbf{Fallback for Non-Standard Documents:} If a document does not follow standard section numbering, the system falls back to pure sentence-boundary splitting, creating sequential parts labelled ``Part 1'', ``Part 2'', etc.
-  \item \textbf{Short Section Filtering:} Very short text fragments (less than 70 characters) are automatically skipped, as these are typically table-of-contents entries or formatting artifacts.
+  \item \textbf{Short Section Filtering:} Text fragments shorter than 70 characters are automatically skipped, since they are usually entries in a table of contents or formatting artefacts.
 \end{enumerate}
 
-Each chunk is stored as a structured record containing both the text content and its associated metadata --- the Act name, year, source filename, chapter, section number, and section title.
+Each portion is written as a structured record with the textual content and the metadata of the content - the name of the Act, the year, the name of the source file, the chapter, the section number, and the section title.
 
-\begin{infobox}
-\textbf{Example Chunk:} \textbf{Act:} Indian Contract Act, 1872 \quad\textbf{Chapter:} VI --- Of the Consequences of Breach of Contract \quad \textbf{Section:} 73 --- Compensation for loss or damage caused by breach \quad \textbf{Text:} ``When a contract has been broken, the party who suffers by such breach is entitled to receive, as compensation\ldots''
-\end{infobox}
+% \begin{infobox}
+% \textbf{Example Chunk:} \textbf{Act:} Indian Contract Act, 1872 \quad\textbf{Chapter:} VI --- Of the Consequences of Breach of Contract \quad \textbf{Section:} 73 --- Compensation for loss or damage caused by breach \quad \textbf{Text:} ``When a contract has been broken, the party who suffers by such breach is entitled to receive, as compensation\ldots''
+% \end{infobox}
+
 
 \subsection{Vector Store Construction}
 The last stage of processing the legal documents is to create a searchable collection of these documents based on their meaning rather than just keywords, and this is done by converting each chunk of text into a \textbf{vector embedding}, which is an array of numeric values representing the semantic meaning of the original text. The embeddings for the law documents will be stored in a \textbf{vector database}.
@@ -485,9 +491,11 @@ The system adopts secure user authentication based on:
 \end{itemize}
 
 % ════════════════════════════════════════════════════════════════════════════
+% ════════════════════════════════════════════════════════════════════════════
 \section{Knowledge Base \& Legal Documents}
 
-The system's knowledge base contains \textbf{18 major Indian legal documents} covering a wide range of legal topics, as listed in Table~\ref{tab:knowledge-base}.
+% The system's knowledge base contains \textbf{18 major Indian legal documents} covering a wide range of legal topics, as listed in Table~\ref{tab:knowledge-base}.
+Table~\ref{tab:knowledge-base} contains an overview of 18 essential pieces of Indian Law documents on various topics of law that will form the base of the system's knowledge base.
 
 \begin{longtable}{clp{4.5cm}}
   \toprule
@@ -523,12 +531,15 @@ The system's knowledge base contains \textbf{18 major Indian legal documents} co
   \label{tab:knowledge-base}
 \end{longtable}
 
-This diverse collection ensures that the system can answer questions across constitutional rights, criminal law, civil procedures, family matters, child protection, cyber law, tax, environmental issues, traffic regulations, and government transparency.
+% This diverse collection ensures that the system can answer questions across constitutional rights, criminal law, civil procedures, family matters, child protection, cyber law, tax, environmental issues, traffic regulations, and government transparency.
+% These documents are intended to facilitate the System's ability to field requests for information on Constitutional Law, Criminal Law, Civil Procedure, Family Law, Child Protection, Cyber Law, Taxation, Environmental Law, Traffic Law and Government Transparency.
+The above documents will enable the system to answer queries about various topics such as Constitutional Law, Criminal Law, Civil Procedure \& Family Law, Child Law, Cyber Law, Tax Law, Environmental Law, Traffic Law, and Transparency of Government.
 
 % ════════════════════════════════════════════════════════════════════════════
 \section{Technology Stack}
 
-Table~\ref{tab:tech-stack} summarises the complete technology stack used to build the Legal Query System.
+% Table~\ref{tab:tech-stack} summarises the complete technology stack used to build the Legal Query System.
+Table~\ref{tab:tech-stack} is an overview of the entire technological infrastructure used to build the Legal Query System.
 
 \begin{table}[H]
 \centering
@@ -556,21 +567,35 @@ HTTP Client         & Axios                                 & Frontend-to-backen
 \section{Key Features}
 
 \begin{enumerate}
-  \item \textbf{Natural Language Understanding:} Users can ask questions in plain English without knowing specific legal terminology. The semantic search finds relevant sections regardless of the exact wording used.
-  \item \textbf{Accurate Legal Citations:} Every answer includes properly cited references --- the Act name, Section number, Chapter, and relevant excerpt --- so users can verify the information independently.
-  \item \textbf{Multi-Turn Conversations:} The system remembers the context of the ongoing conversation (up to the last 6 messages), allowing users to ask follow-up questions naturally.
-  \item \textbf{Smart Response Behaviour:} The system distinguishes between casual greetings and actual legal questions. For greetings, it responds naturally. For legal questions, it provides structured, cited answers.
-  \item \textbf{Source Transparency:} Every response comes with expandable source citations that show the relevant text excerpts, similarity scores, and exact legal references.
-  \item \textbf{Session Management:} Users can create, revisit, and manage multiple query sessions --- useful for tracking different legal issues over time.
-  \item \textbf{Secure Authentication:} Protected user accounts with hashed passwords and JWT-based authentication ensure data privacy.
-  \item \textbf{Relevance Filtering:} A 45\% similarity threshold automatically filters out irrelevant sources, preventing noise in the citations.
-  \item \textbf{Legal Disclaimer:} Every substantive legal answer includes a disclaimer advising users to consult a qualified professional, ensuring responsible use.
+  % \item \textbf{Natural Language Understanding:} Users can ask questions in plain English without knowing specific legal terminology. The semantic search finds relevant sections regardless of the exact wording used.
+  % \item \textbf{Accurate Legal Citations:} Every answer includes properly cited references --- the Act name, Section number, Chapter, and relevant excerpt --- so users can verify the information independently.
+  % \item \textbf{Multi-Turn Conversations:} The system remembers the context of the ongoing conversation (up to the last 6 messages), allowing users to ask follow-up questions naturally.
+  % \item \textbf{Smart Response Behaviour:} The system distinguishes between casual greetings and actual legal questions. For greetings, it responds naturally. For legal questions, it provides structured, cited answers.
+  % \item \textbf{Source Transparency:} Every response comes with expandable source citations that show the relevant text excerpts, similarity scores, and exact legal references.
+  % \item \textbf{Session Management:} Users can create, revisit, and manage multiple query sessions --- useful for tracking different legal issues over time.
+  \item \textbf{Natural Language Understanding:} Users are able to ask questions in plain English without knowing the exact legal terminology and the semantic search allows users to find the relevant sections of documents without knowing the exact words used.
+  \item \textbf{Legal Citation Accuracy:} All responses include; the act title, section number, chapter and relevant excerpt in order that users may independently verify the information.
+  \item \textbf{Multi-transactional interactions:} The system retains the context of the last 6 messages in order for users to ask follow-on questions in a natural way.
+  \item \textbf{Intelligent Response Behaviour:} The system differentiates between a casual greeting and an actual legal question; it replies in a casual manner to greetings and in a structured legislated manner to legal questions.
+  \item \textbf{Source Transparency:} All responses will have expandable source citations with relevant text excerpts, similarity scores, and specific legal reference.
+  \item \textbf{Session Management:} Users will be able to report, re-visit and create new sessions.
+
+  \item \textbf{Secure User Authentication:} Hashed password plus JWT authentication for privacy
+  % \item \textbf{Secure Authentication:} Protected user accounts with hashed passwords and JWT-based authentication ensure data privacy.
+  
+  % \item \textbf{Relevance Filtering:} A 45\% similarity threshold automatically filters out irrelevant sources, preventing noise in the citations.
+  \item \textbf{Relevance Filtering:} To eliminate citations with less than 45\% similarity.
+
+  \item \textbf{Legal Disclaimer:} {Every significant legal answer has logic with a warning to "consult qualified}
+for proper use)
+  % \item \textbf{Legal Disclaimer:} Every substantive legal answer includes a disclaimer advising users to consult a qualified professional, ensuring responsible use.
 \end{enumerate}
 
-% ════════════════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════════════════
 \section{Challenges \& Solutions}
 
-Table~\ref{tab:challenges} summarises the key technical challenges encountered during development and the solutions implemented to address them.
+% Table~\ref{tab:challenges} summarises the key technical challenges encountered during development and the solutions implemented to address them.
+The challenges that arose during the development phase and how they were solved are displayed in Table~\ref{tab:challenges} below: 
 
 \begin{table}[H]
 \centering
@@ -578,23 +603,65 @@ Table~\ref{tab:challenges} summarises the key technical challenges encountered d
 \toprule
 \textbf{Challenge} & \textbf{Solution} \\
 \midrule
-PDF text extraction produces noisy output with headers, footers, and formatting artifacts &
-Implemented a dedicated text cleaning step that removes gazette headers, page markers, and excessive whitespace using regular expressions \\
+% PDF text extraction produces noisy output with headers, footers, and formatting artifacts &
+% Implemented a dedicated text cleaning step that removes gazette headers, page markers, and excessive whitespace using regular expressions \\
+Pictures of pages with PDF text extraction produce noisy text with gazette header pagination and formatting artifacts. &
+Creation of a separate, cleaning step that removes all gazette headings, page marker, and excessive whitespace by using regular expressions \\
+
 \addlinespace
-Fixed-size text chunking breaks legal sections in the middle, losing meaning &
-Designed section-aware chunking that splits by legal section boundaries and only sub-splits large sections at sentence boundaries \\
+Fixed size text chunking – because the legal sections are broken in half at fixed-size text chunking, the legal section information may be lost. &
+Section aware chunking was created to "chunk" by legal section boundary when "chunked”. All legal section chunks greater than max length will also be broken at the end of each sentence. \\
 \addlinespace
-Some documents do not follow standard section numbering &
-Implemented a fallback strategy that splits by sentence boundaries and creates sequential parts \\
+Some documents do not contain the standard section numbering format &
+A fallback method of splitting by (sentence) boundaries will occur in this scenario, ultimately creating sequential parts.  \\
+
 \addlinespace
-Identifying Act names and years reliably from diverse filenames &
-Combined filename parsing (underscore removal, year extraction, title-casing) with a manual override map for special cases \\
+Act names and years are consistently identified even when using different filename formats. &
+When possible, the filenames were parseable with the removal of underscores, extracting the year of the legislation and ultimately (title-cased) the Act names.  \\
+
 \addlinespace
-AI model generating citations for casual greetings &
-Added similarity-based source filtering (threshold 0.45) and explicit system prompt rules for casual conversation handling \\
+There is now a model for AI citation that generates citations for “toy” or casual greetings. &
+The system now contains a threshold applied to classify similar ("0.45") sources as acceptable for classification as a citation for casual conversation. \\
+
 \addlinespace
-Long response times due to model loading &
-Used a singleton pattern to load the pipeline once and reuse it for all requests \\
+% Time for generating responses from the AI citation system takes an excessive amount of time to retrieve (due to the amount of time required to load the model) &
+% Each request sent to the AI citation system will now only require one retrieval of the model; the model will be stored in singleton pattern and reused for all requests \\
+Retrieval time is more because of the loading of the model &
+Pipeline is loaded once as a pattern and reused for all requests. \\
+% \bottomrule
+% \end{tabular}
+% \caption{Key development challenges and corresponding solutions.}
+% \label{tab:challenges}
+% \end{table}
+
+% ════════════════════════════════════════════════════════════════════════════
+% \section{Challenges \& Solutions}
+
+% Table~\ref{tab:challenges} summarises the key technical challenges encountered during development and the solutions implemented to address them.
+
+% \begin{table}[H]
+% \centering
+% \begin{tabular}{p{6.5cm} p{7cm}}
+% \toprule
+% \textbf{Challenge} & \textbf{Solution} \\
+% \midrule
+% PDF text extraction produces noisy output with headers, footers, and formatting artifacts &
+% Implemented a dedicated text cleaning step that removes gazette headers, page markers, and excessive whitespace using regular expressions \\
+% \addlinespace
+% Fixed-size text chunking breaks legal sections in the middle, losing meaning &
+% Designed section-aware chunking that splits by legal section boundaries and only sub-splits large sections at sentence boundaries \\
+% \addlinespace
+% Some documents do not follow standard section numbering &
+% Implemented a fallback strategy that splits by sentence boundaries and creates sequential parts \\
+% \addlinespace
+% Identifying Act names and years reliably from diverse filenames &
+% Combined filename parsing (underscore removal, year extraction, title-casing) with a manual override map for special cases \\
+% \addlinespace
+% AI model generating citations for casual greetings &
+% Added similarity-based source filtering (threshold 0.45) and explicit system prompt rules for casual conversation handling \\
+% \addlinespace
+% Long response times due to model loading &
+% Used a singleton pattern to load the pipeline once and reuse it for all requests \\
 \bottomrule
 \end{tabular}
 \caption{Key development challenges and corresponding solutions.}
