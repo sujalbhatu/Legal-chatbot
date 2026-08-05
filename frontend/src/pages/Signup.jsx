@@ -7,6 +7,7 @@ export default function Signup() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -17,6 +18,11 @@ export default function Signup() {
 
         if (password.length < 6) {
             setError('Password must be at least 6 characters.');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            setError('Passwords do not match.');
             return;
         }
 
@@ -37,11 +43,11 @@ export default function Signup() {
             <div className="glass-card animate-fade-in" style={{ width: '100%', maxWidth: '440px', padding: '2.5rem', position: 'relative', overflow: 'hidden' }}>
 
                 {/* Decorative background blur inside card */}
-                <div style={{ position: 'absolute', top: '-100px', left: '-100px', width: '200px', height: '200px', background: 'var(--accent-emerald)', borderRadius: '50%', filter: 'blur(100px)', opacity: '0.15', zIndex: 0 }}></div>
+                <div style={{ position: 'absolute', top: '-100px', left: '-100px', width: '200px', height: '200px', background: 'var(--accent-secondary)', borderRadius: '50%', filter: 'blur(100px)', opacity: '0.15', zIndex: 0 }}></div>
 
                 <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', marginBottom: '2rem' }}>
                     <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(59, 130, 246, 0.1))', border: '1px solid var(--border-color)', marginBottom: '1.5rem', boxShadow: 'var(--shadow-glow)' }}>
-                        <Scale size={32} color="var(--accent-emerald)" />
+                        <Scale size={32} color="var(--accent-secondary)" />
                     </div>
                     <h1>Create Account</h1>
                     <p>Join Legal Query Assistant today</p>
@@ -93,7 +99,7 @@ export default function Signup() {
                         </div>
                     </div>
 
-                    <div className="input-group" style={{ marginBottom: '2rem' }}>
+                    <div className="input-group">
                         <label className="input-label" htmlFor="password">Password</label>
                         <div style={{ position: 'relative' }}>
                             <div style={{ position: 'absolute', top: '50%', left: '1rem', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
@@ -103,7 +109,7 @@ export default function Signup() {
                                 id="password"
                                 type="password"
                                 className="input-field"
-                                placeholder="At least 6 characters"
+                                placeholder="••••••••"
                                 style={{ paddingLeft: '2.75rem' }}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
@@ -112,7 +118,26 @@ export default function Signup() {
                         </div>
                     </div>
 
-                    <button type="submit" className="btn btn-primary" style={{ width: '100%', marginBottom: '1.5rem', background: 'linear-gradient(135deg, var(--accent-emerald), #059669)', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)' }} disabled={loading}>
+                    <div className="input-group" style={{ marginBottom: '2rem' }}>
+                        <label className="input-label" htmlFor="confirmPassword">Confirm Password</label>
+                        <div style={{ position: 'relative' }}>
+                            <div style={{ position: 'absolute', top: '50%', left: '1rem', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
+                                <Lock size={18} />
+                            </div>
+                            <input
+                                id="confirmPassword"
+                                type="password"
+                                className="input-field"
+                                placeholder="••••••••"
+                                style={{ paddingLeft: '2.75rem' }}
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <button type="submit" className="btn btn-primary" style={{ width: '100%', marginBottom: '1.5rem', background: 'linear-gradient(135deg, var(--accent-secondary), #059669)', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)' }} disabled={loading}>
                         {loading ? 'Creating account...' : 'Create Account'}
                         <ArrowRight size={18} />
                     </button>

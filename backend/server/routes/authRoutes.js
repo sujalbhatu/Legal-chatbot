@@ -94,5 +94,42 @@ router.get('/profile', authMiddleware, async (req, res) => {
         res.status(500).json({ error: 'Server error.' });
     }
 });
+// PUT /api/auth/profile (protected)
+router.put('/profile', authMiddleware, async (req, res) => {
+    try {
+        const { name, password } = req.body;
+        
+        // Find user
+        const user = await User.findById(req.userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+        
+        // Update fields
+        if (name) {
+            if (name.length < 2) {
+                return res.status(400).json({ error: 'Name must be at least 2 characters.' });
+            }
+            user.name = name;
+        }
+        
+        if (password) {
+            if (password.length < 6) {
+                return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+            }
+            user.password = password;
+        }
+        
+        await user.save();
+        
+        res.json({
+            message: 'Profile updated successfully!',
+            user: user.toJSON()
+        });
+    } catch (err) {
+        console.error('Profile update error:', err);
+        res.status(500).json({ error: 'Server error during profile update.' });
+    }
+});
 
 module.exports = router;

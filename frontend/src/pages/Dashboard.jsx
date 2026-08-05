@@ -106,13 +106,13 @@ export default function Dashboard() {
                 </div>
 
                 <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', color: 'var(--text-primary)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }} onClick={() => navigate('/profile')}>
+                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--accent-primary-transparent)', border: '1px solid var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', color: 'var(--accent-primary)' }}>
                             {user?.name?.charAt(0).toUpperCase() || 'U'}
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span style={{ fontSize: '0.875rem', fontWeight: 500, lineHeight: 1.2 }}>{user?.name || 'User'}</span>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Pro Account</span>
+                            <span style={{ fontSize: '0.875rem', fontWeight: 500, lineHeight: 1.2, color: 'var(--text-primary)' }}>{user?.name || 'User'}</span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--accent-primary)' }}>View Profile</span>
                         </div>
                     </div>
                     <button className="btn-icon" onClick={handleLogout} title="Sign Out">
@@ -133,8 +133,17 @@ export default function Dashboard() {
                     </div>
 
                     {loading ? (
-                        <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem 0' }}>
-                            <div className="animate-pulse" style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--accent-gold)' }}></div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            {[1, 2, 3].map(i => (
+                                <div key={i} className="glass-card" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center' }}>
+                                    <div className="skeleton-box" style={{ width: '40px', height: '40px', borderRadius: '8px', marginRight: '1rem' }}></div>
+                                    <div style={{ flexGrow: 1 }}>
+                                        <div className="skeleton-box" style={{ width: '40%', height: '1.2rem', marginBottom: '0.5rem' }}></div>
+                                        <div className="skeleton-box" style={{ width: '20%', height: '0.8rem' }}></div>
+                                    </div>
+                                    <div className="skeleton-box" style={{ width: '80px', height: '30px', borderRadius: '16px' }}></div>
+                                </div>
+                            ))}
                         </div>
                     ) : filteredSessions.length === 0 ? (
                         <div className="glass-card" style={{ padding: '4rem 2rem', textAlign: 'center' }}>

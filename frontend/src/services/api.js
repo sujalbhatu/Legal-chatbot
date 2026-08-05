@@ -41,6 +41,14 @@ export const authService = {
         return response.data;
     },
 
+    updateProfile: async (userData) => {
+        const response = await api.put('/auth/profile', userData);
+        if (response.data.user) {
+            localStorage.setItem('legal_user', JSON.stringify(response.data.user));
+        }
+        return response.data;
+    },
+
     logout: () => {
         localStorage.removeItem('legal_token');
         localStorage.removeItem('legal_user');

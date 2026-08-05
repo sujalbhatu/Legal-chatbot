@@ -3,6 +3,23 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Send, ArrowLeft, CheckCircle, Scale, Building2, BookOpen, AlertTriangle, FileText, ChevronDown, ChevronRight, Loader2, User } from 'lucide-react';
 import { chatService } from '../services/api';
 
+// Helper to parse and highlight legal terms and markdown bolding
+const formatMessage = (text) => {
+    if (!text) return '';
+    let parsed = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    
+    // Highlight **bold** text
+    parsed = parsed.replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--accent-primary); font-weight: 600;">$1</strong>');
+    
+    // Highlight legal sections like "Section 43" or "Article 21"
+    parsed = parsed.replace(/\b(Section|Article|Act|Clause|Chapter)\s+(\d+[a-zA-Z]*)\b/gi, '<strong style="color: var(--accent-primary); font-weight: 600;">$1 $2</strong>');
+    
+    // Highlight the word "Act" if capitalized
+    parsed = parsed.replace(/\b([A-Z][a-zA-Z\s]+ Act,?\s\d{4})\b/g, '<strong style="color: var(--accent-primary); font-weight: 600;">$1</strong>');
+
+    return parsed;
+};
+
 // Legal disclaimer component
 const LegalDisclaimer = () => (
     <div style={{ backgroundColor: 'rgba(251, 191, 36, 0.1)', border: '1px solid rgba(251, 191, 36, 0.3)', borderRadius: 'var(--radius-md)', padding: '0.75rem 1rem', display: 'flex', gap: '0.75rem', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
@@ -180,12 +197,15 @@ export default function Chat() {
                         </div>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         {!session?.isSolved && (
-                            <button className="btn btn-secondary" onClick={markAsSolved} style={{ padding: '0.5rem 1rem' }}>
+                            <button className="btn btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }} onClick={markAsSolved}>
                                 <CheckCircle size={16} color="var(--accent-emerald)" /> Mark as Solved
                             </button>
                         )}
+                        <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'var(--accent-primary-transparent)', border: '1px solid var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', color: 'var(--accent-primary)', cursor: 'pointer' }} onClick={() => navigate('/profile')} title="View Profile">
+                            <User size={18} />
+                        </div>
                     </div>
                 </header>
 
@@ -241,9 +261,7 @@ export default function Chat() {
                                                 <div
                                                     style={{ color: 'var(--text-primary)', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}
                                                     dangerouslySetInnerHTML={{
-                                                        __html: (msg.content || '')
-                                                            .replace(/</g, '&lt;').replace(/>/g, '&gt;')
-                                                            .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--accent-gold);">$1</strong>')
+                                                        __html: formatMessage(msg.content)
                                                     }}
                                                 />
                                             </div>
@@ -269,14 +287,19 @@ export default function Chat() {
                                 {sending && (
                                     <div style={{ display: 'flex', gap: '1.5rem' }}>
                                         <div style={{ flexShrink: 0 }}>
-                                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--accent-gold-transparent)', border: `1px solid var(--accent-gold)` }}>
-                                                <Loader2 size={20} color="var(--accent-gold)" className="animate-spin" />
+                                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--accent-primary-transparent)', border: `1px solid var(--accent-primary)` }}>
+                                                <Loader2 size={20} color="var(--accent-primary)" className="animate-spin" />
                                             </div>
                                         </div>
-                                        <div className="glass-card" style={{ padding: '1.25rem 1.5rem', borderTopLeftRadius: '4px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                            <div className="animate-pulse" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent-gold)' }}></div>
-                                            <div className="animate-pulse" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent-gold)', animationDelay: '200ms' }}></div>
-                                            <div className="animate-pulse" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent-gold)', animationDelay: '400ms' }}></div>
+                                        <div className="glass-card" style={{ padding: '1.25rem 1.5rem', borderTopLeftRadius: '4px', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                            <div style={{ display: 'flex', gap: '0.25rem' }}>
+                                                <div className="animate-pulse" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent-primary)' }}></div>
+                                                <div className="animate-pulse" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent-primary)', animationDelay: '200ms' }}></div>
+                                                <div className="animate-pulse" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent-primary)', animationDelay: '400ms' }}></div>
+                                            </div>
+                                            <span style={{ color: 'var(--accent-primary)', fontSize: '0.875rem', fontWeight: 500, letterSpacing: '0.02em' }} className="animate-pulse">
+                                                AI is analyzing legal corpus...
+                                            </span>
                                         </div>
                                     </div>
                                 )}
