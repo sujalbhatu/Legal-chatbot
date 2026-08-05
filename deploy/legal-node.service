@@ -1,0 +1,33 @@
+[Unit]
+Description=Legal Query System - Node.js API Server
+Documentation=https://github.com/SUJALKR18/Legal_Query_System
+After=network.target
+
+[Service]
+Type=simple
+User=legal
+Group=legal
+WorkingDirectory=/opt/legal-query/backend/server
+Environment=NODE_ENV=production
+Environment=NODE_OPTIONS=--max-old-space-size=128
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=5
+
+# Memory limit — hard kill if Node exceeds 150MB
+MemoryMax=150M
+MemorySwapMax=200M
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/opt/legal-query/backend/server
+PrivateTmp=true
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=legal-node
+
+[Install]
+WantedBy=multi-user.target

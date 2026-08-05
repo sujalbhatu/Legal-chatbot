@@ -242,8 +242,9 @@ def build_vector_store(chunks_dir: str, vector_db_dir: str):
     from sentence_transformers import SentenceTransformer
     import gc
     
-    print("Loading specialized legal embedding model: law-ai/InLegalBERT...")
-    model = SentenceTransformer('law-ai/InLegalBERT')
+    model_name = os.getenv('EMBEDDING_MODEL', 'all-MiniLM-L6-v2')
+    print(f"Loading embedding model: {model_name}...")
+    model = SentenceTransformer(model_name)
     
     # Initialize ChromaDB
     client = PersistentClient(path=str(vector_db_dir))

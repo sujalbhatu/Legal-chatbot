@@ -1,0 +1,39 @@
+[Unit]
+Description=Legal Query System - RAG Pipeline (Flask/Gunicorn)
+Documentation=https://github.com/SUJALKR18/Legal_Query_System
+After=network.target
+
+[Service]
+Type=simple
+User=legal
+Group=legal
+WorkingDirectory=/opt/legal-query/backend/rag_model
+Environment=PYTHONUNBUFFERED=1
+
+# Use the virtual environment's gunicorn
+ExecStart=/opt/legal-query/backend/rag_model/venv/bin/gunicorn -c /opt/legal-query/deploy/gunicorn.conf.py app:app
+
+Restart=always
+RestartSec=10
+
+# Memory limit — allows up to 500MB (embedding model + ChromaDB)
+# Swap allowed for overflow during model loading
+MemoryMax=500M
+MemorySwapMax=1G
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/opt/legal-query
+PrivateTmp=true
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=legal-rag
+
+# Give extra time for model loading on first start
+TimeoutStartSec=120
+
+[Install]
+WantedBy=multi-user.target

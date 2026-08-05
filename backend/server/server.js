@@ -8,9 +8,14 @@ const chatRoutes = require('./routes/chatRoutes');
 
 const app = express();
 
+// Production: trust Nginx reverse proxy (correct client IP in req.ip)
+if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', 1);
+}
+
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '1mb' })); // Limit payload size
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -28,9 +33,24 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/legal_
 mongoose.connect(MONGODB_URI)
     .then(() => {
         console.log('Connected to MongoDB');
-        app.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
+        const server = app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT} (${process.env.NODE_ENV || 'development'})`);
         });
+
+        // Graceful shutdown (systemd sends SIGTERM)
+        const shutdown = (signal) => {
+            console.log(`${signal} received. Shutting down gracefully...`);
+            server.close(() => {
+                mongoose.connection.close(false).then(() => {
+                    console.log('MongoDB connection closed.');
+                    process.exit(0);
+                });
+            });
+            // Force exit after 10s if graceful shutdown fails
+            setTimeout(() => process.exit(1), 10000);
+        };
+        process.on('SIGTERM', () => shutdown('SIGTERM'));
+        process.on('SIGINT', () => shutdown('SIGINT'));
     })
     .catch(err => {
         console.error('MongoDB connection error:', err);

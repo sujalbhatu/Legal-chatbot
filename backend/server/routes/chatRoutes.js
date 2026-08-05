@@ -150,7 +150,7 @@ router.post('/sessions/:id/query', async (req, res) => {
                 payload.language = language;
             }
 
-            const response = await axios.post(`${RAG_API_URL}/api/query`, payload, { timeout: 60000 });
+            const response = await axios.post(`${RAG_API_URL}/api/query`, payload, { timeout: 120000 });
 
             ragResponse = response.data;
         } catch (ragError) {

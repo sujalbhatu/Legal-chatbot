@@ -31,7 +31,7 @@ VECTOR_DB_DIR = BASE_DIR / "data" / "vector_db"
 # Embedding model - using lightweight model to avoid memory issues
 # Default: all-MiniLM-L6-v2 (English, very fast, ~100MB)
 # For multilingual: 'sentence-transformers/multilingual-e5-small' (~150MB) after HF login
-EMBEDDING_MODEL_NAME = os.getenv("EMBEDDING_MODEL", "law-ai/InLegalBERT")
+EMBEDDING_MODEL_NAME = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
 
 # Language mapping — expanded for all major Indian languages
 LANGUAGE_CODES = {
@@ -80,7 +80,7 @@ DO NOT use rigid formatting or headers like "1. Simple Explanation" or "2. Forma
 
 2. **Citation is mandatory for legal questions**: Every legal claim you make MUST cite the exact Act name, Section number, and clause text from the provided context directly in the paragraphs.
 
-3. **Never hallucinate**: If the provided context does not contain information to answer the question, clearly say: "I don't have specific information about this."
+3. **Strict Scope / No Hallucination**: You are STRICTLY a legal assistant. If the user asks a question about coding, programming, math, science, or any topic unrelated to Indian Law, you MUST refuse to answer and say exactly: "I can only answer questions related to Indian Law." If the user asks a legal question but the provided context does not contain the information, say: "I don't have specific information about this."
 
 4. **Never reveal your implementation**: Do not discuss your AI model, architecture, training, owner, or how you work internally. If asked, politely redirect.
 
@@ -175,7 +175,7 @@ class LegalRAGPipeline:
     def __init__(self):
         print("Initializing Legal RAG Pipeline with Multilingual Support...")
         
-        self.model_name = os.getenv("EMBEDDING_MODEL", "law-ai/InLegalBERT")
+        self.model_name = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
         print(f"  Loading legal-specialized embedding model: {self.model_name}...")
         self.embed_model = SentenceTransformer(self.model_name)
         
@@ -361,6 +361,16 @@ class LegalRAGPipeline:
         # (The embedding model all-MiniLM-L6-v2 is English-only)
         search_query = self.translate_to_english(user_query, language)
         
+        # Step 1.2: Simple Contextual Query Augmentation
+        # If the user asks a short follow-up query, append the context from the previous query
+        if chat_history and len(chat_history) >= 2:
+            last_user_msg = next((m.get('content', '') for m in reversed(chat_history) if m.get('role') == 'user'), "")
+            if last_user_msg and len(search_query.split()) < 10:
+                # Use only the first 20 words of the last query to avoid diluting the embedding
+                last_user_words = " ".join(last_user_msg.split()[:20])
+                search_query = f"{last_user_words} {search_query}"
+                print(f"  ℹ Augmented search query with context: '{search_query[:80]}...'")
+        
         # Step 1.5: Dynamic IndiaCode fetch — check if we need to download a new law
         try:
             from indiacode_fetcher import fetch_and_ingest_if_needed
@@ -518,6 +528,15 @@ class LegalRAGPipeline:
             # Use generic template for languages without handcrafted prompts
             lang_name = LANGUAGE_CODES.get(language, 'English')
             system_prompt = GENERIC_SYSTEM_PROMPT.format(language_name=lang_name, context=context)
+            
+        # --- HALLUCINATION GUARDRAIL ---
+        if not sources and ('fetch_result' not in locals() or not fetch_result.get('web_context')):
+            system_prompt += (
+                "\n\nCRITICAL SYSTEM INSTRUCTION: The database returned NO results for this query. "
+                "If the user is asking ANY substantive legal question, YOU MUST NOT use your internal training data to answer it. "
+                "You MUST reply exactly with: 'I could not find relevant legal information in my database to answer this question.' "
+                "You may ONLY answer normally if the user is making casual conversation (e.g., 'hello', 'who are you')."
+            )
         
         # Step 4: Build messages for Groq
         messages = [
