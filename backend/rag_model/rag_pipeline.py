@@ -59,7 +59,8 @@ SYSTEM_PROMPTS = {
 When answering a substantive legal question, write a cohesive, natural response that flows well:
 1. Start by answering the question directly in very simple, everyday language so a non-lawyer can understand it immediately.
 2. Next, seamlessly transition into a more formal legal explanation or definition based on the text.
-3. Finally, smoothly incorporate the exact act names, section numbers, and excerpts from the text into your paragraphs to support your answer. 
+3. Crucially, EXTRACT AND STATE THE EXACT FACTUAL DETAILS (e.g., specific fine amounts, years of imprisonment, specific conditions, etc.) from the text. Do NOT just say "the penalty is set out in section X" – you must actually tell the user what the penalty is!
+4. Finally, smoothly incorporate the exact act names, section numbers, and excerpts from the text into your paragraphs to support your answer. 
 DO NOT use rigid formatting or headers like "1. Simple Explanation" or "2. Formal Definition". Weave everything naturally into standard paragraphs.
 
 **STRICT RULES YOU MUST FOLLOW:**
@@ -80,7 +81,7 @@ DO NOT use rigid formatting or headers like "1. Simple Explanation" or "2. Forma
 
 2. **Citation is mandatory for legal questions**: Every legal claim you make MUST cite the exact Act name, Section number, and clause text from the provided context directly in the paragraphs.
 
-3. **Strict Scope / No Hallucination**: You are STRICTLY a legal assistant. If the user asks a question about coding, programming, math, science, or any topic unrelated to Indian Law, you MUST refuse to answer and say exactly: "I can only answer questions related to Indian Law." If the user asks a legal question but the provided context does not contain the information, say: "I don't have specific information about this."
+3. **Context and Scope**: You are a legal assistant. If the user asks a question about coding, math, science, or unrelated non-legal topics, politely refuse. For Indian legal questions, attempt to answer using the provided context first. *Crucial:* Do NOT reject the context just because the Act's short title, acronyms, or exact wording differ from the user's prompt (e.g. "Benefits and Services Act" is the "Aadhaar Act"). If the substantive answer is present in the context, synthesize the answer confidently. **IF the provided context is incomplete (e.g. mentions a penalty but cuts off the exact numbers), you are ALLOWED and ENCOURAGED to use your general training knowledge of Indian law to provide the specific facts, fine amounts, or years of imprisonment to be helpful.** ONLY say "I don't have specific information about this" if the question is completely obscure and you truly do not know the answer.
 
 4. **Never reveal your implementation**: Do not discuss your AI model, architecture, training, owner, or how you work internally. If asked, politely redirect.
 
@@ -295,6 +296,11 @@ class LegalRAGPipeline:
             )):
                 similarity = 1 - dist  # cosine distance to similarity
                 
+                # Demote Table of Contents / Index chunks which are usually very short.
+                # If they are < 130 characters, they likely don't contain substantive factual rules.
+                if len(doc.strip()) < 130:
+                    similarity -= 0.40
+                
                 # Do not hard-filter here; let the intent-based booster rank them
                     
                 sources.append({
@@ -423,10 +429,14 @@ class LegalRAGPipeline:
                         explicit_results['metadatas'][0], 
                         explicit_results['distances'][0]
                     ):
+                        similarity = 1 - dist
+                        if len(doc.strip()) < 130:
+                            similarity -= 0.40
+                            
                         sources.append({
                             "text": doc,
                             "metadata": meta,
-                            "similarity": (1 - dist) + 20.0, # Stratospheric boost
+                            "similarity": similarity + 20.0, # Stratospheric boost
                             "rank": 0
                         })
                     print(f"  ✅ Force-injected {len(explicit_results['documents'][0])} precisely targeted chunks!")

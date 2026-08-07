@@ -63,14 +63,17 @@ function Profile() {
     if (!user) return null;
 
     return (
-        <div className="app-layout" style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <div className="container" style={{ maxWidth: '600px' }}>
-                
-                <Link to="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: '2rem', transition: 'color 0.2s' }} onMouseOver={(e) => e.target.style.color = 'var(--text-primary)'} onMouseOut={(e) => e.target.style.color = 'var(--text-secondary)'}>
-                    <ArrowLeft size={16} /> Back to Dashboard
+        <div className="app-layout">
+            <header style={{ padding: '1rem 2rem', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', backgroundColor: 'var(--bg-panel)', backdropFilter: 'blur(10px)', position: 'sticky', top: 0, zIndex: 10 }}>
+                <Link to="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>
+                    <ArrowLeft size={20} /> Back to Dashboard
                 </Link>
+            </header>
 
-                <div className="glass-card animate-fade-in" style={{ padding: '2.5rem' }}>
+            <div className="main-content" style={{ overflowY: 'auto', padding: '2rem 1rem' }}>
+                <div className="container" style={{ maxWidth: '600px', margin: '0 auto' }}>
+                    
+                    <div className="glass-card animate-fade-in" style={{ padding: '2.5rem' }}>
                     <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
                         <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'var(--accent-primary-transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto', border: '1px solid var(--accent-primary)' }}>
                             <User size={40} color="var(--accent-primary)" />
@@ -183,6 +186,7 @@ function Profile() {
                 <div style={{ textAlign: 'center', marginTop: '2rem', color: 'var(--text-muted)', fontSize: '0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                     <ShieldCheck size={16} /> Your data is securely encrypted.
                 </div>
+            </div>
             </div>
         </div>
     );

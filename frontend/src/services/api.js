@@ -34,10 +34,26 @@ export const authService = {
 
     signup: async (userData) => {
         const response = await api.post('/auth/signup', userData);
+        // Signup no longer returns a token, it returns a success message to verify email
+        return response.data;
+    },
+
+    verifyEmail: async (data) => {
+        const response = await api.post('/auth/verify-email', data);
         if (response.data.token) {
             localStorage.setItem('legal_token', response.data.token);
             localStorage.setItem('legal_user', JSON.stringify(response.data.user));
         }
+        return response.data;
+    },
+
+    forgotPassword: async (email) => {
+        const response = await api.post('/auth/forgot-password', { email });
+        return response.data;
+    },
+
+    resetPassword: async (data) => {
+        const response = await api.post('/auth/reset-password', data);
         return response.data;
     },
 

@@ -19,7 +19,12 @@ export default function Login() {
             await authService.login({ email, password });
             navigate('/dashboard');
         } catch (err) {
-            setError(err.response?.data?.error || 'Failed to login. Please try again.');
+            const errorData = err.response?.data;
+            if (errorData?.unverified) {
+                navigate('/verify-email', { state: { email: errorData.email, message: errorData.message } });
+            } else {
+                setError(errorData?.error || 'Failed to login. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -70,6 +75,7 @@ export default function Login() {
                     <div className="input-group" style={{ marginBottom: '2rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <label className="input-label" htmlFor="password">Password</label>
+                            <Link to="/forgot-password" style={{ color: 'var(--accent-gold)', fontSize: '0.85rem', textDecoration: 'none', fontWeight: 500 }} onMouseOver={(e) => e.target.style.textDecoration = 'underline'} onMouseOut={(e) => e.target.style.textDecoration = 'none'}>Forgot password?</Link>
                         </div>
                         <div style={{ position: 'relative' }}>
                             <div style={{ position: 'absolute', top: '50%', left: '1rem', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>

@@ -64,19 +64,19 @@ export default function Dashboard() {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '8px', background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(16, 185, 129, 0.1))', border: '1px solid var(--border-focus)' }}>
                         <Scale size={18} color="var(--accent-gold)" />
                     </div>
-                    <span style={{ fontWeight: 600, fontSize: '1.1rem', letterSpacing: '-0.01em' }}>Legal Query DB</span>
+                    <span className="mobile-hide" style={{ fontWeight: 600, fontSize: '1.1rem', letterSpacing: '-0.01em' }}>Legal Query DB</span>
                 </div>
 
-                <div style={{ padding: '1.5rem', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                <div className="sidebar-middle" style={{ padding: '1.5rem', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                     <button
-                        className="btn btn-primary"
+                        className="btn btn-primary new-query-btn"
                         style={{ width: '100%', marginBottom: '2rem' }}
                         onClick={handleCreateSession}
                     >
-                        <Plus size={18} /> New Query
+                        <Plus size={18} /> <span className="mobile-hide">New Query</span>
                     </button>
 
-                    <div style={{ marginBottom: '1rem' }}>
+                    <div className="filters-section" style={{ marginBottom: '1rem' }}>
                         <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '0.75rem' }}>
                             Filters
                         </div>
@@ -105,12 +105,12 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div className="sidebar-bottom" style={{ padding: '1.5rem', borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }} onClick={() => navigate('/profile')}>
                         <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--accent-primary-transparent)', border: '1px solid var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', color: 'var(--accent-primary)' }}>
                             {user?.name?.charAt(0).toUpperCase() || 'U'}
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <div className="mobile-hide" style={{ display: 'flex', flexDirection: 'column' }}>
                             <span style={{ fontSize: '0.875rem', fontWeight: 500, lineHeight: 1.2, color: 'var(--text-primary)' }}>{user?.name || 'User'}</span>
                             <span style={{ fontSize: '0.75rem', color: 'var(--accent-primary)' }}>View Profile</span>
                         </div>

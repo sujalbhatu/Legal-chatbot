@@ -15,24 +15,18 @@ export default function Signup() {
     const handleSignup = async (e) => {
         e.preventDefault();
         setError('');
-
-        if (password.length < 6) {
-            setError('Password must be at least 6 characters.');
-            return;
-        }
-
+        
         if (password !== confirmPassword) {
-            setError('Passwords do not match.');
+            setError('Passwords do not match');
             return;
         }
-
+        
         setLoading(true);
-
         try {
-            await authService.signup({ name, email, password });
-            navigate('/dashboard');
+            const res = await authService.signup({ name, email, password });
+            navigate('/verify-email', { state: { email, message: res.message } });
         } catch (err) {
-            setError(err.response?.data?.error || 'Failed to create account. Please try again.');
+            setError(err.response?.data?.error || 'Failed to sign up');
         } finally {
             setLoading(false);
         }
@@ -137,7 +131,7 @@ export default function Signup() {
                         </div>
                     </div>
 
-                    <button type="submit" className="btn btn-primary" style={{ width: '100%', marginBottom: '1.5rem', background: 'linear-gradient(135deg, var(--accent-secondary), #059669)', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)' }} disabled={loading}>
+                    <button type="submit" className="btn btn-primary" style={{ width: '100%', marginBottom: '1.5rem' }} disabled={loading}>
                         {loading ? 'Creating account...' : 'Create Account'}
                         <ArrowRight size={18} />
                     </button>

@@ -3,8 +3,15 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const authMiddleware = require('../middleware/auth');
 
+const { sendOTPEmail } = require('../utils/emailService');
+
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'LegalQuerySystem_JWT_SuperSecret_2026';
+
+// Generate a random 6-digit OTP
+function generateOTP() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
 // Generate JWT token
 function generateToken(userId) {
@@ -25,27 +32,150 @@ router.post('/signup', async (req, res) => {
         }
 
         // Check if user exists
-        const existingUser = await User.findOne({ email: email.toLowerCase() });
-        if (existingUser) {
-            return res.status(400).json({ error: 'An account with this email already exists.' });
+        let user = await User.findOne({ email: email.toLowerCase() });
+        
+        const otp = generateOTP();
+        const otpExpires = new Date(Date.now() + 10 * 60000); // 10 minutes
+
+        if (user) {
+            if (user.isVerified) {
+                return res.status(400).json({ error: 'An account with this email already exists.' });
+            }
+            // If user exists but is not verified, update their OTP and resend
+            user.name = name;
+            user.password = password;
+            user.otp = otp;
+            user.otpExpires = otpExpires;
+            await user.save();
+        } else {
+            user = new User({ 
+                name, 
+                email: email.toLowerCase(), 
+                password,
+                otp,
+                otpExpires,
+                isVerified: false
+            });
+            await user.save();
         }
 
-        const user = new User({ name, email, password });
+        // Send OTP email
+        const emailSent = await sendOTPEmail(user.email, otp, 'verify');
+        if (!emailSent) {
+            return res.status(500).json({ error: 'Failed to send verification email. Please try again later.' });
+        }
+
+        res.status(201).json({
+            message: 'Verification code sent to your email.',
+            email: user.email
+        });
+    } catch (err) {
+        console.error('Signup error:', err);
+        res.status(500).json({ error: 'Server error during signup.' });
+    }
+});
+
+// POST /api/auth/verify-email
+router.post('/verify-email', async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        if (!email || !otp) {
+            return res.status(400).json({ error: 'Email and OTP are required.' });
+        }
+
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        if (user.isVerified) {
+            return res.status(400).json({ error: 'Account is already verified.' });
+        }
+
+        if (user.otp !== otp || user.otpExpires < new Date()) {
+            return res.status(400).json({ error: 'Invalid or expired OTP.' });
+        }
+
+        // Mark user as verified
+        user.isVerified = true;
+        user.otp = null;
+        user.otpExpires = null;
         await user.save();
 
         const token = generateToken(user._id);
 
-        res.status(201).json({
-            message: 'Account created successfully!',
+        res.json({
+            message: 'Account verified successfully!',
             token,
             user: user.toJSON()
         });
     } catch (err) {
-        console.error('Signup error:', err);
-        if (err.code === 11000) {
-            return res.status(400).json({ error: 'An account with this email already exists.' });
+        console.error('Verification error:', err);
+        res.status(500).json({ error: 'Server error during verification.' });
+    }
+});
+
+// POST /api/auth/forgot-password
+router.post('/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ error: 'Email is required.' });
         }
-        res.status(500).json({ error: 'Server error during signup.' });
+
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user) {
+            // Return success even if user not found to prevent email enumeration
+            return res.json({ message: 'If an account with that email exists, a reset code has been sent.' });
+        }
+
+        const otp = generateOTP();
+        user.otp = otp;
+        user.otpExpires = new Date(Date.now() + 10 * 60000); // 10 minutes
+        await user.save();
+
+        await sendOTPEmail(user.email, otp, 'reset');
+
+        res.json({ message: 'If an account with that email exists, a reset code has been sent.' });
+    } catch (err) {
+        console.error('Forgot password error:', err);
+        res.status(500).json({ error: 'Server error.' });
+    }
+});
+
+// POST /api/auth/reset-password
+router.post('/reset-password', async (req, res) => {
+    try {
+        const { email, otp, newPassword } = req.body;
+
+        if (!email || !otp || !newPassword) {
+            return res.status(400).json({ error: 'Email, OTP, and new password are required.' });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+        }
+
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user) {
+            return res.status(400).json({ error: 'Invalid or expired OTP.' });
+        }
+
+        if (user.otp !== otp || user.otpExpires < new Date()) {
+            return res.status(400).json({ error: 'Invalid or expired OTP.' });
+        }
+
+        user.password = newPassword;
+        user.otp = null;
+        user.otpExpires = null;
+        await user.save();
+
+        res.json({ message: 'Password has been successfully reset. You can now log in.' });
+    } catch (err) {
+        console.error('Reset password error:', err);
+        res.status(500).json({ error: 'Server error during password reset.' });
     }
 });
 
@@ -66,6 +196,23 @@ router.post('/login', async (req, res) => {
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
             return res.status(401).json({ error: 'Invalid email or password.' });
+        }
+
+        // Return error if unverified
+        if (!user.isVerified) {
+            // Resend OTP automatically
+            const otp = generateOTP();
+            user.otp = otp;
+            user.otpExpires = new Date(Date.now() + 10 * 60000);
+            await user.save();
+            await sendOTPEmail(user.email, otp, 'verify');
+
+            return res.status(403).json({ 
+                error: 'Account not verified.', 
+                unverified: true,
+                email: user.email,
+                message: 'A new verification code has been sent to your email.'
+            });
         }
 
         const token = generateToken(user._id);

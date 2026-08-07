@@ -9,13 +9,13 @@ const formatMessage = (text) => {
     let parsed = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     
     // Highlight **bold** text
-    parsed = parsed.replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--accent-primary); font-weight: 600;">$1</strong>');
+    parsed = parsed.replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--accent-gold); font-weight: 600;">$1</strong>');
     
     // Highlight legal sections like "Section 43" or "Article 21"
-    parsed = parsed.replace(/\b(Section|Article|Act|Clause|Chapter)\s+(\d+[a-zA-Z]*)\b/gi, '<strong style="color: var(--accent-primary); font-weight: 600;">$1 $2</strong>');
+    parsed = parsed.replace(/\b(Section|Article|Act|Clause|Chapter)\s+(\d+[a-zA-Z]*)\b/gi, '<strong style="color: var(--accent-gold); font-weight: 600;">$1 $2</strong>');
     
     // Highlight the word "Act" if capitalized
-    parsed = parsed.replace(/\b([A-Z][a-zA-Z\s]+ Act,?\s\d{4})\b/g, '<strong style="color: var(--accent-primary); font-weight: 600;">$1</strong>');
+    parsed = parsed.replace(/\b([A-Z][a-zA-Z\s]+ Act,?\s\d{4})\b/g, '<strong style="color: var(--accent-gold); font-weight: 600;">$1</strong>');
 
     return parsed;
 };
@@ -175,11 +175,11 @@ export default function Chat() {
     }
 
     return (
-        <div className="app-layout">
-            <div className="main-content">
+        <div className="app-layout chat-layout">
+            <div className="main-content chat-main">
 
                 {/* Chat Header */}
-                <header style={{ padding: '1rem 2rem', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'var(--bg-panel)', backdropFilter: 'blur(10px)', position: 'sticky', top: 0, zIndex: 10 }}>
+                <header className="chat-header" style={{ padding: '1rem 2rem', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'var(--bg-panel)', backdropFilter: 'blur(10px)', position: 'sticky', top: 0, zIndex: 10 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         <button className="btn-icon" onClick={() => navigate('/dashboard')}>
                             <ArrowLeft size={20} />
@@ -310,7 +310,7 @@ export default function Chat() {
                 </div>
 
                 {/* Input Area */}
-                <div style={{ padding: '1.5rem 2rem', borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)' }}>
+                <div className="chat-footer" style={{ padding: '1.5rem 2rem', borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)' }}>
                     <div style={{ maxWidth: '800px', margin: '0 auto' }}>
                         <form onSubmit={handleSend} style={{ position: 'relative' }}>
                             <input
