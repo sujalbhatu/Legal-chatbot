@@ -6,4 +6,6 @@ backend/rag_model/venv
 *__pycache__
 data
 frontend/dist
-node_modules
+node_modules
+.env.remote
+.env.production
