@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, MessageSquare, Clock, CheckCircle, ArrowRight, LogOut, Scale } from 'lucide-react';
+import { Plus, MessageSquare, Clock, CheckCircle, ArrowRight, LogOut, Scale, Sun, Moon, Trash2 } from 'lucide-react';
 import { chatService, authService } from '../services/api';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function Dashboard() {
     const [sessions, setSessions] = useState([]);
@@ -9,6 +10,7 @@ export default function Dashboard() {
     const [filter, setFilter] = useState('all'); // all, active, solved
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
+    const { theme, toggleTheme } = useTheme();
 
     useEffect(() => {
         setUser(authService.getCurrentUser());
@@ -40,6 +42,17 @@ export default function Dashboard() {
         navigate('/login');
     };
 
+    const handleDeleteSession = async (e, sessionId) => {
+        e.stopPropagation();
+        if (!window.confirm('Are you sure you want to delete this query? This cannot be undone.')) return;
+        try {
+            await chatService.deleteSession(sessionId);
+            setSessions(prev => prev.filter(s => s._id !== sessionId));
+        } catch (err) {
+            console.error('Failed to delete session', err);
+        }
+    };
+
     const filteredSessions = sessions.filter(s => {
         if (filter === 'active') return !s.isSolved;
         if (filter === 'solved') return s.isSolved;
@@ -60,11 +73,14 @@ export default function Dashboard() {
         <div className="app-layout">
             {/* Sidebar */}
             <div className="sidebar">
-                <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div 
+                    style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}
+                    onClick={() => navigate('/')}
+                >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '8px', background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(16, 185, 129, 0.1))', border: '1px solid var(--border-focus)' }}>
                         <Scale size={18} color="var(--accent-gold)" />
                     </div>
-                    <span className="mobile-hide" style={{ fontWeight: 600, fontSize: '1.1rem', letterSpacing: '-0.01em' }}>Legal Query DB</span>
+                    <span className="mobile-hide" style={{ fontWeight: 600, fontSize: '1.1rem', letterSpacing: '-0.01em' }}>OpenForge</span>
                 </div>
 
                 <div className="sidebar-middle" style={{ padding: '1.5rem', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -115,9 +131,14 @@ export default function Dashboard() {
                             <span style={{ fontSize: '0.75rem', color: 'var(--accent-primary)' }}>View Profile</span>
                         </div>
                     </div>
-                    <button className="btn-icon" onClick={handleLogout} title="Sign Out">
-                        <LogOut size={16} />
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button className="btn-icon" onClick={toggleTheme} title="Toggle Theme">
+                            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                        </button>
+                        <button className="btn-icon" onClick={handleLogout} title="Sign Out">
+                            <LogOut size={16} />
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -190,7 +211,17 @@ export default function Dashboard() {
 
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
                                         <span>{session.messageCount} messages</span>
-                                        <ArrowRight size={16} className="text-muted" />
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <button
+                                                className="btn-icon"
+                                                title="Delete query"
+                                                onClick={(e) => handleDeleteSession(e, session._id)}
+                                                style={{ padding: '0.3rem', borderRadius: '6px' }}
+                                            >
+                                                <Trash2 size={14} color="var(--text-muted)" />
+                                            </button>
+                                            <ArrowRight size={16} className="text-muted" />
+                                        </div>
                                     </div>
                                 </div>
                             ))}

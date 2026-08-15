@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/api';
-import { User, Mail, Lock, Save, ArrowLeft, CheckCircle, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { User, Mail, Lock, Save, ArrowLeft, CheckCircle, AlertTriangle, ShieldCheck, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 function Profile() {
     const navigate = useNavigate();
@@ -14,6 +15,7 @@ function Profile() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const { theme, toggleTheme } = useTheme();
 
     useEffect(() => {
         const currentUser = authService.getCurrentUser();
@@ -64,10 +66,13 @@ function Profile() {
 
     return (
         <div className="app-layout">
-            <header style={{ padding: '1rem 2rem', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', backgroundColor: 'var(--bg-panel)', backdropFilter: 'blur(10px)', position: 'sticky', top: 0, zIndex: 10 }}>
+            <header style={{ padding: '1rem 2rem', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'var(--bg-panel)', backdropFilter: 'blur(10px)', position: 'sticky', top: 0, zIndex: 10 }}>
                 <Link to="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>
                     <ArrowLeft size={20} /> Back to Dashboard
                 </Link>
+                <button className="btn-icon" onClick={toggleTheme} title="Toggle Theme">
+                    {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                </button>
             </header>
 
             <div className="main-content" style={{ overflowY: 'auto', padding: '2rem 1rem' }}>

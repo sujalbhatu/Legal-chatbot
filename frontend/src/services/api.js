@@ -107,6 +107,11 @@ export const chatService = {
         return response.data;
     },
 
+    reopenSession: async (id) => {
+        const response = await api.put(`/chat/sessions/${id}/reopen`);
+        return response.data;
+    },
+
     sendQuery: async (id, query) => {
         const response = await api.post(`/chat/sessions/${id}/query`, { query });
         return response.data;

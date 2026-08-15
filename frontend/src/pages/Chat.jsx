@@ -1,24 +1,122 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Send, ArrowLeft, CheckCircle, Scale, Building2, BookOpen, AlertTriangle, FileText, ChevronDown, ChevronRight, Loader2, User } from 'lucide-react';
+import { Send, ArrowLeft, CheckCircle, Scale, Building2, BookOpen, AlertTriangle, FileText, ChevronDown, ChevronRight, Loader2, User, Sun, Moon, RotateCcw } from 'lucide-react';
 import { chatService } from '../services/api';
+import { useTheme } from '../contexts/ThemeContext';
 
-// Helper to parse and highlight legal terms and markdown bolding
+// ─── Rich text renderer for AI legal responses ───────────────────────
+// Converts the plain-text / light-markdown response into structured,
+// visually pleasant HTML with legal-specific highlights.
 const formatMessage = (text) => {
     if (!text) return '';
-    let parsed = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    
-    // Highlight **bold** text
-    parsed = parsed.replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--accent-gold); font-weight: 600;">$1</strong>');
-    
-    // Highlight legal sections like "Section 43" or "Article 21"
-    parsed = parsed.replace(/\b(Section|Article|Act|Clause|Chapter)\s+(\d+[a-zA-Z]*)\b/gi, '<strong style="color: var(--accent-gold); font-weight: 600;">$1 $2</strong>');
-    
-    // Highlight the word "Act" if capitalized
-    parsed = parsed.replace(/\b([A-Z][a-zA-Z\s]+ Act,?\s\d{4})\b/g, '<strong style="color: var(--accent-gold); font-weight: 600;">$1</strong>');
 
-    return parsed;
+    // 1. Escape HTML entities
+    let t = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    // 2. Split into lines for block-level processing
+    const lines = t.split('\n');
+    const blocks = [];
+    let currentList = null;       // { type: 'ul'|'ol', items: [] }
+    let currentBlockquote = null; // string[]
+
+    const flushList = () => {
+        if (!currentList) return;
+        const tag = currentList.type;
+        const inner = currentList.items.map(i => `<li>${inlineFormat(i)}</li>`).join('');
+        blocks.push(`<${tag} class="msg-list">${inner}</${tag}>`);
+        currentList = null;
+    };
+    const flushBlockquote = () => {
+        if (!currentBlockquote) return;
+        blocks.push(`<blockquote class="msg-blockquote">${currentBlockquote.map(l => inlineFormat(l)).join('<br/>')}</blockquote>`);
+        currentBlockquote = null;
+    };
+
+    for (let i = 0; i < lines.length; i++) {
+        const raw = lines[i];
+        const trimmed = raw.trim();
+
+        // Empty line → flush any open structures and push a paragraph break
+        if (!trimmed) {
+            flushList();
+            flushBlockquote();
+            continue; // blank lines are natural paragraph separators
+        }
+
+        // Blockquote lines (> ...)
+        if (trimmed.startsWith('&gt; ') || trimmed === '&gt;') {
+            flushList();
+            const content = trimmed.replace(/^&gt;\s?/, '');
+            if (!currentBlockquote) currentBlockquote = [];
+            currentBlockquote.push(content);
+            continue;
+        } else {
+            flushBlockquote();
+        }
+
+        // Unordered list (- item or * item)
+        const ulMatch = trimmed.match(/^[-*]\s+(.+)$/);
+        if (ulMatch) {
+            if (currentList && currentList.type !== 'ul') flushList();
+            if (!currentList) currentList = { type: 'ul', items: [] };
+            currentList.items.push(ulMatch[1]);
+            continue;
+        }
+
+        // Ordered list (1. item, 2. item …)
+        const olMatch = trimmed.match(/^(\d+)[.)]\s+(.+)$/);
+        if (olMatch) {
+            if (currentList && currentList.type !== 'ol') flushList();
+            if (!currentList) currentList = { type: 'ol', items: [] };
+            currentList.items.push(olMatch[2]);
+            continue;
+        }
+
+        // If we were in a list but this line isn't a list item, flush
+        flushList();
+
+        // Disclaimer / warning callout (⚠️ lines)
+        if (trimmed.includes('⚠️') || trimmed.toLowerCase().startsWith('disclaimer')) {
+            blocks.push(`<div class="msg-disclaimer">${inlineFormat(trimmed)}</div>`);
+            continue;
+        }
+
+        // Regular paragraph
+        blocks.push(`<p class="msg-para">${inlineFormat(trimmed)}</p>`);
+    }
+
+    // Flush anything remaining
+    flushList();
+    flushBlockquote();
+
+    return blocks.join('');
 };
+
+// ─── Inline formatting (bold, citations, Act names, etc.) ─────────────
+const inlineFormat = (text) => {
+    if (!text) return '';
+    let s = text;
+
+    // **bold** → styled strong
+    s = s.replace(/\*\*(.*?)\*\*/g, '<strong class="msg-bold">$1</strong>');
+
+    // *italic* → styled em
+    s = s.replace(/(^|[^\\])\*(.*?)\*/g, '$1<em>$2</em>');
+
+    // "italic" for specific quoted terms like "penetrative"
+    s = s.replace(/(^|\s)“(.*?)”(\s|[.,!?;]|$)/g, '$1<em>“$2”</em>$3');
+
+    // Specific Act names with year  e.g. "Information Technology Act, 2000"
+    s = s.replace(/\b([A-Z][a-zA-Z\s]+(?:Act|Code|Bill|Ordinance|Rules|Regulation|Sanhita|Adhiniyam),?\s\d{4})\b/g,
+        '<span class="msg-act-pill">$1</span>');
+
+    // Section / Article / Clause references  e.g. "Section 66A", "Article 21"
+    s = s.replace(/\b(Section|Article|Clause|Chapter|Rule|Order)\s+(\d+[a-zA-Z]*(?:\(\d+\))?(?:\([a-z]\))?)\b/gi,
+        '<span class="msg-section-ref">$1 $2</span>');
+
+    return s;
+};
+
 
 // Legal disclaimer component
 const LegalDisclaimer = () => (
@@ -88,6 +186,7 @@ export default function Chat() {
     const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
     const messagesEndRef = useRef(null);
+    const { theme, toggleTheme } = useTheme();
 
     useEffect(() => {
         loadSession();
@@ -166,6 +265,15 @@ export default function Chat() {
         }
     };
 
+    const reopenSession = async () => {
+        try {
+            await chatService.reopenSession(id);
+            setSession(prev => ({ ...prev, isSolved: false }));
+        } catch (err) {
+            console.error('Failed to reopen session', err);
+        }
+    };
+
     if (loading) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -203,6 +311,14 @@ export default function Chat() {
                                 <CheckCircle size={16} color="var(--accent-emerald)" /> Mark as Solved
                             </button>
                         )}
+                        {session?.isSolved && (
+                            <button className="btn btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }} onClick={reopenSession}>
+                                <RotateCcw size={16} color="var(--accent-gold)" /> Reopen
+                            </button>
+                        )}
+                        <button className="btn-icon" onClick={toggleTheme} title="Toggle Theme" style={{ marginLeft: '0.5rem', marginRight: '0.5rem' }}>
+                            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                        </button>
                         <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'var(--accent-primary-transparent)', border: '1px solid var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', color: 'var(--accent-primary)', cursor: 'pointer' }} onClick={() => navigate('/profile')} title="View Profile">
                             <User size={18} />
                         </div>
@@ -259,9 +375,9 @@ export default function Chat() {
                                                 borderTopLeftRadius: msg.role === 'assistant' ? '4px' : 'var(--radius-lg)',
                                             }}>
                                                 <div
-                                                    style={{ color: 'var(--text-primary)', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}
+                                                    className={msg.role === 'user' ? 'msg-user-text' : 'msg-ai-text'}
                                                     dangerouslySetInnerHTML={{
-                                                        __html: formatMessage(msg.content)
+                                                        __html: msg.role === 'user' ? inlineFormat(msg.content) : formatMessage(msg.content)
                                                     }}
                                                 />
                                             </div>

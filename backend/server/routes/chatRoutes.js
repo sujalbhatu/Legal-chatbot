@@ -112,6 +112,26 @@ router.delete('/sessions/:id', async (req, res) => {
     }
 });
 
+// PUT /api/chat/sessions/:id/reopen — reopen a solved session
+router.put('/sessions/:id/reopen', async (req, res) => {
+    try {
+        const session = await ChatSession.findOneAndUpdate(
+            { _id: req.params.id, userId: req.userId },
+            { isSolved: false },
+            { new: true }
+        );
+
+        if (!session) {
+            return res.status(404).json({ error: 'Session not found.' });
+        }
+
+        res.json({ session });
+    } catch (err) {
+        console.error('Reopen session error:', err);
+        res.status(500).json({ error: 'Failed to reopen session.' });
+    }
+});
+
 // POST /api/chat/sessions/:id/query — send query to RAG with multilingual support
 router.post('/sessions/:id/query', async (req, res) => {
     try {
