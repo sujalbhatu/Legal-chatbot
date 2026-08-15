@@ -4,113 +4,92 @@ import { Send, ArrowLeft, CheckCircle, Scale, Building2, BookOpen, AlertTriangle
 import { chatService } from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
 
-// ─── Rich text renderer for AI legal responses ───────────────────────
-// Converts the plain-text / light-markdown response into structured,
-// visually pleasant HTML with legal-specific highlights.
-const formatMessage = (text) => {
-    if (!text) return '';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
-    // 1. Escape HTML entities
-    let t = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-    // 2. Split into lines for block-level processing
-    const lines = t.split('\n');
-    const blocks = [];
-    let currentList = null;       // { type: 'ul'|'ol', items: [] }
-    let currentBlockquote = null; // string[]
-
-    const flushList = () => {
-        if (!currentList) return;
-        const tag = currentList.type;
-        const inner = currentList.items.map(i => `<li>${inlineFormat(i)}</li>`).join('');
-        blocks.push(`<${tag} class="msg-list">${inner}</${tag}>`);
-        currentList = null;
-    };
-    const flushBlockquote = () => {
-        if (!currentBlockquote) return;
-        blocks.push(`<blockquote class="msg-blockquote">${currentBlockquote.map(l => inlineFormat(l)).join('<br/>')}</blockquote>`);
-        currentBlockquote = null;
-    };
-
-    for (let i = 0; i < lines.length; i++) {
-        const raw = lines[i];
-        const trimmed = raw.trim();
-
-        // Empty line → flush any open structures and push a paragraph break
-        if (!trimmed) {
-            flushList();
-            flushBlockquote();
-            continue; // blank lines are natural paragraph separators
-        }
-
-        // Blockquote lines (> ...)
-        if (trimmed.startsWith('&gt; ') || trimmed === '&gt;') {
-            flushList();
-            const content = trimmed.replace(/^&gt;\s?/, '');
-            if (!currentBlockquote) currentBlockquote = [];
-            currentBlockquote.push(content);
-            continue;
-        } else {
-            flushBlockquote();
-        }
-
-        // Unordered list (- item or * item)
-        const ulMatch = trimmed.match(/^[-*]\s+(.+)$/);
-        if (ulMatch) {
-            if (currentList && currentList.type !== 'ul') flushList();
-            if (!currentList) currentList = { type: 'ul', items: [] };
-            currentList.items.push(ulMatch[1]);
-            continue;
-        }
-
-        // Ordered list (1. item, 2. item …)
-        const olMatch = trimmed.match(/^(\d+)[.)]\s+(.+)$/);
-        if (olMatch) {
-            if (currentList && currentList.type !== 'ol') flushList();
-            if (!currentList) currentList = { type: 'ol', items: [] };
-            currentList.items.push(olMatch[2]);
-            continue;
-        }
-
-        // If we were in a list but this line isn't a list item, flush
-        flushList();
-
-        // Disclaimer / warning callout (⚠️ lines)
-        if (trimmed.includes('⚠️') || trimmed.toLowerCase().startsWith('disclaimer')) {
-            blocks.push(`<div class="msg-disclaimer">${inlineFormat(trimmed)}</div>`);
-            continue;
-        }
-
-        // Regular paragraph
-        blocks.push(`<p class="msg-para">${inlineFormat(trimmed)}</p>`);
-    }
-
-    // Flush anything remaining
-    flushList();
-    flushBlockquote();
-
-    return blocks.join('');
+// Custom renderer for interactive follow-up questions
+const FollowUpQuestions = ({ children }) => {
+    return (
+        <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {children}
+        </div>
+    );
 };
 
-// ─── Inline formatting (bold, citations, Act names, etc.) ─────────────
-const inlineFormat = (text) => {
+// Markdown components mapping for custom CSS classes
+const markdownComponents = {
+    p: ({node, ...props}) => <p className="msg-para" {...props} />,
+    strong: ({node, ...props}) => <strong className="msg-bold" {...props} />,
+    em: ({node, ...props}) => <em className="msg-italic" {...props} />,
+    ul: ({node, className, ...props}) => {
+        // Detect if this is the follow-up questions list
+        if (className === 'follow-up-list') {
+            return <FollowUpQuestions {...props} />;
+        }
+        return <ul className="msg-list" {...props} />;
+    },
+    ol: ({node, ...props}) => <ol className="msg-list" {...props} />,
+    li: ({node, className, children, ...props}) => {
+        if (className === 'follow-up-item') {
+            // Extract the text content from the list item
+            let textContent = '';
+            React.Children.forEach(children, child => {
+                if (typeof child === 'string') textContent += child;
+                else if (child?.props?.children) textContent += child.props.children;
+            });
+            
+            return (
+                <button 
+                    className="msg-follow-up-btn"
+                    onClick={() => {
+                        // We will handle this click event in the main component
+                        // by passing a custom event or letting the parent handle it
+                        const event = new CustomEvent('followUpClick', { detail: textContent.trim() });
+                        window.dispatchEvent(event);
+                    }}
+                >
+                    <span style={{ marginRight: '0.5rem' }}>✨</span>
+                    {children}
+                </button>
+            );
+        }
+        return <li {...props}>{children}</li>;
+    },
+    blockquote: ({node, ...props}) => <blockquote className="msg-blockquote" {...props} />,
+    h3: ({node, ...props}) => <h3 className="msg-h3" {...props} />,
+    h4: ({node, ...props}) => <h4 className="msg-h4" {...props} />,
+    table: ({node, ...props}) => (
+        <div className="msg-table-container">
+            <table className="msg-table" {...props} />
+        </div>
+    ),
+    th: ({node, ...props}) => <th className="msg-th" {...props} />,
+    td: ({node, ...props}) => <td className="msg-td" {...props} />,
+};
+
+// Pre-processor to format act names and section references before markdown parsing
+const preProcessMarkdown = (text) => {
     if (!text) return '';
     let s = text;
+    
+    // Tag the follow-up questions list so the renderer can intercept it
+    // The LLM was instructed to output "### Follow-up Questions:"
+    if (s.includes('### Follow-up Questions:')) {
+        const parts = s.split('### Follow-up Questions:');
+        const mainContent = parts[0];
+        let followUps = parts[1].trim();
+        
+        // Convert the bullet points into our custom classes
+        followUps = followUps.replace(/^- (.*)$/gm, '<li class="follow-up-item">$1</li>');
+        
+        s = mainContent + '\n\n<ul class="follow-up-list">\n' + followUps + '\n</ul>';
+    }
 
-    // **bold** → styled strong
-    s = s.replace(/\*\*(.*?)\*\*/g, '<strong class="msg-bold">$1</strong>');
-
-    // *italic* → styled em
-    s = s.replace(/(^|[^\\])\*(.*?)\*/g, '$1<em>$2</em>');
-
-    // "italic" for specific quoted terms like "penetrative"
-    s = s.replace(/(^|\s)“(.*?)”(\s|[.,!?;]|$)/g, '$1<em>“$2”</em>$3');
-
-    // Specific Act names with year  e.g. "Information Technology Act, 2000"
+    // Specific Act names with year (e.g. Aadhaar Act, 2016)
     s = s.replace(/\b([A-Z][a-zA-Z\s]+(?:Act|Code|Bill|Ordinance|Rules|Regulation|Sanhita|Adhiniyam),?\s\d{4})\b/g,
         '<span class="msg-act-pill">$1</span>');
 
-    // Section / Article / Clause references  e.g. "Section 66A", "Article 21"
+    // Section / Article / Clause references
     s = s.replace(/\b(Section|Article|Clause|Chapter|Rule|Order)\s+(\d+[a-zA-Z]*(?:\(\d+\))?(?:\([a-z]\))?)\b/gi,
         '<span class="msg-section-ref">$1 $2</span>');
 
@@ -187,6 +166,23 @@ export default function Chat() {
     const [sending, setSending] = useState(false);
     const messagesEndRef = useRef(null);
     const { theme, toggleTheme } = useTheme();
+
+    useEffect(() => {
+        const handleFollowUp = (e) => {
+            const followUpText = e.detail;
+            setQuery(followUpText);
+            // Wait for state to update, then click the submit button
+            setTimeout(() => {
+                const submitBtn = document.getElementById('chat-submit-btn');
+                if (submitBtn && !submitBtn.disabled) {
+                    submitBtn.click();
+                }
+            }, 100);
+        };
+        
+        window.addEventListener('followUpClick', handleFollowUp);
+        return () => window.removeEventListener('followUpClick', handleFollowUp);
+    }, []);
 
     useEffect(() => {
         loadSession();
@@ -374,12 +370,18 @@ export default function Chat() {
                                                 borderTopRightRadius: msg.role === 'user' ? '4px' : 'var(--radius-lg)',
                                                 borderTopLeftRadius: msg.role === 'assistant' ? '4px' : 'var(--radius-lg)',
                                             }}>
-                                                <div
-                                                    className={msg.role === 'user' ? 'msg-user-text' : 'msg-ai-text'}
-                                                    dangerouslySetInnerHTML={{
-                                                        __html: msg.role === 'user' ? inlineFormat(msg.content) : formatMessage(msg.content)
-                                                    }}
-                                                />
+                                                {msg.role === 'user' ? (
+                                                    <div className="msg-user-text">{msg.content}</div>
+                                                ) : (
+                                                    <div className="msg-ai-text">
+                                                        <ReactMarkdown 
+                                                            remarkPlugins={[remarkGfm]} 
+                                                            components={markdownComponents}
+                                                        >
+                                                            {preProcessMarkdown(msg.content)}
+                                                        </ReactMarkdown>
+                                                    </div>
+                                                )}
                                             </div>
 
                                             {/* Sources (only for assistant) */}
@@ -449,6 +451,7 @@ export default function Chat() {
                                 }}
                             />
                             <button
+                                id="chat-submit-btn"
                                 type="submit"
                                 disabled={!query.trim() || sending || session?.isSolved}
                                 style={{
