@@ -7,6 +7,7 @@ import { useTheme } from '../contexts/ThemeContext';
 export default function Dashboard() {
     const [sessions, setSessions] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
     const [filter, setFilter] = useState('all'); // all, active, solved
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
@@ -19,10 +20,12 @@ export default function Dashboard() {
 
     const loadSessions = async () => {
         try {
+            setError('');
             const data = await chatService.getSessions();
             setSessions(data.sessions);
         } catch (err) {
             console.error('Failed to load sessions', err);
+            setError('Failed to load your queries. Please check your connection or log in again.');
         } finally {
             setLoading(false);
         }
@@ -30,10 +33,12 @@ export default function Dashboard() {
 
     const handleCreateSession = async () => {
         try {
+            setError('');
             const data = await chatService.createSession('New Legal Query');
             navigate(`/chat/${data.session._id}`);
         } catch (err) {
             console.error('Failed to create session', err);
+            setError('Failed to create a new session. Please try again.');
         }
     };
 
@@ -152,6 +157,18 @@ export default function Dashboard() {
                             <p style={{ margin: 0, fontSize: '1.1rem' }}>Review past answers or start a new legal research session.</p>
                         </div>
                     </div>
+
+                    {error && (
+                        <div style={{ padding: '1rem 1.5rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: 'var(--radius-md)', color: '#ef4444', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <span>⚠️</span>
+                                <span>{error}</span>
+                            </div>
+                            <button className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.875rem' }} onClick={loadSessions}>
+                                Retry
+                            </button>
+                        </div>
+                    )}
 
                     {loading ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

@@ -21,6 +21,24 @@ api.interceptors.request.use(
     }
 );
 
+// Add a response interceptor to handle 401/403 (expired or invalid token)
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            // Clear invalid credentials
+            localStorage.removeItem('legal_token');
+            localStorage.removeItem('legal_user');
+
+            // Redirect to login if not already there
+            if (!window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/signup')) {
+                window.location.href = '/login?expired=true';
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
 // Auth services
 export const authService = {
     login: async (credentials) => {

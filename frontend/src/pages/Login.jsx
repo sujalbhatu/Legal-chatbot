@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Scale, Lock, Mail, ArrowRight } from 'lucide-react';
 import { authService } from '../services/api';
 
@@ -9,6 +9,14 @@ export default function Login() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        if (params.get('expired') === 'true') {
+            setError('Your session has expired. Please sign in again.');
+        }
+    }, [location]);
 
     const handleLogin = async (e) => {
         e.preventDefault();
