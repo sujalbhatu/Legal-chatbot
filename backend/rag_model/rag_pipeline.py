@@ -522,7 +522,7 @@ class LegalRAGPipeline:
             if 'fetch_result' in locals() and fetch_result.get('act_name'):
                 print(f"  ℹ Booster mismatch: Intended '{target_act_input}' but found '{top_act}'. Cleaning citations...")
                 final_sources = []
-            elif final_sources[0]['similarity'] < 0.58:
+            elif final_sources[0]['similarity'] < 0.35:
                 # Generic low-qual catch-all
                 print(f"  ℹ Cleaning low-confidence generic citations ({final_sources[0]['similarity']:.2%}).")
                 final_sources = []
@@ -560,10 +560,10 @@ class LegalRAGPipeline:
         # --- HALLUCINATION GUARDRAIL ---
         if not sources and ('fetch_result' not in locals() or not fetch_result.get('web_context')):
             system_prompt += (
-                "\n\nCRITICAL SYSTEM INSTRUCTION: The database returned NO results for this query. "
-                "If the user is asking ANY substantive legal question, YOU MUST NOT use your internal training data to answer it. "
-                "You MUST reply exactly with: 'I could not find relevant legal information in my database to answer this question.' "
-                "You may ONLY answer normally if the user is making casual conversation (e.g., 'hello', 'who are you')."
+                "\n\nCRITICAL SYSTEM INSTRUCTION: The database returned NO direct section match for this query. "
+                "If the user is asking a substantive legal question, you MAY use your general knowledge of Indian law to provide helpful guidance, "
+                "but you MUST state at the start that your answer is based on general Indian legal principles. "
+                "If the user is asking about your capabilities or making casual conversation, answer naturally."
             )
         
         # Step 4: Build messages for Groq

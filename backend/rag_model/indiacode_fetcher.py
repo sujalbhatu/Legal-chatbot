@@ -84,10 +84,13 @@ def analyse_query_intent(query: str, groq_client) -> dict:
         dict with keys: 'act_name' (str), 'year' (str), 'keywords' (list),
                         'is_legal_query' (bool), 'is_casual' (bool)
     """
-    # Always use a highly reliable model for strict JSON intent extraction
-    # The pipeline's default model (like openai/gpt-oss-20b) might fail here
-    groq_model = "llama-3.3-70b-versatile"
-    
+    # Try multiple models in case one is deprecated or unavailable
+    available_models = [
+        os.getenv("GROQ_MODEL", "openai/gpt-oss-20b"),
+        "llama-3.1-8b-instant",
+        "llama3-70b-8192",
+    ]
+
     system_prompt = """You are a legal query analyser. Given a user query, extract:
 1. The specific Indian Act/Law being referenced (if any)
 2. The year of that act (if mentioned or known)
@@ -104,33 +107,35 @@ Rules:
 - Map old acts to new replacements: IPC → Bharatiya Nyaya Sanhita, CrPC → Bharatiya Nagarik Suraksha Sanhita, Indian Evidence Act → Bharatiya Sakshya Adhiniyam
 - Always use the most common, standard name for the act"""
 
-    try:
-        response = groq_client.chat.completions.create(
-            model=groq_model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": query}
-            ],
-            temperature=0.0,
-            max_tokens=256,
-            timeout=15
-        )
-        
-        result_text = response.choices[0].message.content.strip()
-        
-        # Extract JSON from response (handle markdown code blocks)
-        json_match = re.search(r'\{[^{}]+\}', result_text, re.DOTALL)
-        if json_match:
-            result = json.loads(json_match.group())
-            return {
-                "act_name": result.get("act_name", ""),
-                "year": str(result.get("year", "")),
-                "keywords": result.get("keywords", []),
-                "is_legal_query": result.get("is_legal_query", True),
-                "is_casual": result.get("is_casual", False),
-            }
-    except Exception as e:
-        print(f"  ⚠ Query intent analysis failed: {str(e)[:100]}")
+    for groq_model in available_models:
+        try:
+            response = groq_client.chat.completions.create(
+                model=groq_model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": query}
+                ],
+                temperature=0.0,
+                max_tokens=256,
+                timeout=10
+            )
+
+            result_text = response.choices[0].message.content.strip()
+
+            # Extract JSON from response (handle markdown code blocks)
+            json_match = re.search(r'\{[^{}]+\}', result_text, re.DOTALL)
+            if json_match:
+                result = json.loads(json_match.group())
+                return {
+                    "act_name": result.get("act_name", ""),
+                    "year": str(result.get("year", "")),
+                    "keywords": result.get("keywords", []),
+                    "is_legal_query": result.get("is_legal_query", True),
+                    "is_casual": result.get("is_casual", False),
+                }
+        except Exception as e:
+            print(f"  ⚠ Query intent analysis with '{groq_model}' failed: {str(e)[:80]}")
+            continue
     
     # Fallback: treat as a general legal query
     return {
