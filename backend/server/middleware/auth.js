@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'LegalQuerySystem_JWT_SuperSecret_2026';
+const { JWT_SECRET } = require('../config');
 
 module.exports = function authMiddleware(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -12,7 +12,7 @@ module.exports = function authMiddleware(req, res, next) {
     const token = authHeader.split(' ')[1];
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
         req.userId = decoded.userId;
         next();
     } catch (err) {

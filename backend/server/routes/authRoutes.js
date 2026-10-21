@@ -6,7 +6,7 @@ const authMiddleware = require('../middleware/auth');
 const { sendOTPEmail } = require('../utils/emailService');
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'LegalQuerySystem_JWT_SuperSecret_2026';
+const { JWT_SECRET } = require('../config');
 
 // Generate a random 6-digit OTP
 function generateOTP() {
