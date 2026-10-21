@@ -37,7 +37,7 @@ class MemoryConfig:
     # Read at construction time (after .env is loaded), not at import time.
     trigger_messages: int = field(default_factory=lambda: _env_int("MEMORY_TRIGGER_MESSAGES", 10))      # compact when history exceeds this
     short_term_messages: int = field(default_factory=lambda: _env_int("MEMORY_SHORT_TERM_MESSAGES", 4))  # always kept verbatim
-    summary_max_tokens: int = field(default_factory=lambda: _env_int("MEMORY_SUMMARY_MAX_TOKENS", 400))
+    summary_max_tokens: int = field(default_factory=lambda: _env_int("MEMORY_SUMMARY_MAX_TOKENS", 800))  # includes the reasoning tokens of gpt-oss
 
 
 @dataclass
@@ -114,8 +114,9 @@ def summary_block(summary: str) -> str:
             "do not repeat it back unless asked):**\n" + summary)
 
 
-def make_llm_summarizer(client, model: str, max_tokens: int = 400) -> Callable[[str, List[dict]], str]:
-    """Summarizer backed by an OpenAI-compatible chat client (Groq)."""
+def make_llm_summarizer(client, model: str, max_tokens: int = 400, **extra) -> Callable[[str, List[dict]], str]:
+    """Summarizer backed by an OpenAI-compatible chat client (Groq). `extra` is passed
+    through to the API (e.g. reasoning_effort for reasoning models)."""
 
     def summarize(previous_summary: str, messages: List[dict]) -> str:
         transcript = "\n\n".join(f"{m['role'].upper()}: {m['content']}" for m in messages)
@@ -131,6 +132,7 @@ def make_llm_summarizer(client, model: str, max_tokens: int = 400) -> Callable[[
             temperature=0,
             max_tokens=max_tokens,
             timeout=20,
+            **extra,
         )
         return response.choices[0].message.content or ""
 

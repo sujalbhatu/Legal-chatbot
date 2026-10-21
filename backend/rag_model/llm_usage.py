@@ -46,6 +46,19 @@ def purpose(label: str):
         _purpose.reset(token)
 
 
+def record(model, usage, purpose_label=None):
+    """Record usage reported outside a normal response (e.g. the last chunk of a stream)."""
+    calls = _calls.get()
+    if calls is None or usage is None:
+        return
+    calls.append({
+        "purpose": purpose_label or _purpose.get(),
+        "model": model,
+        "prompt_tokens": getattr(usage, "prompt_tokens", 0) or 0,
+        "completion_tokens": getattr(usage, "completion_tokens", 0) or 0,
+    })
+
+
 def _record(model, response):
     calls = _calls.get()
     usage = getattr(response, "usage", None)
