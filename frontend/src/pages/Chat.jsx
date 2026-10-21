@@ -30,9 +30,9 @@ const LegalDisclaimer = () => (
     <div style={{ backgroundColor: 'rgba(251, 191, 36, 0.1)', border: '1px solid rgba(251, 191, 36, 0.3)', borderRadius: 'var(--radius-md)', padding: '0.75rem 1rem', display: 'flex', gap: '0.75rem', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
         <AlertTriangle size={20} color="var(--accent-gold)" style={{ flexShrink: 0, marginTop: '2px' }} />
         <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-            <strong style={{ color: 'var(--accent-gold)' }}>AI Disclaimer:</strong> Answers are generated from 18 Indian Acts
-            (Constitution, BNS, BNSS, BSA, CPC, Contract, Property, Marriage, Domestic Violence, POCSO, IT, Motor Vehicles,
-            GST, RTI, Aadhaar and more) and cite the exact sections used. This is general information, NOT legal advice.
+            <strong style={{ color: 'var(--accent-gold)' }}>AI Disclaimer:</strong> Answers are generated from 123 central Indian Acts
+            (Constitution, BNS, BNSS, BSA, CPC, Contract, Property, Marriage and Divorce, Domestic Violence, POCSO, Juvenile
+            Justice, IT, Motor Vehicles, GST, RTI, Aadhaar and more) and cite the exact sections used. This is general information, NOT legal advice.
         </div>
     </div>
 );

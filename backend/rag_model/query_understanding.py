@@ -39,7 +39,29 @@ ACT_ALIASES = [
     (r"transfer of property|\btpa\b", "transfer_of_property_act_1882"),
     (r"aadh?aar|uidai", "BENEFITS AND SERVICES) ACT, 2016"),
 ]
-_ALIASES = [(re.compile(p, re.IGNORECASE), stem) for p, stem in ACT_ALIASES]
+def _manifest_aliases():
+    """Aliases for Acts added in batches (data/raw_pdfs/*/MANIFEST.json): the Act's
+    name without 'The', the year and bracketed parts, e.g. 'sale of goods act',
+    'juvenile justice act'. Multi-word names also match without the word 'act'."""
+    try:
+        from ingest import MANIFEST_TITLES
+    except Exception:
+        return []
+    aliases = []
+    for stem, title in MANIFEST_TITLES.items():
+        core = re.sub(r"\(.*?\)|,?\s*\d{4}$|^indian\s+", "", title, flags=re.IGNORECASE).strip().lower()
+        core = re.sub(r"\s+", " ", core)
+        words = core.split()
+        if not words:
+            continue
+        pattern = re.escape(core)
+        if words[-1] == "act" and len(words) >= 3:
+            pattern = re.escape(" ".join(words[:-1])) + r"(?:\s+act)?"
+        aliases.append((r"\b" + pattern + r"\b", stem))
+    return aliases
+
+
+_ALIASES = [(re.compile(p, re.IGNORECASE), stem) for p, stem in ACT_ALIASES + _manifest_aliases()]
 SECTION_REF_RE = re.compile(r"\b(?:section|sec\.?|s\.|article|art\.?)\s*(\d{1,3}[a-z]{0,2})\b", re.IGNORECASE)
 
 

@@ -36,3 +36,6 @@ backend/rag_model/eval/results/log_*.txt
 # Personal resume drafts (contain contact details) - never commit
 /resume/
 /resume*.tex
+
+# Added Act batches: PDFs stay local (source recorded in MANIFEST.json)
+data/raw_pdfs/*/*.pdf

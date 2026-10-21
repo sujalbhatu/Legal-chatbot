@@ -14,13 +14,13 @@
   ],
   [
    "+ Chroma collection + BM25 index (hybrid search done once)",
-   555
+   640
   ],
   [
    "+ reranker cross-encoder/ms-marco-MiniLM-L-6-v2 fp32",
-   712
+   796
   ]
  ],
- "rerank_ms": 1437,
+ "rerank_ms": 580,
  "platform": "win32"
 }

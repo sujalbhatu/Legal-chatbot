@@ -57,6 +57,29 @@ COLLECTION_NAME = os.getenv('CHROMA_COLLECTION', 'legal_sections')
 CHUNK_MAX_CHARS = 1500      # sections longer than this are split at sentence boundaries
 
 
+SMALL_WORDS = {"of", "and", "the", "to", "for", "from", "in", "on"}
+
+
+def _title_case(title: str) -> str:
+    # str.title() would give "Seamen'S"; capitalise only each word's first letter
+    words = [re.sub(r"[a-z]", lambda m: m.group().upper(), w.lower(), count=1) for w in title.split()]
+    return " ".join(w.lower() if i and w.lower() in SMALL_WORDS else w for i, w in enumerate(words))
+
+
+def _manifest_titles() -> dict:
+    """Titles read from each PDF's first page when a batch of Acts was added
+    (data/raw_pdfs/<batch>/MANIFEST.json): stem -> "Indian Stamp Act, 1899"."""
+    titles = {}
+    for manifest in RAW_PDFS_DIR.glob("*/MANIFEST.json"):
+        for entry in json.loads(manifest.read_text(encoding="utf-8")):
+            name = re.sub(r"^THE\s+", "", entry["title"].strip(), flags=re.IGNORECASE)
+            titles[entry["stem"]] = _title_case(name)
+    return titles
+
+
+MANIFEST_TITLES = _manifest_titles()
+
+
 def act_name_from_filename(stem: str) -> tuple:
     """
     Derive a clean act name and year from the PDF filename stem.
@@ -64,6 +87,9 @@ def act_name_from_filename(stem: str) -> tuple:
     Example: 'indian_contract_act_1872' -> ('Indian Contract Act', '1872')
     """
     # Check special-case mapping first
+    if stem in MANIFEST_TITLES:
+        year = (re.search(r"(\d{4})$", stem) or [None, ""])[1]
+        return MANIFEST_TITLES[stem], year
     if stem in FILENAME_TO_ACT:
         return FILENAME_TO_ACT[stem]
 
@@ -409,6 +435,19 @@ def ingest_all():
     print("Done!")
 
 
+def extract_new_pdfs():
+    """Extract text only for PDFs that have no extracted text yet (adding Acts
+    without touching the existing extractions)."""
+    added = 0
+    for pdf_path in sorted(RAW_PDFS_DIR.glob("**/*.pdf")):
+        txt_path = EXTRACTED_TEXT_DIR / f"{pdf_path.stem}.txt"
+        if txt_path.exists():
+            continue
+        txt_path.write_text(extract_text_from_pdf(str(pdf_path)), encoding="utf-8")
+        added += 1
+    print(f"Extracted text for {added} new PDF(s)")
+
+
 def rechunk_all():
     """Re-chunk from the already extracted text (no PDF parsing) and rebuild the index."""
     for old_chunk in CHUNKS_DIR.glob("*_chunks.jsonl"):
@@ -423,7 +462,10 @@ def rechunk_all():
 
 
 if __name__ == "__main__":
-    if "--rechunk" in sys.argv:
+    if "--add-new" in sys.argv:
+        extract_new_pdfs()
+        rechunk_all()
+    elif "--rechunk" in sys.argv:
         rechunk_all()
     else:
         ingest_all()
