@@ -1,0 +1,632 @@
+[
+ {
+  "source_file": "189304.pdf",
+  "stem": "partition_act_1893",
+  "title": "THE PARTITION ACT, 1893",
+  "pages": 3
+ },
+ {
+  "source_file": "190907.pdf",
+  "stem": "anand_marriage_act_1909",
+  "title": "THE ANAND MARRIAGE ACT, 1909",
+  "pages": 3
+ },
+ {
+  "source_file": "193003.pdf",
+  "stem": "sale_of_goods_act_1930",
+  "title": "THE SALE OF GOODS ACT, 1930",
+  "pages": 16
+ },
+ {
+  "source_file": "195603.pdf",
+  "stem": "university_grants_commission_act_1956",
+  "title": "THE UNIVERSITY GRANTS COMMISSION ACT, 1956",
+  "pages": 11
+ },
+ {
+  "source_file": "196407.pdf",
+  "stem": "companies_profits_surtax_act_1964",
+  "title": "THE COMPANIES (PROFITS) SURTAX ACT, 1964",
+  "pages": 21
+ },
+ {
+  "source_file": "196604.pdf",
+  "stem": "seamens_provident_fund_act_1966",
+  "title": "THE SEAMEN'S PROVIDENT FUND ACT, 1966",
+  "pages": 9
+ },
+ {
+  "source_file": "197504.pdf",
+  "stem": "tobacco_board_act_1975",
+  "title": "THE TOBACCO BOARD ACT, 1975",
+  "pages": 14
+ },
+ {
+  "source_file": "198007.pdf",
+  "stem": "prevention_of_blackmarketing_and_maintenance_of_supplies_of_essential_commodities_act_1980",
+  "title": "THE PREVENTION OF BLACKMARKETING AND MAINTENANCE OF SUPPLIES OF ESSENTIAL COMMODITIES ACT, 1980",
+  "pages": 5
+ },
+ {
+  "source_file": "198403.pdf",
+  "stem": "prevention_of_damage_to_public_property_act_1984",
+  "title": "THE PREVENTION OF DAMAGE TO PUBLIC PROPERTY ACT, 1984",
+  "pages": 3
+ },
+ {
+  "source_file": "198502.pdf",
+  "stem": "national_capital_region_planning_board_act_1985",
+  "title": "THE NATIONAL CAPITAL REGION PLANNING BOARD ACT, 1985",
+  "pages": 13
+ },
+ {
+  "source_file": "199406.pdf",
+  "stem": "kala_kshetra_foundation_act_1993",
+  "title": "THE KALA KSHETRA FOUNDATION ACT, 1993",
+  "pages": 17
+ },
+ {
+  "source_file": "199702.pdf",
+  "stem": "maulana_azad_national_urdu_university_act_1996",
+  "title": "THE MAULANA AZAD NATIONAL URDU UNIVERSITY ACT, 1996",
+  "pages": 26
+ },
+ {
+  "source_file": "199703.pdf",
+  "stem": "mahatma_gandhi_antarrashtriya_hindi_vishwavidyalaya_act_1996",
+  "title": "THE MAHATMA GANDHI ANTARRASHTRIYA HINDI VISHWAVIDYALAYA ACT, 1996",
+  "pages": 30
+ },
+ {
+  "source_file": "200604.pdf",
+  "stem": "commissions_for_protection_of_child_rights_act_2005",
+  "title": "THE COMMISSIONS FOR PROTECTION OF CHILD RIGHTS ACT, 2005",
+  "pages": 13
+ },
+ {
+  "source_file": "200702.pdf",
+  "stem": "scheduled_tribes_and_other_traditional_forest_dwellers_recognition_of_forest_rights_act_2006",
+  "title": "THE SCHEDULED TRIBES AND OTHER TRADITIONAL FOREST DWELLERS (RECOGNITION OF FOREST RIGHTS) ACT, 2006",
+  "pages": 9
+ },
+ {
+  "source_file": "201401.pdf",
+  "stem": "lokpal_and_lokayuktas_act_2013",
+  "title": "THE LOKPAL AND LOKAYUKTAS ACT, 2013",
+  "pages": 25
+ },
+ {
+  "source_file": "A1857-4.pdf",
+  "stem": "tobacco_duty_town_of_bombay_act_1857",
+  "title": "THE TOBACCO DUTY (TOWN OF BOMBAY) ACT, 1857",
+  "pages": 5
+ },
+ {
+  "source_file": "A1869-04.pdf",
+  "stem": "divorce_act_1869",
+  "title": "THE DIVORCE ACT, 1869",
+  "pages": 23
+ },
+ {
+  "source_file": "A1869-1.pdf",
+  "stem": "oudh_estate_sact_1869",
+  "title": "THE OUDH ESTATES ACT, 1869",
+  "pages": 13
+ },
+ {
+  "source_file": "A1870-7.pdf",
+  "stem": "court_fees_act_1870",
+  "title": "THE COURT-FEES ACT, 1870",
+  "pages": 101
+ },
+ {
+  "source_file": "A1872-04.pdf",
+  "stem": "punjab_laws_act_1872",
+  "title": "THE PUNJAB LAWS ACT, 1872",
+  "pages": 13
+ },
+ {
+  "source_file": "A1874-03.pdf",
+  "stem": "married_women_sproperty_act_1874",
+  "title": "THE MARRIED WOMEN'S PROPERTY ACT, 1874",
+  "pages": 4
+ },
+ {
+  "source_file": "A1878-06.pdf",
+  "stem": "indian_treasure_trove_act_1878",
+  "title": "THE INDIAN TREASURE-TROVE ACT, 1878",
+  "pages": 7
+ },
+ {
+  "source_file": "A1882-02.pdf",
+  "stem": "indian_trusts_act_1882",
+  "title": "THE INDIAN TRUSTS ACT, 1882",
+  "pages": 24
+ },
+ {
+  "source_file": "A1882-05.pdf",
+  "stem": "indian_easements_act_1882",
+  "title": "THE INDIAN EASEMENTS ACT, 1882",
+  "pages": 20
+ },
+ {
+  "source_file": "A1884-04.pdf",
+  "stem": "explosives_act_1884",
+  "title": "THE EXPLOSIVES ACT, 1884",
+  "pages": 12
+ },
+ {
+  "source_file": "A1886-6.pdf",
+  "stem": "births_deaths_and_marriages_registration_act_1886",
+  "title": "THE BIRTHS, DEATHS AND MARRIAGES REGISTRATION ACT, 1886",
+  "pages": 10
+ },
+ {
+  "source_file": "A1887-07.pdf",
+  "stem": "suits_valuation_act_1887",
+  "title": "THE SUITS VALUATION ACT, 1887",
+  "pages": 4
+ },
+ {
+  "source_file": "A1888-4.pdf",
+  "stem": "indian_reserve_forces_act_1888",
+  "title": "THE INDIAN RESERVE FORCES ACT, 1888",
+  "pages": 4
+ },
+ {
+  "source_file": "A1890-6.pdf",
+  "stem": "charitable_endowments_act_1890",
+  "title": "THE CHARITABLE ENDOWMENTS ACT, 1890",
+  "pages": 6
+ },
+ {
+  "source_file": "A1892-05.pdf",
+  "stem": "bengal_military_police_act_1892",
+  "title": "THE BENGAL MILITARY POLICE ACT, 1892",
+  "pages": 6
+ },
+ {
+  "source_file": "A1892-7.pdf",
+  "stem": "madras_city_civil_court_act_1892",
+  "title": "THE MADRAS CITY CIVIL COURT ACT, 1892",
+  "pages": 4
+ },
+ {
+  "source_file": "A1897_03.pdf",
+  "stem": "epidemic_diseases_act_1897",
+  "title": "THE EPIDEMIC DISEASES ACT, 1897",
+  "pages": 5
+ },
+ {
+  "source_file": "A1899-04.pdf",
+  "stem": "government_buildings_act_1899",
+  "title": "THE GOVERNMENT BUILDINGS ACT, 1899",
+  "pages": 3
+ },
+ {
+  "source_file": "A1899-2 .pdf",
+  "stem": "indian_stamp_act_1899",
+  "title": "THE INDIAN STAMP ACT, 1899",
+  "pages": 356
+ },
+ {
+  "source_file": "A1901-02.pdf",
+  "stem": "indian_tolls_army_and_air_force_act_1901",
+  "title": "THE INDIAN TOLLS (ARMY AND AIR FORCE) ACT, 1901",
+  "pages": 5
+ },
+ {
+  "source_file": "A1904-7.pdf",
+  "stem": "ancient_monuments_preservation_act_1904",
+  "title": "THE ANCIENT MONUMENTS PRESERVATION ACT, 1904",
+  "pages": 11
+ },
+ {
+  "source_file": "A1913-02.pdf",
+  "stem": "official_trustees_act_1913",
+  "title": "THE OFFICIAL TRUSTEES ACT, 1913",
+  "pages": 11
+ },
+ {
+  "source_file": "A1913-05.pdf",
+  "stem": "white_phosphorus_matches_prohibition_act_1913",
+  "title": "THE WHITE PHOSPHORUS MATCHES PROHIBITION ACT, 1913",
+  "pages": 2
+ },
+ {
+  "source_file": "A1914-02.pdf",
+  "stem": "destructive_insects_and_pests_act_1914",
+  "title": "THE DESTRUCTIVE INSECTS AND PESTS ACT, 1914",
+  "pages": 4
+ },
+ {
+  "source_file": "A1923-7.pdf",
+  "stem": "indian_naval_armament_act_1923",
+  "title": "THE INDIAN NAVAL ARMAMENT ACT, 1923",
+  "pages": 5
+ },
+ {
+  "source_file": "A1925-04.pdf",
+  "stem": "indian_soldiers_litigation_act_1925",
+  "title": "THE INDIAN SOLDIERS (LITIGATION) ACT, 1925",
+  "pages": 5
+ },
+ {
+  "source_file": "A1937-1.pdf",
+  "stem": "agricultural_produce_grading_and_marking_act_1937",
+  "title": "THE AGRICULTURAL PRODUCE (GRADING AND MARKING) ACT, 1937",
+  "pages": 7
+ },
+ {
+  "source_file": "A1962-01.pdf",
+  "stem": "goa_daman_and_diu_administration_act_1962",
+  "title": "THE GOA, DAMAN AND DIU (ADMINISTRATION) ACT, 1962",
+  "pages": 3
+ },
+ {
+  "source_file": "A1974-01.pdf",
+  "stem": "delhi_urban_art_commission_act_1973",
+  "title": "THE DELHI URBAN ART COMMISSION ACT, 1973",
+  "pages": 8
+ },
+ {
+  "source_file": "A1982-01.pdf",
+  "stem": "african_development_fund_act_1982",
+  "title": "THE AFRICAN DEVELOPMENT FUND ACT, 1982",
+  "pages": 6
+ },
+ {
+  "source_file": "A1982-04.pdf",
+  "stem": "sugar_development_fund_act_1982",
+  "title": "THE SUGAR DEVELOPMENT FUND ACT, 1982",
+  "pages": 3
+ },
+ {
+  "source_file": "A1984-05.pdf",
+  "stem": "asiatic_society_act_1984",
+  "title": "THE ASIATIC SOCIETY ACT, 1984",
+  "pages": 5
+ },
+ {
+  "source_file": "A1986-02.pdf",
+  "stem": "agricultural_and_processed_food_products_export_development_authority_act_1985",
+  "title": "THE AGRICULTURAL AND PROCESSED FOOD PRODUCTS EXPORT DEVELOPMENT AUTHORITY ACT, 1985",
+  "pages": 15
+ },
+ {
+  "source_file": "A1997-07.pdf",
+  "stem": "industrial_reconstruction_bank_transfer_of_undertakings_and_repeal_act_1997",
+  "title": "THE INDUSTRIAL RECONSTRUCTION BANK (TRANSFER OF UNDERTAKINGS AND REPEAL) ACT, 1997",
+  "pages": 5
+ },
+ {
+  "source_file": "A1999-05.pdf",
+  "stem": "leaders_and_chief_whips_of_recognised_parties_and_groups_in_parliament_facilities_act_1998",
+  "title": "THE LEADERS AND CHIEF WHIPS OF RECOGNISED PARTIES AND GROUPS IN PARLIAMENT (FACILITIES) ACT, 1998",
+  "pages": 3
+ },
+ {
+  "source_file": "A2004-01.pdf",
+  "stem": "sick_industrial_companies_special_provisions_repeal_act_2003",
+  "title": "THE SICK INDUSTRIAL COMPANIES (SPECIAL PROVISIONS) REPEAL ACT, 2003",
+  "pages": 4
+ },
+ {
+  "source_file": "A2005-2.pdf",
+  "stem": "national_commission_for_minority_educational_institutions_act_2004",
+  "title": "THE NATIONAL COMMISSION FOR MINORITY EDUCATIONAL INSTITUTIONS ACT, 2004",
+  "pages": 10
+ },
+ {
+  "source_file": "A2006-01.pdf",
+  "stem": "andhra_pradesh_legislative_council_act_2005",
+  "title": "THE ANDHRA PRADESH LEGISLATIVE COUNCIL ACT, 2005",
+  "pages": 3
+ },
+ {
+  "source_file": "A2007-05.pdf",
+  "stem": "central_educational_institutions_reservation_in_admission_act_2006",
+  "title": "THE CENTRAL EDUCATIONAL INSTITUTIONS (RESERVATION IN ADMISSION) ACT, 2006",
+  "pages": 5
+ },
+ {
+  "source_file": "A2007-07.pdf",
+  "stem": "english_and_foreign_languages_university_act_2006",
+  "title": "THE ENGLISH AND FOREIGN LANGUAGES UNIVERSITY ACT, 2006",
+  "pages": 29
+ },
+ {
+  "source_file": "A2009-04.pdf",
+  "stem": "gram_nyayalayas_act_2008",
+  "title": "THE GRAM NYAYALAYAS ACT, 2008",
+  "pages": 12
+ },
+ {
+  "source_file": "A2009-06.pdf",
+  "stem": "limited_liability_partnership_act_2008",
+  "title": "THE LIMITED LIABILITY PARTNERSHIP ACT, 2008",
+  "pages": 43
+ },
+ {
+  "source_file": "A2014-6.pdf",
+  "stem": "andhra_pradesh_reorganisation_act_2014",
+  "title": "THE ANDHRA PRADESH REORGANISATION ACT, 2014",
+  "pages": 75
+ },
+ {
+  "source_file": "A2017-02.pdf",
+  "stem": "specified_bank_notes_cessation_of_liabilities_act_2017",
+  "title": "THE SPECIFIED BANK NOTES (CESSATION OF LIABILITIES) ACT, 2017",
+  "pages": 4
+ },
+ {
+  "source_file": "A2018-02.pdf",
+  "stem": "repealing_and_amending_act_2017",
+  "title": "THE REPEALING AND AMENDING ACT, 2017",
+  "pages": 6
+ },
+ {
+  "source_file": "A2018-03.pdf",
+  "stem": "indian_institute_of_petroleum_and_energy_act_2017",
+  "title": "THE INDIAN INSTITUTE OF PETROLEUM AND ENERGY ACT, 2017",
+  "pages": 12
+ },
+ {
+  "source_file": "A2018-04.pdf",
+  "stem": "repealing_and_amending_second_act_2017",
+  "title": "THE REPEALING AND AMENDING (SECOND) ACT, 2017",
+  "pages": 9
+ },
+ {
+  "source_file": "A202003.pdf",
+  "stem": "direct_tax_vivad_se_vishwas_act_2020",
+  "title": "THE DIRECT TAX VIVAD SE VISHWAS ACT, 2020",
+  "pages": 9
+ },
+ {
+  "source_file": "AAA1867____03.pdf",
+  "stem": "public_gambling_act_1867",
+  "title": "THE PUBLIC GAMBLING ACT, 1867",
+  "pages": 6
+ },
+ {
+  "source_file": "AAA1900____03.pdf",
+  "stem": "prisoners_act_1900",
+  "title": "THE PRISONERS ACT, 1900",
+  "pages": 11
+ },
+ {
+  "source_file": "AAA1903_____37.pdf",
+  "stem": "works_of_defence_act_1903",
+  "title": "THE WORKS OF DEFENCE ACT, 1903",
+  "pages": 14
+ },
+ {
+  "source_file": "AAA1908___06.pdf",
+  "stem": "explosive_substances_act_1908",
+  "title": "THE EXPLOSIVE SUBSTANCES ACT, 1908",
+  "pages": 3
+ },
+ {
+  "source_file": "AAA1917____05.pdf",
+  "stem": "destruction_of_records_act_1917",
+  "title": "THE DESTRUCTION OF RECORDS ACT, 1917",
+  "pages": 3
+ },
+ {
+  "source_file": "AAA1979___05.pdf",
+  "stem": "coconut_development_board_act_1979",
+  "title": "THE COCONUT DEVELOPMENT BOARD ACT, 1979",
+  "pages": 10
+ },
+ {
+  "source_file": "AAAA1938___)5.pdf",
+  "stem": "manoeuvres_field_firing_and_artillery_practice_act_1938",
+  "title": "THE MANOEUVRES FIELD FIRING AND ARTILLERY PRACTICE ACT, 1938",
+  "pages": 5
+ },
+ {
+  "source_file": "AApolice1861___05.pdf",
+  "stem": "police_act_1861",
+  "title": "THE POLICE ACT, 1861",
+  "pages": 18
+ },
+ {
+  "source_file": "a1839-07.pdf",
+  "stem": "madras_rent_and_revenue_sales_act_1839",
+  "title": "THE MADRAS RENT AND REVENUE SALES ACT, 1839",
+  "pages": 2
+ },
+ {
+  "source_file": "a1853-06.pdf",
+  "stem": "rent_recovery_act_1853",
+  "title": "THE RENT RECOVERY ACT, 1853",
+  "pages": 2
+ },
+ {
+  "source_file": "a1854-05.pdf",
+  "stem": "bengal_bonded_warehouse_association_act_1854",
+  "title": "THE BENGAL BONDED WAREHOUSE ASSOCIATION ACT, 1854",
+  "pages": 1
+ },
+ {
+  "source_file": "a1859-05.pdf",
+  "stem": "bengal_ghatwali_land_act_1859",
+  "title": "THE BENGAL GHATWALI LAND ACT, 1859",
+  "pages": 2
+ },
+ {
+  "source_file": "a1873-03.pdf",
+  "stem": "madras_civil_courts_act_1873",
+  "title": "THE MADRAS CIVIL COURTS' ACT, 1873",
+  "pages": 8
+ },
+ {
+  "source_file": "a1873-05.pdf",
+  "stem": "government_savings_promotion_act_1873",
+  "title": "THE GOVERNMENT SAVINGS PROMOTION ACT, 1873",
+  "pages": 10
+ },
+ {
+  "source_file": "a1876-6.pdf",
+  "stem": "chutia_nagpur_encumbered_estates_act_1876",
+  "title": "THE CHUTIA NAGPUR ENCUMBERED ESTATES ACT, 1876",
+  "pages": 8
+ },
+ {
+  "source_file": "a1880-1.pdf",
+  "stem": "religious_societies_act_1880",
+  "title": "THE RELIGIOUS SOCIETIES ACT, 1880",
+  "pages": 4
+ },
+ {
+  "source_file": "a1882-07.pdf",
+  "stem": "powers_of_attorney_act_1882",
+  "title": "THE POWERS-OF-ATTORNEY ACT, 1882",
+  "pages": 3
+ },
+ {
+  "source_file": "a1893-06.pdf",
+  "stem": "sir_dinshaw_man_ockjee_petit_act_1893",
+  "title": "THE SIR DINSHAW MANOCKJEE PETIT ACT, 1893",
+  "pages": 7
+ },
+ {
+  "source_file": "a1909-03.pdf",
+  "stem": "presidency_towns_insolvency_act_1909",
+  "title": "THE PRESIDENCY-TOWNS INSOLVENCY ACT, 1909",
+  "pages": 42
+ },
+ {
+  "source_file": "a1912-2.pdf",
+  "stem": "co_operative_societies_act_1912",
+  "title": "THE CO-OPERATIVE SOCIETIES ACT, 1912",
+  "pages": 13
+ },
+ {
+  "source_file": "a1920-05.pdf",
+  "stem": "provincial_insolvency_act_1920",
+  "title": "THE PROVINCIAL INSOLVENCY ACT, 1920",
+  "pages": 28
+ },
+ {
+  "source_file": "a1934-2.pdf",
+  "stem": "reserve_bank_of_india_act_1934",
+  "title": "THE RESERVE BANK OF INDIA ACT, 1934",
+  "pages": 89
+ },
+ {
+  "source_file": "a1936_____3.pdf",
+  "stem": "parsi_marriage_and_divorce_act_1936",
+  "title": "THE PARSI MARRIAGE AND DIVORCE ACT, 1936",
+  "pages": 18
+ },
+ {
+  "source_file": "a1938-04.pdf",
+  "stem": "insurance_act_1938",
+  "title": "THE INSURANCE ACT, 1938",
+  "pages": 102
+ },
+ {
+  "source_file": "a1942-07.pdf",
+  "stem": "coffee_act_1942",
+  "title": "THE COFFEE ACT, 1942",
+  "pages": 16
+ },
+ {
+  "source_file": "a1944-01.pdf",
+  "stem": "central_excise_act_1944",
+  "title": "THE CENTRAL EXCISE ACT, 1944",
+  "pages": 110
+ },
+ {
+  "source_file": "a1949-7.pdf",
+  "stem": "schedule_dsecurities_hyderabad_act_1949",
+  "title": "THE SCHEDULED SECURITIES (HYDERABAD) ACT, 1949",
+  "pages": 3
+ },
+ {
+  "source_file": "a1960-6.pdf",
+  "stem": "geneva_conventions_act_1960",
+  "title": "THE GENEVA CONVENTIONS ACT, 1960",
+  "pages": 108
+ },
+ {
+  "source_file": "a1968-3.pdf",
+  "stem": "jammu_and_kashmir_representation_of_the_people_supplementary_act_1968",
+  "title": "THE JAMMU AND KASHMIR REPRESENTATION OF THE PEOPLE (SUPPLEMENTARY) ACT, 1968",
+  "pages": 2
+ },
+ {
+  "source_file": "a1973-02.pdf",
+  "stem": "diplomatic_and_consular_officers_oaths_and_fees_extension_to_jammu_and_kashmir_act_1973",
+  "title": "THE DIPLOMATIC AND CONSULAR OFFICERS (OATHS AND FEES) (EXTENSION TO JAMMU AND KASHMIR) ACT, 1973",
+  "pages": 2
+ },
+ {
+  "source_file": "a2007-06.pdf",
+  "stem": "prohibition_of_child_marriage_act_2006",
+  "title": "The Prohibition of Child Marriage Act, 2006",
+  "pages": 10
+ },
+ {
+  "source_file": "a2014-07.pdf",
+  "stem": "street_vendors_protection_of_livelihood_and_regulation_of_street_vending_act_2014",
+  "title": "THE STREET VENDORS (PROTECTION OF LIVELIHOOD AND REGULATION OF STREET VENDING) ACT, 2014",
+  "pages": 15
+ },
+ {
+  "source_file": "a2016-04.pdf",
+  "stem": "commercial_courts_act_2015",
+  "title": "THE COMMERCIAL COURTS ACT, 2015",
+  "pages": 24
+ },
+ {
+  "source_file": "a2016-2.pdf",
+  "stem": "juvenile_justice_care_and_protection_of_children_act_2015",
+  "title": "THE JUVENILE JUSTICE (CARE AND PROTECTION OF CHILDREN) ACT, 2015",
+  "pages": 48
+ },
+ {
+  "source_file": "a202005.pdf",
+  "stem": "central_sanskrit_universities_act_2020",
+  "title": "THE CENTRAL SANSKRIT UNIVERSITIES ACT, 2020",
+  "pages": 38
+ },
+ {
+  "source_file": "aA1890-1.pdf",
+  "stem": "revenue_recovery_act_1890",
+  "title": "THE REVENUE RECOVERY ACT, 1890",
+  "pages": 9
+ },
+ {
+  "source_file": "aA1988-02.pdf",
+  "stem": "chandigarh_delegation_of_powers_act_1987",
+  "title": "The Chandigarh (Delegation of Powers) Act, 1987",
+  "pages": 5
+ },
+ {
+  "source_file": "aA1988-03.pdf",
+  "stem": "commission_of_sati_prevention_act_1987",
+  "title": "The Commission of Sati (Prevention) Act, 1987",
+  "pages": 10
+ },
+ {
+  "source_file": "aa1995-07.pdf",
+  "stem": "cable_television_networks_regulation_act_1995",
+  "title": "THE CABLE TELEVISION NETWORKS (REGULATION) ACT, 1995",
+  "pages": 10
+ },
+ {
+  "source_file": "aa2009-07.pdf",
+  "stem": "collection_of_statistics_act_2008",
+  "title": "THE COLLECTION OF STATISTICS ACT, 2008",
+  "pages": 9
+ },
+ {
+  "source_file": "englegal.pdf",
+  "stem": "legal_metrology_act_2009",
+  "title": "THE LEGAL METROLOGY ACT, 2009",
+  "pages": 18
+ }
+]

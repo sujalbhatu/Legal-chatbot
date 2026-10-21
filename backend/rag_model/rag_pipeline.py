@@ -67,7 +67,9 @@ INDEXED_ACTS = (
     "the Constitution of India; Bharatiya Nyaya Sanhita, Bharatiya Nagarik Suraksha Sanhita and "
     "Bharatiya Sakshya Adhiniyam (2023); Code of Civil Procedure; Indian Contract Act; Specific Relief Act; "
     "Transfer of Property Act; Hindu Marriage Act; Special Marriage Act; Domestic Violence Act; POCSO Act; "
-    "Information Technology Act; Motor Vehicles Act; CGST Act; Environment Protection Act; RTI Act; Aadhaar Act"
+    "Information Technology Act; Motor Vehicles Act; CGST Act; Environment Protection Act; RTI Act; Aadhaar Act; "
+    "and about 100 other central Acts such as the Divorce Act, Sale of Goods Act, Indian Stamp Act, Juvenile "
+    "Justice Act, Prohibition of Child Marriage Act and Commercial Courts Act"
 )
 
 SYSTEM_PROMPT = """You are a friendly Indian legal information assistant. You help ordinary people understand Indian law using ONLY the numbered SOURCES below, which are extracts from Indian Acts.
