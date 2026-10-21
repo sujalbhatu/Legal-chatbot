@@ -266,7 +266,7 @@ class AnswerCheckTests(unittest.TestCase):
 
     def test_hindi_section_mentions_are_checked(self):
         sources = [{"text": "304. snatching", "metadata": {"section": "304"}}]
-        self.assertEqual(answer_utils.check_citations("सेक्शन 304 [1] और धारा 999", sources)[2], ["999"])
+        self.assertEqual(answer_utils.check_citations("सेक्शन 304 [1] और धारा 999 और §998", sources)[2], ["999", "998"])
 
     def test_invalid_markers_removed_and_unsupported_sections_flagged(self):
         sources = [{"text": "303. Whoever ... commits theft.", "metadata": {"section": "303"}}]
