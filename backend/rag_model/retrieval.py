@@ -184,4 +184,10 @@ def load_reranker(name: str):
     if not name or name.lower() == "none":
         return None
     from sentence_transformers import CrossEncoder
-    return CrossEncoder(name, max_length=int(os.getenv("RERANK_MAX_TOKENS", "256")))
+    model = CrossEncoder(name, max_length=int(os.getenv("RERANK_MAX_TOKENS", "256")))
+    if os.getenv("RERANKER_INT8", "0") == "1":
+        # int8 weights for the Linear layers: ~4x less memory for the weights and
+        # faster on CPU; the effect on ranking is measured in the eval (ablation).
+        import torch
+        torch.quantization.quantize_dynamic(model.model, {torch.nn.Linear}, dtype=torch.qint8, inplace=True)
+    return model

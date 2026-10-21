@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     Send, ArrowLeft, CheckCircle, Scale, BookOpen, AlertTriangle, FileText, ChevronDown, ChevronRight,
-    Loader2, User, Sun, Moon, RotateCcw, ThumbsUp, ThumbsDown, Languages, SearchX, Sparkles
+    Loader2, User, Sun, Moon, RotateCcw, ThumbsUp, ThumbsDown, Languages, Sparkles
 } from 'lucide-react';
 import { chatService } from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
@@ -37,16 +37,8 @@ const LegalDisclaimer = () => (
     </div>
 );
 
-const relevanceLabel = (score) => {
-    if (score === null || score === undefined) return null;
-    if (score >= 0.7) return 'High relevance';
-    if (score >= 0.3) return 'Medium relevance';
-    return 'Low relevance';
-};
-
 // One retrieved section. `open` is controlled so a [n] chip in the answer can open it.
 const SourceCard = ({ source, n, open, onToggle, anchorId }) => {
-    const relevance = relevanceLabel(source.similarity);
     return (
         <div id={anchorId} className={`source-card${open ? ' source-card-open' : ''}`}>
             <button type="button" className="source-card-head" onClick={onToggle} aria-expanded={open}>
@@ -62,7 +54,6 @@ const SourceCard = ({ source, n, open, onToggle, anchorId }) => {
                 </span>
                 <span className="source-badges">
                     {source.cited && <span className="badge badge-success" style={{ fontSize: '0.65rem' }}>Cited</span>}
-                    {relevance && <span className="badge badge-neutral mobile-hide" style={{ fontSize: '0.65rem' }}>{relevance}</span>}
                     {open ? <ChevronDown size={16} color="var(--text-muted)" /> : <ChevronRight size={16} color="var(--text-muted)" />}
                 </span>
             </button>
@@ -80,16 +71,16 @@ const SourceCard = ({ source, n, open, onToggle, anchorId }) => {
 };
 
 // Sources, follow-ups and feedback under an assistant answer
-const AnswerExtras = ({ msg, msgKey, openSource, setOpenSource, onFollowUp, onFeedback, isLast, busy }) => {
-    const sources = msg.sources || [];
-    const cited = sources.filter(s => s.cited).length;
+// (The reranker's score is kept in the data but not shown: it ranks well, yet gives
+// correct sections for plain-language questions absolute scores near 0, so a
+// "Low relevance" label would mislead.)
+const AnswerExtras = ({ msg, msgKey, openSource, setOpenSource, onFollowUp, onFeedback, isLast, busy, live }) => {
+    const all = msg.sources || [];
+    const cited = all.filter(s => s.cited).length;
+    // A saved answer that cites nothing (small talk, "not found") shows no source list
+    const sources = live || cited ? all : [];
     return (
         <>
-            {msg.grounded === false && (
-                <div className="answer-note">
-                    <SearchX size={15} /> No section in the indexed Acts matched this question closely.
-                </div>
-            )}
             {msg.unsupportedCitations?.length > 0 && (
                 <div className="answer-note answer-note-warn">
                     <AlertTriangle size={15} />
@@ -101,7 +92,7 @@ const AnswerExtras = ({ msg, msgKey, openSource, setOpenSource, onFollowUp, onFe
             {sources.length > 0 && (
                 <div style={{ marginTop: '1rem' }}>
                     <div className="sources-heading">
-                        <BookOpen size={16} /> Sources ({cited ? `${cited} cited, ` : ''}{sources.length} retrieved)
+                        <BookOpen size={16} /> {live ? `Reading ${sources.length} sections` : `Sources (${cited} cited, ${sources.length} retrieved)`}
                     </div>
                     {sources.map((source, i) => {
                         const n = source.n || i + 1;
@@ -400,7 +391,7 @@ export default function Chat() {
                                             {streaming.sources.length > 0 && (
                                                 <AnswerExtras msg={{ sources: streaming.sources, grounded: streaming.grounded }} msgKey="streaming"
                                                     openSource={openSource} setOpenSource={setOpenSource} onFollowUp={send}
-                                                    onFeedback={() => {}} isLast={false} busy />
+                                                    onFeedback={() => {}} isLast={false} busy live />
                                             )}
                                         </div>
                                     </div>

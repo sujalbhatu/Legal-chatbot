@@ -54,10 +54,14 @@ MEMORY_SUMMARY_MODEL = os.getenv("MEMORY_SUMMARY_MODEL", "openai/gpt-oss-20b")
 RETRIEVAL_MODE = os.getenv("RETRIEVAL_MODE", "hybrid_rerank")
 RERANKER_MODEL = os.getenv("RERANKER_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2")
 CONTEXT_CHUNKS = int(os.getenv("CONTEXT_CHUNKS", "6"))
-# Reranker probability below which a source is not good enough to answer from.
-# Calibrated on the eval set (see docs/WEEK3_RESULTS.md).
-EVIDENCE_THRESHOLD = float(os.getenv("EVIDENCE_THRESHOLD", "0.10"))
-SOURCE_MIN_SCORE = float(os.getenv("SOURCE_MIN_SCORE", "0.02"))
+# Optional cut-offs on the reranker's probability. Both default to 0 (off): on the
+# eval set the cross-encoder ranks plain-language questions well but gives the right
+# section an absolute score near 0 (15 of 18 low-score correct hits were scenarios),
+# so a threshold of 0.10 would refuse 21 of 93 answerable questions while catching
+# 2 of 5 out-of-corpus ones. Whether the sources answer the question is left to the
+# grounded prompt instead, and measured (abstention / hallucination rate).
+EVIDENCE_THRESHOLD = float(os.getenv("EVIDENCE_THRESHOLD", "0"))
+SOURCE_MIN_SCORE = float(os.getenv("SOURCE_MIN_SCORE", "0"))
 
 INDEXED_ACTS = (
     "the Constitution of India; Bharatiya Nyaya Sanhita, Bharatiya Nagarik Suraksha Sanhita and "
@@ -137,6 +141,8 @@ class LegalRAGPipeline:
         u = understand(user_query, history, language, groq_client, REWRITE_MODEL)
         if u.error:
             print(f"  ⚠ Query rewrite failed, using raw query: {u.error[:80]}")
+        if os.getenv("DISABLE_ACT_FILTER"):     # ablation only
+            u.acts = []
         sources = self.retriever.search(
             u.search_query, variant=variant or RETRIEVAL_MODE, top_k=10,
             act_stems=u.acts, section_refs=u.section_refs)
@@ -230,7 +236,8 @@ class LegalRAGPipeline:
             "answer": answer,
             "sources": sources,
             "follow_ups": followups,
-            "grounded": prep["evidence_ok"],
+            # grounded = the answer cites at least one retrieved section
+            "grounded": prep["evidence_ok"] and bool(cited),
             "unsupported_citations": unsupported,
             "language": prep["language"],
             "language_name": prep["language_name"],
