@@ -22,5 +22,9 @@
     "Is there a time limit for filing the complaint?",
     "Should we go to the cyber crime portal first or the police station?",
     "Before I go, summarise my case for me: who lost how much money, which sections you said apply, and the first step I should take."
+  ],
+  "must_mention": [
+    "Rahul",
+    "18,?000"
   ]
 }
