@@ -62,4 +62,31 @@ async function consumeOTP(UserModel, userId, submitted) {
     return invalid;
 }
 
-module.exports = { MAX_OTP_ATTEMPTS, generateOTP, setOTP, consumeOTP };
+// OTP e-mail throttle: at most one mail a minute and five an hour per address
+const OTP_RESEND_GAP_MS = 60 * 1000;
+const OTP_MAX_SENDS_PER_HOUR = 5;
+const HOUR_MS = 60 * 60 * 1000;
+
+/**
+ * Whether another OTP e-mail may go to this user now. If yes, records the send on
+ * the document (caller saves). Returns { ok: true } or { ok: false, retryAfterS }.
+ */
+function reserveOTPEmail(user, now = new Date()) {
+    if (user.otpSentAt && now - user.otpSentAt < OTP_RESEND_GAP_MS) {
+        return { ok: false, retryAfterS: Math.ceil((OTP_RESEND_GAP_MS - (now - user.otpSentAt)) / 1000) };
+    }
+    if (!user.otpSendWindowStart || now - user.otpSendWindowStart >= HOUR_MS) {
+        user.otpSendWindowStart = now;
+        user.otpSendCount = 0;
+    }
+    if (user.otpSendCount >= OTP_MAX_SENDS_PER_HOUR) {
+        return { ok: false, retryAfterS: Math.ceil((HOUR_MS - (now - user.otpSendWindowStart)) / 1000) };
+    }
+    user.otpSendCount += 1;
+    user.otpSentAt = now;
+    return { ok: true };
+}
+
+module.exports = {
+    MAX_OTP_ATTEMPTS, OTP_MAX_SENDS_PER_HOUR, generateOTP, setOTP, consumeOTP, reserveOTPEmail
+};
