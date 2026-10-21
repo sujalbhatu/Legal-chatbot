@@ -159,7 +159,8 @@ def run_retrieval(args):
                "rss_mb": _rss_mb(),
                "config": {k: os.environ.get(k) for k in
                           ("RETRIEVAL_MODE", "RERANKER_MODEL", "RERANK_TOP_N", "RERANK_MAX_CHARS",
-                           "DISABLE_ACT_FILTER", "EMBEDDING_MODEL") if os.environ.get(k)}}
+                           "DISABLE_ACT_FILTER", "EMBEDDING_MODEL", "QUERY_EXPANSION", "EXPAND_MODEL",
+                           "REWRITE_MODEL") if os.environ.get(k)}}
     RESULTS_DIR.mkdir(exist_ok=True)
     with open(RESULTS_DIR / f"{name}.json", "w", encoding="utf-8") as f:
         json.dump({"summary": summary, "rows": rows}, f, ensure_ascii=False, indent=1)

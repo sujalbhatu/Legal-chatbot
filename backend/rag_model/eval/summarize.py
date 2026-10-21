@@ -8,15 +8,17 @@ import json
 from common import RESULTS_DIR
 
 ROWS = [
-    ("retrieval_baseline.json", "Baseline (old chunks, dense + LLM act booster)"),
-    ("retrieval_new_dense.json", "Dense only (new section chunks)"),
-    ("retrieval_new_bm25.json", "BM25 only"),
-    ("retrieval_new_hybrid.json", "Hybrid (dense + BM25, RRF)"),
-    ("retrieval_new_hybrid_rerank.json", "Hybrid + MiniLM cross-encoder (top 20, 800 chars)"),
-    ("retrieval_new_hybrid_rerank_deep.json", "Hybrid + MiniLM cross-encoder (top 30, 1500 chars)"),
-    ("retrieval_new_hybrid_rerank_int8.json", "Hybrid + MiniLM cross-encoder, int8 weights"),
-    ("retrieval_new_hybrid_rerank_bge.json", "Hybrid + bge-reranker-base"),
-    ("retrieval_new_hybrid_rerank_noact.json", "Hybrid + MiniLM rerank, no act filter / section lookup"),
+    ("retrieval_baseline.json", "Baseline: old chunks, dense + LLM act booster"),
+    ("retrieval_new_dense_notitles.json", "Section chunks, dense only (before margin titles)"),
+    ("retrieval_new_hybrid_rerank_notitles.json", "Section chunks, hybrid + MiniLM rerank (before margin titles)"),
+    ("retrieval_new_hybrid_rerank_bge_notitles.json", "  same, bge-reranker-base instead (before margin titles)"),
+    ("retrieval_new_hybrid_rerank_deep_notitles.json", "  same, rerank top 30 x 1500 chars (before margin titles)"),
+    ("retrieval_new_dense.json", "Final index: dense only"),
+    ("retrieval_new_bm25.json", "Final index: BM25 only"),
+    ("retrieval_new_hybrid.json", "Final index: hybrid (dense + BM25, RRF)"),
+    ("retrieval_new_hybrid_rerank.json", "Final index: hybrid + MiniLM cross-encoder (chosen)"),
+    ("retrieval_new_hybrid_rerank_int8.json", "Final index: hybrid + MiniLM cross-encoder, int8"),
+    ("retrieval_new_hybrid_rerank_noact.json", "Final index: chosen, without act filter / section lookup"),
 ]
 TYPES = ["section", "acronym", "scenario", "multilingual", "multiturn"]
 

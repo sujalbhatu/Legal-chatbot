@@ -158,12 +158,26 @@ class QueryUnderstandingTests(unittest.TestCase):
         self.assertIn("constitution_of_india_2024_english", qu.detect_acts("what does Article 21 say"))
         self.assertEqual(qu.section_refs("Section 13B and sec. 9 and Article 21A"), ["13B", "9", "21A"])
 
-    def test_english_first_message_needs_no_llm_call(self):
+    def test_english_first_message_needs_no_llm_call_without_expansion(self):
         llm = FakeLLM()
-        u = qu.understand("What is Section 303 of the BNS?", [], "en", llm, "m")
+        with mock.patch.dict(os.environ, {"QUERY_EXPANSION": "0"}):
+            u = qu.understand("What is Section 303 of the BNS?", [], "en", llm, "m")
         self.assertEqual(llm.calls, 0)
         self.assertEqual(u.acts, ["bharatiya_nyaya_sanhita_2023"])
         self.assertEqual(u.section_refs, ["303"])
+
+    def test_expansion_adds_legal_terms_in_one_call(self):
+        llm = FakeLLM(json.dumps({"act": "Bharatiya Nyaya Sanhita", "legal_terms": ["theft", "dishonestly"]}))
+        with mock.patch.dict(os.environ, {"QUERY_EXPANSION": "1"}):
+            u = qu.understand("someone stole my bike", [], "en", llm, "m")
+        self.assertEqual(llm.calls, 1)
+        self.assertEqual(u.search_query, "someone stole my bike theft dishonestly")
+        self.assertEqual(u.acts, ["bharatiya_nyaya_sanhita_2023"])
+
+    def test_expansion_failure_keeps_the_query(self):
+        with mock.patch.dict(os.environ, {"QUERY_EXPANSION": "1"}):
+            u = qu.understand("someone stole my bike", [], "en", FakeLLM(error=RuntimeError("timeout")), "m")
+        self.assertEqual(u.search_query, "someone stole my bike")
 
     def test_follow_up_is_rewritten_in_one_call(self):
         llm = FakeLLM(json.dumps({"query": "punishment for identity theft under Section 66C IT Act",

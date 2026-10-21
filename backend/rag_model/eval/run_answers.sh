@@ -11,10 +11,15 @@ if [ "${1:-}" = "--after" ]; then
   while [ "$(date -u +%s)" -lt "$target" ]; do sleep 300; done
 fi
 echo "start $(date -u +%FT%TZ)"
-# baseline: only the questions not answered yet (6 hit today's quota)
+# retrieval with the default (expansion on) configuration, for the final table
+RETRIEVAL_MODE=hybrid_rerank "$PY" eval/run_eval.py retrieval --system new --variant hybrid_rerank --tag _final \
+  > eval/results/log_retrieval_final.txt 2>&1
+echo "retrieval done $(date -u +%FT%TZ)"
+# baseline: only the questions not answered yet (6 hit the daily quota on the first day)
 EVAL_RAG_DIR="$BASELINE_DIR" "$PY" eval/run_eval.py answer --system baseline --subset 30 --pause 35 \
   >> eval/results/log_answer_baseline.txt 2>&1
 "$PY" eval/run_eval.py answer --system new --subset 30 --pause 35 > eval/results/log_answer_new.txt 2>&1
+echo "answers done $(date -u +%FT%TZ)"
 "$PY" eval/run_eval.py judge --run answer_baseline.jsonl > eval/results/log_judge_baseline.txt 2>&1
 "$PY" eval/run_eval.py judge --run answer_new.jsonl > eval/results/log_judge_new.txt 2>&1
 echo "done $(date -u +%FT%TZ)"

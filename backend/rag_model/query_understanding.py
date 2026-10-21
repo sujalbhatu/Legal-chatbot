@@ -11,6 +11,7 @@ act detection). Now:
 """
 
 import json
+import os
 import re
 from dataclasses import dataclass, field
 from typing import List, Optional
@@ -81,9 +82,45 @@ Rules:
 - Do not answer the question. JSON only."""
 
 
+# Plain-language English questions ("someone stole my bike") rarely share words with
+# the statute ("theft"). With QUERY_EXPANSION=1 they also get one LLM call that adds
+# the legal terms; otherwise they need no LLM call at all. Measured in the eval:
+# MRR +0.095 (95% CI 0.04-0.15), about 0.5-0.9 s for the extra call. It runs on its
+# own model (EXPAND_MODEL) so it does not share the answer model's free-tier quota.
+EXPAND_PROMPT = """You prepare search queries for a database of Indian statutes.
+Return JSON: {"act": "<name of the Indian Act the message concerns, or empty>", "legal_terms": ["<up to 5 legal terms or offence names in ENGLISH, worded as the Act itself words them, e.g. theft, criminal intimidation, maintenance, specific performance>"]}
+Old names map to new codes: IPC -> Bharatiya Nyaya Sanhita, CrPC -> Bharatiya Nagarik Suraksha Sanhita, Indian Evidence Act -> Bharatiya Sakshya Adhiniyam.
+Do not answer the question. JSON only."""
+
+
+def query_expansion_enabled() -> bool:
+    return os.getenv("QUERY_EXPANSION", "1") == "1"
+
+
+def _expand(query: str, llm, model: str) -> Understanding:
+    try:
+        with llm_usage.purpose("query_rewrite"):
+            resp = llm.chat.completions.create(
+                model=model,
+                messages=[{"role": "system", "content": EXPAND_PROMPT}, {"role": "user", "content": query}],
+                temperature=0, max_tokens=300, reasoning_effort="low",
+                response_format={"type": "json_object"}, timeout=10)
+        data = json.loads(resp.choices[0].message.content or "{}")
+        terms = [str(t).strip() for t in (data.get("legal_terms") or []) if str(t).strip()][:5]
+        act = (data.get("act") or "").strip()
+        expanded = f"{query} {' '.join(terms)}".strip()
+        return Understanding(search_query=expanded, acts=detect_acts(query, act),
+                             section_refs=section_refs(query), llm_used=True)
+    except Exception as e:
+        return Understanding(search_query=query, acts=detect_acts(query), section_refs=section_refs(query),
+                             llm_used=True, error=str(e)[:200])
+
+
 def understand(query: str, history: list, language: str, llm, model: str) -> Understanding:
     recent = [m for m in (history or []) if m.get("role") in ("user", "assistant")][-4:]
     if language == "en" and not recent:
+        if query_expansion_enabled():
+            return _expand(query, llm, os.getenv("EXPAND_MODEL", "openai/gpt-oss-120b"))
         return Understanding(search_query=query, acts=detect_acts(query), section_refs=section_refs(query))
 
     convo = "\n".join(f"{m['role'].upper()}: {m['content'][:400]}" for m in recent) or "(none)"
