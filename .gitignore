@@ -32,3 +32,7 @@ backend/server/check_chats.js
 # Evaluation: LLM response cache and run logs stay local
 backend/rag_model/eval/results/llm_cache.jsonl
 backend/rag_model/eval/results/log_*.txt
+
+# Personal resume drafts (contain contact details) - never commit
+/resume/
+/resume*.tex
