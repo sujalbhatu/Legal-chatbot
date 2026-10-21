@@ -75,7 +75,10 @@ def act_name_from_filename(stem: str) -> tuple:
     name_part = re.sub(r'_?\d{4}$', '', stem)
 
     # Convert underscores to spaces and title-case
-    act_name = name_part.replace('_', ' ').strip().title()
+    words = name_part.replace('_', ' ').strip().title().split()
+    # "Code Of Civil Procedure" -> "Code of Civil Procedure"
+    act_name = " ".join(w.lower() if i and w.lower() in {"of", "and", "the", "to", "for", "from", "in", "on"} else w
+                        for i, w in enumerate(words))
 
     # Append year to the act name for display
     if year:

@@ -151,7 +151,69 @@ def _title_of(section_text: str) -> str:
     return ""
 
 
+PAGE_SPLIT_RE = re.compile(r'(-{3,}\s*PAGE\s*\d+\s*-{3,})')
+GAZETTE_MARKER_RE = re.compile(r'(?m)^(.*?)(\d{1,4})\s?THE GAZETTE OF INDIA')
+MARGIN_LINE_MAX = 26     # margin notes are printed in a narrow column
+
+
+def extract_margin_notes(raw_text: str):
+    """
+    The 2023 Gazette PDFs (BNS, BNSS, BSA) have no table of contents: each section's
+    title is a margin note, and the text extraction puts a page's notes at the end of
+    that page, in order, glued to the last line ("...breach of trust.Trespassing on /
+    burial places, / etc. / ... / Theft.78THE GAZETTE OF INDIA ...").
+
+    Returns (text with the note blocks removed, {section number: title}). A page's
+    notes are only used when their count equals the number of sections starting on
+    that page, so a page that does not line up gets no titles rather than wrong ones.
+    """
+    parts = PAGE_SPLIT_RE.split(raw_text)
+    titles, out = {}, []
+    last_ord = 0
+    for part in parts:
+        if PAGE_SPLIT_RE.fullmatch(part):
+            out.append(part)
+            continue
+        marker = GAZETTE_MARKER_RE.search(part)
+        body, notes = part, []
+        if marker:
+            lines = part[:marker.start()].split('\n') + [marker.group(1)]
+            i = len(lines)
+            while i > 0 and len(lines[i - 1].strip()) <= MARGIN_LINE_MAX:
+                i -= 1
+            block = [ln.strip() for ln in lines[i:] if ln.strip()]
+            body_lines = lines[:i]
+            if body_lines:   # first note glued to the last body line: "trust.Trespassing on"
+                glued = re.search(r'([.;:—])([A-Z][^.]{0,40}\.?)$', body_lines[-1])
+                if glued:
+                    block.insert(0, glued.group(2).strip())
+                    body_lines[-1] = body_lines[-1][:glued.start() + 1]
+            current = []
+            for ln in block:
+                current.append(ln)
+                if ln.endswith('.'):
+                    note = re.sub(r'\s+', ' ', ' '.join(current)).strip()
+                    notes.append(note if note.endswith('etc.') else note.rstrip(' .'))
+                    current = []
+            body = '\n'.join(body_lines) + '\n' + part[marker.end():].split('\n', 1)[-1] if '\n' in part[marker.end():] else '\n'.join(body_lines)
+        # sections that start on this page, continuing the increasing sequence
+        starts = []
+        for m in CANDIDATE_RE.finditer(body):
+            o = ordinal(m.group(1), m.group(2))
+            if o > last_ord and not _is_footnote(body[m.start():body.find('\n', m.start())]):
+                starts.append(m.group(1) + m.group(2))
+                last_ord = o
+        if notes and len(notes) == len(starts):
+            for number, note in zip(starts, notes):
+                titles.setdefault(number, note)
+        out.append(body)
+    return ''.join(out), titles
+
+
 def parse_act(raw_text: str) -> ParsedAct:
+    margin_titles = {}
+    if GAZETTE_MARKER_RE.search(raw_text):
+        raw_text, margin_titles = extract_margin_notes(raw_text)
     text = clean_text(raw_text)
 
     def line_at(pos):
@@ -219,7 +281,10 @@ def parse_act(raw_text: str) -> ParsedAct:
                 chapter = name
             else:
                 break
-        parsed.sections.append(Section(number=number, title=_title_of(body) or toc_titles.get(number, ""),
+        # Gazette-format Acts print no inline titles, only margin notes
+        title = (margin_titles.get(number, "") if margin_titles
+                 else _title_of(body) or toc_titles.get(number, ""))
+        parsed.sections.append(Section(number=number, title=title,
                                        text=body, chapter=chapter, start=start))
     if preamble and len(preamble) > 200 and not parsed.sections[0].number == "1":
         parsed.extra.insert(0, ("Preamble", preamble))

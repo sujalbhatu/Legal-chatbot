@@ -44,6 +44,33 @@ class SectionParserTests(unittest.TestCase):
         self.assertNotIn("Subs. by Act", sections.find_section(parsed, "2").text)
         self.assertEqual(sections.find_section(parsed, "3").title, "Theft")
 
+    def test_margin_notes_become_titles_and_leave_the_text(self):
+        # Gazette layout: a page's margin notes come last, glued to the last body line
+        text = ("----- PAGE 1 -----\n"
+                "301.Whoever trespasses in any place of worship or burial place shall be punished.\n"
+                "302.Whoever utters any word with deliberate intent to wound religious feelings shall\n"
+                "be punished with imprisonment for a term which may extend to one year.\n"
+                "303.(1) Whoever, intending to take dishonestly any movable property, commits theft and\n"
+                "is punished under this section with imprisonment and fine.Trespassing on\n"
+                "burial places,\netc.\nUttering words,\netc., with\ndeliberate\nintent.\n"
+                "Theft.78THE GAZETTE OF INDIA EXTRAORDINARY[Part II\n"
+                "----- PAGE 2 -----\n"
+                "304.(1) Theft is snatching if the offender suddenly seizes the property.Snatching.79THE GAZETTE OF INDIA\n")
+        parsed = sections.parse_act(text)
+        titles = {s.number: s.title for s in parsed.sections}
+        self.assertEqual(titles, {"301": "Trespassing on burial places, etc.",
+                                  "302": "Uttering words, etc., with deliberate intent",
+                                  "303": "Theft", "304": "Snatching"})
+        self.assertNotIn("Trespassing on", sections.find_section(parsed, "303").text)
+        self.assertNotIn("GAZETTE", sections.find_section(parsed, "303").text)
+
+    def test_margin_notes_are_skipped_when_counts_do_not_match(self):
+        text = ("----- PAGE 1 -----\n"
+                "10.Whoever does the first thing shall be punished with a fine of some amount.\n"
+                "11.Whoever does the second thing shall be punished with a fine of some amount.\n"
+                "Only one\nnote.\n5THE GAZETTE OF INDIA\n")
+        self.assertEqual({s.title for s in sections.parse_act(text).sections}, {""})
+
     def test_amended_section_with_bracket_marker(self):
         text = ("1. Short title.—This is the Act and it has some body text here.\n"
                 "2[10. Specific performance in respect of contracts.—The specific performance shall be enforced.]\n")
