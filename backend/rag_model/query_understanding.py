@@ -1,0 +1,110 @@
+"""
+Turn the user's message into what retrieval needs, with at most ONE LLM call.
+
+The old pipeline made up to two sequential calls before answering (translate, then
+act detection). Now:
+  * English, first message      -> no LLM call: acts and section numbers are found
+                                   with the alias table / regex below.
+  * other language or follow-up -> one JSON call that translates, resolves the
+                                   follow-up against the conversation ("what is the
+                                   punishment for that?") and names the act.
+"""
+
+import json
+import re
+from dataclasses import dataclass, field
+from typing import List, Optional
+
+import llm_usage
+
+# alias regex -> file stem of the act in the index
+ACT_ALIASES = [
+    (r"bharatiya nyaya sanhita|nyaya sanhita|\bbns\b|\bipc\b|indian penal code", "bharatiya_nyaya_sanhita_2023"),
+    (r"nagarik suraksha|\bbnss\b|\bcrpc\b|cr\.?\s?p\.?\s?c|code of criminal procedure", "bharatiya_nagarik_suraksha_sanhita_2023"),
+    (r"sakshya adhiniyam|\bbsa\b|evidence act", "bharatiya_sakshya_adhiniyam_2023"),
+    (r"\bc?gst\b|goods and services tax|input tax credit", "central_goods_and_services_tax_act_2017"),
+    (r"civil procedure|\bcpc\b", "code_of_civil_procedure_1908"),
+    (r"constitution|\barticle\s*\d", "constitution_of_india_2024_english"),
+    (r"environment(al)? \(?protection\)? act|\bepa\b", "environment_protection_act_1986"),
+    (r"hindu marriage|\bhma\b", "hindu_marriage_act_1955"),
+    (r"contract act", "indian_contract_act_1872"),
+    (r"information technology act|\bit act\b", "information_technology_act_2000"),
+    (r"motor vehicles? act|\bmv act\b|\bmva\b", "motor_vehicles_act_1988"),
+    (r"pocso|protection of children from sexual offences", "pocso_act_2012"),
+    (r"domestic violence act|\bdv act\b|pwdva|protection of women from domestic violence", "protection_of_women_from_domestic_violence_act_2005"),
+    (r"\brti\b|right to information", "right_to_information_act_2005"),
+    (r"special marriage", "special_marriage_act_1954"),
+    (r"specific relief", "specific_relief_act_1963"),
+    (r"transfer of property|\btpa\b", "transfer_of_property_act_1882"),
+    (r"aadh?aar|uidai", "BENEFITS AND SERVICES) ACT, 2016"),
+]
+_ALIASES = [(re.compile(p, re.IGNORECASE), stem) for p, stem in ACT_ALIASES]
+SECTION_REF_RE = re.compile(r"\b(?:section|sec\.?|s\.|article|art\.?)\s*(\d{1,3}[a-z]{0,2})\b", re.IGNORECASE)
+
+
+def detect_acts(*texts: str) -> List[str]:
+    found = []
+    for text in texts:
+        for rx, stem in _ALIASES:
+            if text and rx.search(text) and stem not in found:
+                found.append(stem)
+    return found
+
+
+def section_refs(*texts: str) -> List[str]:
+    refs = []
+    for text in texts:
+        for m in SECTION_REF_RE.finditer(text or ""):
+            num = m.group(1).upper()
+            if num not in refs:
+                refs.append(num)
+    return refs
+
+
+@dataclass
+class Understanding:
+    search_query: str                       # English, standalone
+    acts: List[str] = field(default_factory=list)
+    section_refs: List[str] = field(default_factory=list)
+    llm_used: bool = False
+    error: Optional[str] = None
+
+
+REWRITE_PROMPT = """You prepare search queries for a database of Indian statutes.
+Given the conversation and the user's LATEST message, return JSON:
+{"query": "<the latest message as ONE standalone English search query>", "act": "<name of the Indian Act it concerns, or empty>"}
+
+Rules:
+- Translate to English if needed. Keep legal terms and any section/article numbers.
+- Resolve follow-ups using the conversation ("what is the punishment for that?" -> name the offence and act).
+- Old names map to new codes: IPC -> Bharatiya Nyaya Sanhita, CrPC -> Bharatiya Nagarik Suraksha Sanhita, Indian Evidence Act -> Bharatiya Sakshya Adhiniyam.
+- Do not answer the question. JSON only."""
+
+
+def understand(query: str, history: list, language: str, llm, model: str) -> Understanding:
+    recent = [m for m in (history or []) if m.get("role") in ("user", "assistant")][-4:]
+    if language == "en" and not recent:
+        return Understanding(search_query=query, acts=detect_acts(query), section_refs=section_refs(query))
+
+    convo = "\n".join(f"{m['role'].upper()}: {m['content'][:400]}" for m in recent) or "(none)"
+    try:
+        with llm_usage.purpose("query_rewrite"):
+            resp = llm.chat.completions.create(
+                model=model,
+                messages=[{"role": "system", "content": REWRITE_PROMPT},
+                          {"role": "user", "content": f"CONVERSATION:\n{convo}\n\nLATEST MESSAGE:\n{query}"}],
+                temperature=0, max_tokens=400, reasoning_effort="low",
+                response_format={"type": "json_object"}, timeout=15)
+        data = json.loads(resp.choices[0].message.content or "{}")
+        rewritten = (data.get("query") or "").strip() or query
+        act = (data.get("act") or "").strip()
+        return Understanding(search_query=rewritten,
+                             acts=detect_acts(query, rewritten, act),
+                             section_refs=section_refs(query, rewritten),
+                             llm_used=True)
+    except Exception as e:
+        # Still usable: the raw query, plus the previous user turn for short follow-ups.
+        last_user = next((m["content"] for m in reversed(recent) if m["role"] == "user"), "")
+        fallback = f"{last_user[:200]} {query}".strip() if last_user and len(query.split()) < 10 else query
+        return Understanding(search_query=fallback, acts=detect_acts(fallback),
+                             section_refs=section_refs(fallback), llm_used=True, error=str(e)[:200])
