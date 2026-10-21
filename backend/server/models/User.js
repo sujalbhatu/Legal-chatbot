@@ -32,6 +32,11 @@ const userSchema = new mongoose.Schema({
     otpExpires: {
         type: Date,
         default: null
+    },
+    // Wrong guesses against the current OTP; the code is burned after 5 (see authRoutes.js)
+    otpAttempts: {
+        type: Number,
+        default: 0
     }
 }, { timestamps: true });
 

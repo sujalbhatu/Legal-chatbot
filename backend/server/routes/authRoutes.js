@@ -4,14 +4,10 @@ const User = require('../models/User');
 const authMiddleware = require('../middleware/auth');
 
 const { sendOTPEmail } = require('../utils/emailService');
+const { generateOTP, setOTP, consumeOTP } = require('../utils/otp');
 
 const router = express.Router();
 const { JWT_SECRET } = require('../config');
-
-// Generate a random 6-digit OTP
-function generateOTP() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-}
 
 // Generate JWT token
 function generateToken(userId) {
@@ -35,7 +31,6 @@ router.post('/signup', async (req, res) => {
         let user = await User.findOne({ email: email.toLowerCase() });
         
         const otp = generateOTP();
-        const otpExpires = new Date(Date.now() + 10 * 60000); // 10 minutes
 
         if (user) {
             if (user.isVerified) {
@@ -44,20 +39,16 @@ router.post('/signup', async (req, res) => {
             // If user exists but is not verified, update their OTP and resend
             user.name = name;
             user.password = password;
-            user.otp = otp;
-            user.otpExpires = otpExpires;
-            await user.save();
         } else {
-            user = new User({ 
-                name, 
-                email: email.toLowerCase(), 
+            user = new User({
+                name,
+                email: email.toLowerCase(),
                 password,
-                otp,
-                otpExpires,
                 isVerified: false
             });
-            await user.save();
         }
+        setOTP(user, otp);
+        await user.save();
 
         // Send OTP email
         const emailSent = await sendOTPEmail(user.email, otp, 'verify');
@@ -93,8 +84,9 @@ router.post('/verify-email', async (req, res) => {
             return res.status(400).json({ error: 'Account is already verified.' });
         }
 
-        if (user.otp !== otp || user.otpExpires < new Date()) {
-            return res.status(400).json({ error: 'Invalid or expired OTP.' });
+        const otpError = await consumeOTP(User, user._id, otp);
+        if (otpError) {
+            return res.status(otpError.status).json({ error: otpError.error });
         }
 
         // Mark user as verified
@@ -132,8 +124,7 @@ router.post('/forgot-password', async (req, res) => {
         }
 
         const otp = generateOTP();
-        user.otp = otp;
-        user.otpExpires = new Date(Date.now() + 10 * 60000); // 10 minutes
+        setOTP(user, otp);
         await user.save();
 
         await sendOTPEmail(user.email, otp, 'reset');
@@ -163,8 +154,9 @@ router.post('/reset-password', async (req, res) => {
             return res.status(400).json({ error: 'Invalid or expired OTP.' });
         }
 
-        if (user.otp !== otp || user.otpExpires < new Date()) {
-            return res.status(400).json({ error: 'Invalid or expired OTP.' });
+        const otpError = await consumeOTP(User, user._id, otp);
+        if (otpError) {
+            return res.status(otpError.status).json({ error: otpError.error });
         }
 
         user.password = newPassword;
@@ -202,8 +194,7 @@ router.post('/login', async (req, res) => {
         if (!user.isVerified) {
             // Resend OTP automatically
             const otp = generateOTP();
-            user.otp = otp;
-            user.otpExpires = new Date(Date.now() + 10 * 60000);
+            setOTP(user, otp);
             await user.save();
             await sendOTPEmail(user.email, otp, 'verify');
 
