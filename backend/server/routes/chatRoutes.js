@@ -1,13 +1,25 @@
 const express = require('express');
 const axios = require('axios');
+const mongoose = require('mongoose');
 const ChatSession = require('../models/ChatSession');
 const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 const RAG_API_URL = process.env.RAG_API_URL || 'http://localhost:5000';
 
+// Every query costs several LLM calls, so one request can't be arbitrarily long
+const MAX_QUERY_CHARS = 2000;
+
 // All chat routes require authentication
 router.use(authMiddleware);
+
+// A malformed session id is "not found", not a 500 from a Mongoose CastError
+router.param('id', (req, res, next, id) => {
+    if (!mongoose.isValidObjectId(id)) {
+        return res.status(404).json({ error: 'Session not found.' });
+    }
+    next();
+});
 
 // GET /api/chat/sessions — list user's sessions
 router.get('/sessions', async (req, res) => {
@@ -137,8 +149,11 @@ router.post('/sessions/:id/query', async (req, res) => {
     try {
         const { query, language } = req.body;
 
-        if (!query || !query.trim()) {
+        if (typeof query !== 'string' || !query.trim()) {
             return res.status(400).json({ error: 'Query cannot be empty.' });
+        }
+        if (query.length > MAX_QUERY_CHARS) {
+            return res.status(400).json({ error: `Query is too long (max ${MAX_QUERY_CHARS} characters).` });
         }
 
         const session = await ChatSession.findOne({
