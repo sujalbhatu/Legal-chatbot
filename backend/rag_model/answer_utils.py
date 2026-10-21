@@ -22,7 +22,7 @@ CITATION_MARK_RE = re.compile(r"\[(\d{1,2})\]")
 # gpt-oss often cites in its native style, 【4】 or 【4†L1-L3】, especially when not writing English
 ALT_CITATION_RE = re.compile(r"[【［\[](\d{1,2})(?:†[^】］\]]*)?[】］\]]")
 SECTION_MENTION_RE = re.compile(
-    r"(?:\b(?:Section|Sec\.|Article|Art\.)|धारा|सेक्शन|अनुच्छेद|ধারা|ଧାରା)\s*(\d{1,3}[A-Z]{0,2})\b", re.IGNORECASE)
+    r"(?:\b(?:Section|Sec\.|Article|Art\.)|§|धारा|सेक्शन|अनुच्छेद|ধারা|ଧାରା)\s*(\d{1,3}[A-Z]{0,2})\b", re.IGNORECASE)
 
 
 def normalize_citations(text: str) -> str:
