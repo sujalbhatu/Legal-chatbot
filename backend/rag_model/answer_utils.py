@@ -19,7 +19,15 @@ def format_sources(sources: list) -> str:
 
 
 CITATION_MARK_RE = re.compile(r"\[(\d{1,2})\]")
-SECTION_MENTION_RE = re.compile(r"\b(?:Section|Sec\.|Article|Art\.)\s*(\d{1,3}[A-Z]{0,2})\b", re.IGNORECASE)
+# gpt-oss often cites in its native style, 【4】 or 【4†L1-L3】, especially when not writing English
+ALT_CITATION_RE = re.compile(r"[【［\[](\d{1,2})(?:†[^】］\]]*)?[】］\]]")
+SECTION_MENTION_RE = re.compile(
+    r"(?:\b(?:Section|Sec\.|Article|Art\.)|धारा|सेक्शन|अनुच्छेद|ধারা|ଧାରା)\s*(\d{1,3}[A-Z]{0,2})\b", re.IGNORECASE)
+
+
+def normalize_citations(text: str) -> str:
+    """【4】 / ［4］ / 【4†L2】 -> [4]"""
+    return ALT_CITATION_RE.sub(lambda m: f"[{m.group(1)}]", text)
 
 
 def split_followups(text: str):

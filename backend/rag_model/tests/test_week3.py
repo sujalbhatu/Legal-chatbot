@@ -132,6 +132,14 @@ class LanguageTests(unittest.TestCase):
         self.assertEqual(language.resolve_language("what is bail", None)[0], "en")
         self.assertEqual(language.resolve_language("what is bail", "klingon")[0], "en")
 
+    def test_short_hindi_follow_up_is_not_marathi(self):
+        self.assertEqual(language.detect_language("अगर वह नाबालिग हो तो?")[0], "hi")
+        self.assertEqual(language.resolve_language("अगर वह नाबालिग हो तो?", None, "hi")[0], "hi")
+        # a Marathi conversation keeps Marathi for a short same-script follow-up
+        self.assertEqual(language.resolve_language("अगर वह नाबालिग हो तो?", None, "mr")[0], "mr")
+        # but a switch of script is a switch of language
+        self.assertEqual(language.resolve_language("What about a minor?", None, "hi")[0], "en")
+
     def test_deterministic(self):
         text = "मुझे तलाक के बारे में बताओ"
         self.assertEqual({language.detect_language(text) for _ in range(20)}, {language.detect_language(text)})
@@ -251,6 +259,14 @@ class AnswerCheckTests(unittest.TestCase):
         self.assertEqual(followups, ["What about snatching?", "Is it bailable?"])
         self.assertEqual(answer_utils.split_followups("Just text")[1], [])
         self.assertEqual(answer_utils.split_followups("x <<FOLLOWUPS>> not json")[1], [])
+
+    def test_native_gpt_oss_citations_are_normalized(self):
+        self.assertEqual(answer_utils.normalize_citations("तीन साल【4】, fine【2†L3-L5】 and ［1］"),
+                         "तीन साल[4], fine[2] and [1]")
+
+    def test_hindi_section_mentions_are_checked(self):
+        sources = [{"text": "304. snatching", "metadata": {"section": "304"}}]
+        self.assertEqual(answer_utils.check_citations("सेक्शन 304 [1] और धारा 999", sources)[2], ["999"])
 
     def test_invalid_markers_removed_and_unsupported_sections_flagged(self):
         sources = [{"text": "303. Whoever ... commits theft.", "metadata": {"section": "303"}}]

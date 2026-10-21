@@ -34,8 +34,8 @@ from language import LANGUAGE_NAMES, resolve_language
 from memory import MemoryConfig, build_memory, make_llm_summarizer, summary_block
 from query_understanding import understand
 from retrieval import HybridRetriever, load_reranker
-from answer_utils import (FOLLOWUP_MARKER, check_citations, format_sources, public_source,
-                          split_followups)
+from answer_utils import (FOLLOWUP_MARKER, check_citations, format_sources, normalize_citations,
+                          public_source, split_followups)
 
 groq_client = llm_usage.MeteredClient(Groq(api_key=GROQ_API_KEY))
 
@@ -197,7 +197,8 @@ class LegalRAGPipeline:
 
     def prepare(self, user_query, chat_history=None, language=None, memory_summary=None) -> dict:
         t0 = time.perf_counter()
-        answer_language, how = resolve_language(user_query, language)
+        previous = next((m.get("language") for m in reversed(chat_history or []) if m.get("role") == "user"), None)
+        answer_language, how = resolve_language(user_query, language, previous)
         memory = self._build_memory(chat_history, memory_summary)
         # The rewrite sees the verbatim recent turns plus the summary of older ones.
         history_for_rewrite = list(memory["recent"])
@@ -216,6 +217,12 @@ class LegalRAGPipeline:
             system += summary_block(memory["summary"])
         messages = [{"role": "system", "content": system}]
         messages += [{"role": m["role"], "content": m["content"]} for m in memory["recent"]]
+        if memory["recent"]:
+            # Earlier answers are stored without the follow-up line and may be in another
+            # language; without this reminder the model copies their format.
+            messages.append({"role": "system", "content": (
+                f"Reminder: write this reply in {language_name}, cite sources as [n], and end with the "
+                f"{FOLLOWUP_MARKER} line.")})
         messages.append({"role": "user", "content": user_query})
 
         print(f"  [{answer_language}/{how}] search='{understanding.search_query[:70]}' acts={understanding.acts} "
@@ -225,7 +232,7 @@ class LegalRAGPipeline:
                 "understanding": understanding, "retrieval_ms": round((t_retrieved - t0) * 1000)}
 
     def _finish(self, prep: dict, raw_answer: str, model: str) -> dict:
-        answer, followups = split_followups(raw_answer)
+        answer, followups = split_followups(normalize_citations(raw_answer))
         answer, cited, unsupported = check_citations(answer, prep["context"])
         if unsupported:
             print(f"  ⚠ Answer mentions sections not in the retrieved sources: {unsupported}")

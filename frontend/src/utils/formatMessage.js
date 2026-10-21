@@ -31,7 +31,8 @@ const inlineFormat = (escaped, withCitations) => {
         '<span class="msg-section-ref">$1 $2</span>');
 
     if (withCitations) {
-        s = s.replace(/\[(\d{1,2})\]/g,
+        // [1], and the model's native 【1】 / 【1†L2】 while an answer is still streaming
+        s = s.replace(/[[【［](\d{1,2})(?:†[^\]】］]*)?[\]】］]/g,
             '<button type="button" class="cite-chip" data-cite="$1" aria-label="Open source $1">$1</button>');
     }
     return s;

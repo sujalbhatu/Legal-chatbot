@@ -158,7 +158,7 @@ async function prepareQuery(req, res) {
     const summarizedCount = Math.min(session.summarizedCount || 0, session.messages.length);
     const payload = {
         query: query.trim(),
-        chat_history: session.messages.slice(summarizedCount).map(m => ({ role: m.role, content: m.content })),
+        chat_history: session.messages.slice(summarizedCount).map(m => ({ role: m.role, content: m.content, language: m.language })),
         memory_summary: session.memorySummary || ''
     };
     // Language picked in the UI ('auto' or missing = detect from the message)

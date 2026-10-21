@@ -68,7 +68,7 @@ def _fasttext():
     return _model or None
 
 
-def _fasttext_pick(text: str, allowed) -> Optional[str]:
+def _fasttext_pick(text: str, allowed, min_prob: float = 0.0) -> Optional[str]:
     model = _fasttext()
     if not model:
         return None
@@ -76,8 +76,11 @@ def _fasttext_pick(text: str, allowed) -> Optional[str]:
     for prob, label in model.f.predict(text.replace("\n", " "), 5, 0.0, "strict"):
         code = label.replace("__label__", "")
         if code in allowed:
-            return code
+            return code if prob >= min_prob else None
     return None
+
+
+MARATHI_MARKERS = re.compile(r'ळ|\b(?:आहे|आहेत|नाही|काय|आणि|मला|माझ्या|माझे|करावे|पाहिजे|चालवल्यास)\b')
 
 
 def script_counts(text: str):
@@ -110,10 +113,13 @@ def detect_language(text: str) -> Tuple[str, str]:
                 return picked, 'fasttext'
             return ('as' if re.search('[ৰৱ]', text) else 'bn'), 'script-rule'
         if script == 'deva':
-            picked = _fasttext_pick(text, {'hi', 'mr', 'ne'})
-            if picked:
-                return ('hi' if picked == 'ne' else picked), 'fasttext'
-            return ('mr' if re.search(r'ळ|\bआहे\b|\bनाही\b|\bकाय\b', text) else 'hi'), 'script-rule'
+            # Hindi is the default for Devanagari; Marathi needs real evidence, because
+            # fastText is unreliable on a few words ("अगर वह नाबालिग हो तो?" -> mr).
+            if MARATHI_MARKERS.search(text):
+                return 'mr', 'script-rule'
+            if len(text.split()) >= 6 and _fasttext_pick(text, {'hi', 'mr', 'ne'}, min_prob=0.9) == 'mr':
+                return 'mr', 'fasttext'
+            return 'hi', 'script-rule'
         return script, 'script'
     words = re.findall(r"[a-z]+", text.lower())
     if words and sum(w in HINGLISH_WORDS for w in words) >= max(2, len(words) // 4):
@@ -121,11 +127,16 @@ def detect_language(text: str) -> Tuple[str, str]:
     return 'en', 'latin'
 
 
-def resolve_language(text: str, ui_language: Optional[str]) -> Tuple[str, str]:
-    """Language to answer in: the UI choice, unless the message is in another script."""
+def resolve_language(text: str, ui_language: Optional[str], previous: Optional[str] = None) -> Tuple[str, str]:
+    """Language to answer in: the UI choice, unless the message is in another script.
+    Without a UI choice, a short message in the same script as the previous turn keeps
+    that turn's language (Hindi and Marathi, Bengali and Assamese share scripts)."""
     detected, how = detect_language(text)
     ui = ui_language if ui_language in LANGUAGE_NAMES else None
     if not ui:
+        if (previous in LANGUAGE_NAMES and previous != detected and len(text.split()) < 8
+                and SCRIPT_OF_LANG.get(previous, previous) == SCRIPT_OF_LANG.get(detected, detected)):
+            return previous, 'previous-turn'
         return detected, how
     if detected in ('en', 'hinglish'):
         return ui, 'ui'                     # typed in Latin letters: honour the chosen language

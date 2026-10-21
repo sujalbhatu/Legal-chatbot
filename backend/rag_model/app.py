@@ -47,7 +47,9 @@ def is_message_list(value) -> bool:
 def clean_history(messages):
     """Only user/assistant turns with string content reach the LLM: a caller-supplied
     'system' message would otherwise override the system prompt."""
-    cleaned = [{"role": m["role"], "content": m["content"][:8000]} for m in messages
+    cleaned = [{"role": m["role"], "content": m["content"][:8000],
+                **({"language": m["language"]} if isinstance(m.get("language"), str) else {})}
+               for m in messages
                if m.get("role") in ("user", "assistant") and isinstance(m.get("content"), str) and m["content"].strip()]
     return cleaned[-MAX_HISTORY_MESSAGES:]
 
