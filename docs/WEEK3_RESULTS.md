@@ -140,7 +140,12 @@ What the numbers say, honestly:
 - **bge-reranker-base** is 7× slower, uses about 1.3 GB here and is worse on non-English
   (0.467), so MiniLM it is.
 
-### 3b. Corpus expansion: 18 → 123 Acts
+### 3b. Corpus expansion experiment: 18 → 123 Acts (rolled back, for later)
+
+> Sujal asked to leave these Acts for later, so the index is back to the 18 core Acts. The
+> PDFs and text are parked in `data/staged/central_acts`; to add them, move the folder to
+> `data/raw_pdfs/central_acts` and run `python ingest.py --add-new`. The measurement below
+> is kept because it shows what scaling costs.
 
 After the baseline, I added the 105 central Acts Sujal compiled from India Code.
 - **What's in it:** Divorce Act, Sale of Goods, Indian Stamp Act, Juvenile Justice,
@@ -157,7 +162,7 @@ After the baseline, I added the 105 central Acts Sujal compiled from India Code.
 
 The drop (−0.034, inside the noise band) is the cost of about 6,000 extra distractor
 chunks. Section-number and acronym questions are unaffected thanks to the act filter;
-plain-language scenarios pay most of it. The end-to-end run in §5 uses the 123-Act index.
+plain-language scenarios pay most of it.
 
 ## 4. Memory footprint (legal-rag has `MemoryMax=500M` on a 1 GB VM)
 
@@ -308,8 +313,6 @@ How it was measured:
 - Built an evaluation harness for a multilingual Indian-law RAG assistant: 120 questions
   with 160 gold section labels auto-verified against statute text, measuring Recall@k,
   MRR, LLM-judged hallucination rate, latency and token cost.
-- Grew the corpus from 18 to 123 central Acts (10.7K section-aligned chunks) with
-  automatic title extraction and incremental ingestion.
 - Found and fixed a section-parsing bug that left 86% of the Bharatiya Nyaya Sanhita
   unindexed. Section-aware chunking plus hybrid BM25/dense retrieval, cross-encoder
   reranking and LLM query expansion raised Recall@5 from 0.30 to 0.87 and MRR from 0.23
@@ -395,9 +398,8 @@ How it was measured:
    first, see its header).
 2. Download `lid.176.ftz` and set `FASTTEXT_LID_MODEL`. Set `RAG_ADMIN_TOKEN`, and
    `CORS_ORIGINS` if the domain differs.
-3. Copy `data/raw_pdfs/central_acts/*.pdf` (from `Desktop\scraper_legel\indiacode_pdfs`,
-   renamed per `MANIFEST.json`), then rebuild the index on the server with
-   `python ingest.py --add-new` (about 8 minutes on the laptop for 123 Acts).
+3. Rebuild the index on the server: `python ingest.py --rechunk` (about 4 minutes on the
+   laptop for the 18 Acts).
 4. Restart legal-rag and check memory (see §4 for the `RETRIEVAL_MODE` decision), then
    restart legal-node. Existing JWTs keep working (no `tv` = version 0).
 5. Decide whether to replace the Motor Vehicles Act PDF.
