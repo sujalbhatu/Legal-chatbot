@@ -36,7 +36,7 @@ import statistics
 import time
 from collections import defaultdict
 
-from common import ACTS, RESULTS_DIR, gold_pairs, load_questions, source_key
+from common import RESULTS_DIR, gold_pairs, load_questions, source_key
 
 LANG_SCRIPTS = {
     "en": r"[A-Za-z]", "hi": r"[ऀ-ॿ]", "mr": r"[ऀ-ॿ]",
@@ -61,6 +61,15 @@ def load_pipeline(system, cache):
 
 def _rate_limiter(wrapper):
     return wrapper._inner if hasattr(wrapper, "hits") else wrapper
+
+
+def _rss_mb():
+    """Resident memory of this process (models + index loaded), in MB."""
+    try:
+        import psutil
+        return round(psutil.Process().memory_info().rss / 2**20)
+    except ImportError:
+        return None
 
 
 def ui_language(q):
@@ -138,15 +147,19 @@ def run_retrieval(args):
         gold = gold_pairs(q)
         first = next((i + 1 for i, key in enumerate(ranked) if key in gold), None)
         rows.append({"id": q["id"], "type": q["type"], "gold": sorted(gold), "first_gold_rank": first,
-                     "ranked": ranked, "ms": round(ms), "llm_calls": usage["llm_calls"],
+                     "ranked": ranked, "ms": round(ms), "top_score": context[0].get("score") if context else None, "llm_calls": usage["llm_calls"],
                      "tokens": usage["total_tokens"]})
         print(f"[{i + 1}/{len(questions)}] {q['id']:6} rank={first} ms={ms:.0f} calls={usage['llm_calls']}", flush=True)
 
-    name = f"retrieval_{args.system}" + (f"_{args.variant}" if args.system != "baseline" else "")
+    name = f"retrieval_{args.system}" + (f"_{args.variant}" if args.system != "baseline" else "") + args.tag
     summary = {"system": args.system, "variant": args.variant, "metrics": retrieval_metrics(rows),
                "llm_calls_per_query": round(sum(r["llm_calls"] for r in rows) / len(rows), 2),
                "tokens_per_query": round(sum(r["tokens"] for r in rows) / len(rows)),
-               "rate_limit_waits": _rate_limiter(wrapper).waits}
+               "rate_limit_waits": _rate_limiter(wrapper).waits,
+               "rss_mb": _rss_mb(),
+               "config": {k: os.environ.get(k) for k in
+                          ("RETRIEVAL_MODE", "RERANKER_MODEL", "RERANK_TOP_N", "RERANK_MAX_CHARS",
+                           "DISABLE_ACT_FILTER", "EMBEDDING_MODEL") if os.environ.get(k)}}
     RESULTS_DIR.mkdir(exist_ok=True)
     with open(RESULTS_DIR / f"{name}.json", "w", encoding="utf-8") as f:
         json.dump({"summary": summary, "rows": rows}, f, ensure_ascii=False, indent=1)
@@ -190,7 +203,14 @@ def run_answers(args):
         waited_before = _rate_limiter(wrapper).waited_s
         t0 = time.perf_counter()
         try:
-            result = pipeline.query(q["question"], q.get("history") or [], ui_language(q), "")
+            if args.system == "new":
+                # the streaming path, as users get it, so time-to-first-token is measured
+                result = None
+                for event, payload in pipeline.stream(q["question"], q.get("history") or [], ui_language(q), ""):
+                    if event == "done":
+                        result = payload
+            else:
+                result = pipeline.query(q["question"], q.get("history") or [], ui_language(q), "")
             error = None
         except Exception as e:
             result, error = {"answer": None, "sources": [], "usage": {}}, str(e)[:200]
@@ -246,8 +266,9 @@ def run_judge(args):
         resp = client.create(
             model=args.judge_model,
             messages=[{"role": "system", "content": JUDGE_PROMPT},
-                      {"role": "user", "content": f"CONTEXT:\n{context[:12000]}\n\nANSWER:\n{rec['answer']}"}],
-            temperature=0, max_tokens=1500, reasoning_effort="low", response_format={"type": "json_object"})
+                      {"role": "user", "content": f"CONTEXT:\n{context[:8000]}\n\nANSWER:\n{rec['answer']}"}],
+            temperature=0, max_tokens=1500, response_format={"type": "json_object"},
+            **({"reasoning_effort": "low"} if args.judge_model.startswith("openai/gpt-oss") else {}))
         try:
             rec["judge"] = json.loads(resp.choices[0].message.content)
         except Exception:
@@ -322,7 +343,7 @@ def main():
     ap.add_argument("--pause", type=float, default=2.0)
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--run")
-    ap.add_argument("--judge-model", default="openai/gpt-oss-120b")
+    ap.add_argument("--judge-model", default="qwen/qwen3.8-27b")
     args = ap.parse_args()
     {"retrieval": run_retrieval, "answer": run_answers, "judge": run_judge}[args.stage](args)
 
