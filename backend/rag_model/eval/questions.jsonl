@@ -1,0 +1,120 @@
+{"id": "sec01", "type": "section", "lang": "en", "question": "What does Section 303 of the Bharatiya Nyaya Sanhita say?", "gold": [["BNS", "303", "theft"]]}
+{"id": "sec02", "type": "section", "lang": "en", "question": "Explain Section 103 of the BNS.", "gold": [["BNS", "103", "murder"]]}
+{"id": "sec03", "type": "section", "lang": "en", "question": "What is Article 21 of the Constitution of India?", "gold": [["COI", "21", "personal liberty"]]}
+{"id": "sec04", "type": "section", "lang": "en", "question": "What does Section 66C of the IT Act deal with?", "gold": [["ITA", "66C", "identity theft"]]}
+{"id": "sec05", "type": "section", "lang": "en", "question": "What does Section 13B of the Hindu Marriage Act provide?", "gold": [["HMA", "13B", "mutual consent"]]}
+{"id": "sec06", "type": "section", "lang": "en", "question": "What is Section 10 of the Indian Contract Act?", "gold": [["ICA", "10", "free consent"]]}
+{"id": "sec07", "type": "section", "lang": "en", "question": "What is Section 54 of the Transfer of Property Act?", "gold": [["TPA", "54", "transfer of ownership in exchange for a price"]]}
+{"id": "sec08", "type": "section", "lang": "en", "question": "What does Section 185 of the Motor Vehicles Act say?", "gold": [["MVA", "185", "drunken"]]}
+{"id": "sec09", "type": "section", "lang": "en", "question": "Explain Section 7 of the RTI Act.", "gold": [["RTI", "7", "thirty days"]]}
+{"id": "sec10", "type": "section", "lang": "en", "question": "What is Article 32 of the Constitution about?", "gold": [["COI", "32", "move the Supreme Court"]]}
+{"id": "sec11", "type": "section", "lang": "en", "question": "What does Section 11 of the Code of Civil Procedure say?", "gold": [["CPC", "11", "Res judicata"]]}
+{"id": "sec12", "type": "section", "lang": "en", "question": "What is Section 12 of the Domestic Violence Act?", "gold": [["DV", "12", "Magistrate"]]}
+{"id": "sec13", "type": "section", "lang": "en", "question": "Explain Section 74 of the CGST Act.", "gold": [["CGST", "74", "fraud"]]}
+{"id": "sec14", "type": "section", "lang": "en", "question": "What does Section 4 of the POCSO Act say?", "gold": [["POCSO", "4", "penetrative sexual assault"]]}
+{"id": "sec15", "type": "section", "lang": "en", "question": "What is Section 480 of the Bharatiya Nagarik Suraksha Sanhita about?", "gold": [["BNSS", "480", "non-bailable"]]}
+{"id": "sec16", "type": "section", "lang": "en", "question": "What does Section 63 of the Bharatiya Sakshya Adhiniyam say?", "gold": [["BSA", "63", "electronic record"]]}
+{"id": "sec17", "type": "section", "lang": "en", "question": "What is Section 10 of the Specific Relief Act?", "gold": [["SRA", "10", "specific performance"]]}
+{"id": "sec18", "type": "section", "lang": "en", "question": "What does Article 14 guarantee?", "gold": [["COI", "14", "equality before the law"]]}
+{"id": "sec19", "type": "section", "lang": "en", "question": "What is Section 27 of the Special Marriage Act?", "gold": [["SMA", "27", "divorce"]]}
+{"id": "sec20", "type": "section", "lang": "en", "question": "What does Section 15 of the Environment Protection Act provide?", "gold": [["EPA", "15", "imprisonment"]]}
+{"id": "sec21", "type": "section", "lang": "en", "question": "What is Section 7 of the Aadhaar Act?", "gold": [["AADHAAR", "7", "subsidy"]]}
+{"id": "sec22", "type": "section", "lang": "en", "question": "What does Section 318 of the BNS cover?", "gold": [["BNS", "318", "cheat"]]}
+{"id": "acr01", "type": "acronym", "lang": "en", "question": "Under CGST, who is liable to get registered?", "gold": [["CGST", "22", "aggregate turnover"]]}
+{"id": "acr02", "type": "acronym", "lang": "en", "question": "What is the punishment for sexual assault under POCSO?", "gold": [["POCSO", "8", "not be less than three years"]]}
+{"id": "acr03", "type": "acronym", "lang": "en", "question": "How do I file an RTI application?", "gold": [["RTI", "6", "request"]]}
+{"id": "acr04", "type": "acronym", "lang": "en", "question": "When can I take input tax credit under GST?", "gold": [["CGST", "16", "input tax credit"]]}
+{"id": "acr05", "type": "acronym", "lang": "en", "question": "What is the time limit for a reply to an RTI request?", "gold": [["RTI", "7", "thirty days"]]}
+{"id": "acr06", "type": "acronym", "lang": "en", "question": "What does the IT Act say about cheating by personation using a computer?", "gold": [["ITA", "66D", "personation"]]}
+{"id": "acr07", "type": "acronym", "lang": "en", "question": "Under BNSS, when can the police arrest someone without a warrant?", "gold": [["BNSS", "35", "without a warrant"]]}
+{"id": "acr08", "type": "acronym", "lang": "en", "question": "What does the BNS say about organised crime?", "gold": [["BNS", "111", "organised crime"]]}
+{"id": "acr09", "type": "acronym", "lang": "en", "question": "What does the CPC say about settling disputes outside court?", "gold": [["CPC", "89", "settlement"]]}
+{"id": "acr10", "type": "acronym", "lang": "en", "question": "Is a confession made to a police officer admissible under the BSA?", "gold": [["BSA", "23", "police officer"]]}
+{"id": "acr11", "type": "acronym", "lang": "en", "question": "Under POCSO, who has to report a sexual offence against a child?", "gold": [["POCSO", "19", "Special Juvenile Police Unit"]]}
+{"id": "acr12", "type": "acronym", "lang": "en", "question": "What is the penalty on a PIO for not giving information under RTI?", "gold": [["RTI", "20", "two hundred and fifty rupees"]]}
+{"id": "acr13", "type": "acronym", "lang": "en", "question": "Is third-party insurance compulsory under the MV Act?", "gold": [["MVA", "146", "insurance"]]}
+{"id": "acr14", "type": "acronym", "lang": "en", "question": "Who can opt for the composition scheme under GST?", "gold": [["CGST", "10", "in lieu of the tax payable"]]}
+{"id": "acr15", "type": "acronym", "lang": "en", "question": "What protection orders can a magistrate pass under the DV Act?", "gold": [["DV", "18", "protection order"]]}
+{"id": "acr16", "type": "acronym", "lang": "en", "question": "How does anticipatory bail work under BNSS?", "gold": [["BNSS", "482", "may be arrested"]]}
+{"id": "scn01", "type": "scenario", "lang": "en", "question": "Someone stole my bike from outside my house. What offence is this?", "gold": [["BNS", "303", "theft"]]}
+{"id": "scn02", "type": "scenario", "lang": "en", "question": "My husband and in-laws keep harassing me for more dowry. What law protects me?", "gold": [["BNS", "85", "cruelty"], ["BNS", "86", "harassment"], ["DV", "3", "dowry"], ["DV", "12", "Magistrate"]]}
+{"id": "scn03", "type": "scenario", "lang": "en", "question": "I was caught driving after drinking. What penalty will I face?", "gold": [["MVA", "185", "drunken"]]}
+{"id": "scn04", "type": "scenario", "lang": "en", "question": "Someone created a fake Instagram account using my photos and name to cheat people.", "gold": [["ITA", "66C", "identity theft"], ["ITA", "66D", "personation"]]}
+{"id": "scn05", "type": "scenario", "lang": "en", "question": "Someone hacked into my email account and deleted my files. What can I do?", "gold": [["ITA", "43", "computer"], ["ITA", "66", "section 43"]]}
+{"id": "scn06", "type": "scenario", "lang": "en", "question": "My employer wants me to sign a clause that I won't work for any competitor for two years after I leave. Is that valid?", "gold": [["ICA", "27", "restraint"]]}
+{"id": "scn07", "type": "scenario", "lang": "en", "question": "A builder took my advance but now refuses to execute the sale deed. Can the court make him complete the sale?", "gold": [["SRA", "10", "specific performance"]]}
+{"id": "scn08", "type": "scenario", "lang": "en", "question": "Can a 17-year-old girl get married under Hindu law?", "gold": [["HMA", "5", "eighteen years"]]}
+{"id": "scn09", "type": "scenario", "lang": "en", "question": "My wife and I both want to end our marriage peacefully. How do we do it?", "gold": [["HMA", "13B", "mutual consent"], ["SMA", "28", "mutual consent"]]}
+{"id": "scn10", "type": "scenario", "lang": "en", "question": "The police station refused to register my complaint about a theft. What can I do?", "gold": [["BNSS", "173", "Superintendent of Police"]]}
+{"id": "scn11", "type": "scenario", "lang": "en", "question": "I was arrested yesterday. Do the police have to tell me why?", "gold": [["BNSS", "47", "grounds"]]}
+{"id": "scn12", "type": "scenario", "lang": "en", "question": "How long can the police keep me in custody before producing me before a magistrate?", "gold": [["BNSS", "58", "twenty-four hours"], ["COI", "22", "twenty-four hours"]]}
+{"id": "scn13", "type": "scenario", "lang": "en", "question": "Can my wife claim maintenance from me after we separate?", "gold": [["BNSS", "144", "maintenance"], ["HMA", "24", "maintenance"], ["HMA", "25", "alimony"]]}
+{"id": "scn14", "type": "scenario", "lang": "en", "question": "Someone keeps threatening over the phone that he will kill me.", "gold": [["BNS", "351", "criminal intimidation"]]}
+{"id": "scn15", "type": "scenario", "lang": "en", "question": "My neighbour is spreading false stories about me that are ruining my reputation.", "gold": [["BNS", "356", "defame"]]}
+{"id": "scn16", "type": "scenario", "lang": "en", "question": "A man keeps following me and messaging me even though I have clearly refused him.", "gold": [["BNS", "78", "follows"]]}
+{"id": "scn17", "type": "scenario", "lang": "en", "question": "Someone threw acid on a woman in our locality. What is the punishment?", "gold": [["BNS", "124", "acid"]]}
+{"id": "scn18", "type": "scenario", "lang": "en", "question": "A speeding car hit a pedestrian and the driver ran away. What does the law say?", "gold": [["BNS", "106", "negligent"], ["MVA", "134", "injured"], ["MVA", "161", "hit and run"]]}
+{"id": "scn19", "type": "scenario", "lang": "en", "question": "A teacher touched my 10-year-old child inappropriately. What can we do?", "gold": [["POCSO", "7", "sexual assault"], ["POCSO", "8", "sexual assault"], ["POCSO", "9", "aggravated sexual assault"], ["POCSO", "10", "aggravated sexual assault"]]}
+{"id": "scn20", "type": "scenario", "lang": "en", "question": "The municipality won't tell us how the road repair money was spent. How can I get that information?", "gold": [["RTI", "6", "request"], ["RTI", "7", "thirty days"]]}
+{"id": "scn21", "type": "scenario", "lang": "en", "question": "Is a contract signed by a 16-year-old valid?", "gold": [["ICA", "11", "age of majority"]]}
+{"id": "scn22", "type": "scenario", "lang": "en", "question": "I was forced to sign an agreement because they threatened my family. Is it binding?", "gold": [["ICA", "15", "Coercion"], ["ICA", "19", "voidable"]]}
+{"id": "scn23", "type": "scenario", "lang": "en", "question": "The seller never delivered the goods and I lost money because of it. Can I claim compensation?", "gold": [["ICA", "73", "compensation"]]}
+{"id": "scn24", "type": "scenario", "lang": "en", "question": "Someone threw me out of my own house without any court order. How do I get possession back?", "gold": [["SRA", "6", "dispossessed"]]}
+{"id": "scn25", "type": "scenario", "lang": "en", "question": "My tenant refuses to leave even though the lease period is over.", "gold": [["TPA", "111", "lease"], ["TPA", "106", "lease"]]}
+{"id": "scn26", "type": "scenario", "lang": "en", "question": "I want to give my house to my daughter as a gift. What is required?", "gold": [["TPA", "122", "gift"], ["TPA", "123", "registered"]]}
+{"id": "scn27", "type": "scenario", "lang": "en", "question": "A factory near us is releasing toxic waste into the river.", "gold": [["EPA", "7", "discharge"], ["EPA", "15", "imprisonment"]]}
+{"id": "scn28", "type": "scenario", "lang": "en", "question": "What happens if I drive a car without a driving licence?", "gold": [["MVA", "3", "driving licence"], ["MVA", "181", "section 3"]]}
+{"id": "scn29", "type": "scenario", "lang": "en", "question": "Is it compulsory to wear a helmet on a two-wheeler and what is the fine?", "gold": [["MVA", "129", "headgear"]]}
+{"id": "scn30", "type": "scenario", "lang": "en", "question": "Can a company share my fingerprints and iris scan collected for Aadhaar?", "gold": [["AADHAAR", "29", "core biometric"]]}
+{"id": "scn31", "type": "scenario", "lang": "en", "question": "Can the government make Aadhaar compulsory to receive a subsidy?", "gold": [["AADHAAR", "7", "subsidy"]]}
+{"id": "scn32", "type": "scenario", "lang": "en", "question": "If my fundamental rights are violated, can I go straight to the High Court?", "gold": [["COI", "226", "High Court"], ["COI", "32", "Supreme Court"]]}
+{"id": "scn33", "type": "scenario", "lang": "en", "question": "Is it legal to employ a 12-year-old in a factory?", "gold": [["COI", "24", "factory"]]}
+{"id": "scn34", "type": "scenario", "lang": "en", "question": "What are the fundamental duties of an Indian citizen?", "gold": [["COI", "51A", "duty"]]}
+{"id": "scn35", "type": "scenario", "lang": "en", "question": "Can a Hindu and a Christian marry each other legally in India?", "gold": [["SMA", "4", "marriage between any two persons"]]}
+{"id": "scn36", "type": "scenario", "lang": "en", "question": "My wife left home without any reason. Can I legally ask her to come back?", "gold": [["HMA", "9", "restitution of conjugal rights"]]}
+{"id": "scn37", "type": "scenario", "lang": "en", "question": "My husband married another woman while still married to me.", "gold": [["BNS", "82", "during the life"], ["HMA", "17", "marriage"], ["HMA", "5", "neither party has a spouse living"]]}
+{"id": "scn38", "type": "scenario", "lang": "en", "question": "An online seller took my payment and never shipped the product.", "gold": [["BNS", "318", "cheat"], ["ITA", "66D", "personation"]]}
+{"id": "scn39", "type": "scenario", "lang": "en", "question": "Someone is circulating my private intimate photos without my consent.", "gold": [["ITA", "66E", "private area"], ["ITA", "67A", "sexually explicit"], ["BNS", "77", "private act"]]}
+{"id": "scn40", "type": "scenario", "lang": "en", "question": "Can WhatsApp chats be used as evidence in court?", "gold": [["BSA", "63", "electronic record"], ["BSA", "61", "electronic"], ["BSA", "62", "electronic record"]]}
+{"id": "scn41", "type": "scenario", "lang": "en", "question": "Is a statement made by a person before dying accepted as evidence?", "gold": [["BSA", "26", "cause of his death"]]}
+{"id": "scn42", "type": "scenario", "lang": "en", "question": "In a court case, who has to prove the facts?", "gold": [["BSA", "104", "Whoever desires"]]}
+{"id": "scn43", "type": "scenario", "lang": "en", "question": "I paid my GST late. Will I have to pay interest?", "gold": [["CGST", "50", "interest"]]}
+{"id": "scn44", "type": "scenario", "lang": "en", "question": "What is the penalty for a business that does not issue a GST invoice?", "gold": [["CGST", "122", "invoice"], ["CGST", "31", "invoice"]]}
+{"id": "scn45", "type": "scenario", "lang": "en", "question": "I lost my civil appeal in the district court. Can I appeal again to the High Court?", "gold": [["CPC", "100", "substantial question of law"]]}
+{"id": "scn46", "type": "scenario", "lang": "en", "question": "Do I need to send a notice before suing a government department?", "gold": [["CPC", "80", "two months"]]}
+{"id": "scn47", "type": "scenario", "lang": "en", "question": "Can I ask a civil court to review its own judgment?", "gold": [["CPC", "114", "review"]]}
+{"id": "scn48", "type": "scenario", "lang": "en", "question": "My husband says I must leave the house we live in. Do I have a right to stay?", "gold": [["DV", "17", "shared household"], ["DV", "19", "residence order"]]}
+{"id": "scn49", "type": "scenario", "lang": "en", "question": "Can I get money for my hospital bills after my husband beat me?", "gold": [["DV", "20", "monetary relief"]]}
+{"id": "scn50", "type": "scenario", "lang": "en", "question": "Someone snatched my gold chain while riding past on a bike.", "gold": [["BNS", "304", "snatching"]]}
+{"id": "scn51", "type": "scenario", "lang": "en", "question": "My employer is not returning money I gave him to keep safe.", "gold": [["BNS", "316", "criminal breach of trust"]]}
+{"id": "scn52", "type": "scenario", "lang": "en", "question": "Someone is demanding money by threatening to leak my photos.", "gold": [["BNS", "308", "extortion"]]}
+{"id": "ooc01", "type": "ooc", "lang": "en", "question": "What is the punishment for cheque bounce under Section 138 of the Negotiable Instruments Act?", "gold": []}
+{"id": "ooc02", "type": "ooc", "lang": "en", "question": "How do I file a complaint under the Consumer Protection Act, 2019?", "gold": []}
+{"id": "ooc03", "type": "ooc", "lang": "en", "question": "What are the income tax slabs for salaried employees this year?", "gold": []}
+{"id": "ooc04", "type": "ooc", "lang": "en", "question": "What does the Prevention of Corruption Act say about a public servant taking a bribe?", "gold": []}
+{"id": "ooc05", "type": "ooc", "lang": "en", "question": "How is an arbitrator appointed under the Arbitration and Conciliation Act?", "gold": []}
+{"id": "ml01", "type": "multilingual", "lang": "hi", "question": "चोरी करने की सज़ा क्या है?", "gold": [["BNS", "303", "theft"]]}
+{"id": "ml02", "type": "multilingual", "lang": "hi", "question": "मेरे पति और ससुराल वाले दहेज के लिए मुझे परेशान करते हैं, मैं क्या करूँ?", "gold": [["BNS", "85", "cruelty"], ["BNS", "86", "harassment"], ["DV", "3", "dowry"], ["DV", "12", "Magistrate"]]}
+{"id": "ml03", "type": "multilingual", "lang": "hi", "question": "सूचना का अधिकार के तहत आवेदन कैसे करें?", "gold": [["RTI", "6", "request"]]}
+{"id": "ml04", "type": "multilingual", "lang": "hi", "question": "शराब पीकर गाड़ी चलाने पर क्या सज़ा है?", "gold": [["MVA", "185", "drunken"]]}
+{"id": "ml05", "type": "multilingual", "lang": "hi", "question": "संविधान का अनुच्छेद 21 क्या कहता है?", "gold": [["COI", "21", "personal liberty"]]}
+{"id": "ml06", "type": "multilingual", "lang": "hi-Latn", "question": "mera phone chori ho gaya aur police FIR nahi likh rahi, kya karu?", "gold": [["BNSS", "173", "Superintendent of Police"], ["BNS", "303", "theft"]]}
+{"id": "ml07", "type": "multilingual", "lang": "bn", "question": "পারস্পরিক সম্মতিতে বিবাহবিচ্ছেদ কীভাবে হয়?", "gold": [["HMA", "13B", "mutual consent"], ["SMA", "28", "mutual consent"]]}
+{"id": "ml08", "type": "multilingual", "lang": "bn", "question": "কেউ আমার নাম আর ছবি ব্যবহার করে অনলাইনে প্রতারণা করছে, আইন কী বলে?", "gold": [["ITA", "66C", "identity theft"], ["ITA", "66D", "personation"]]}
+{"id": "ml09", "type": "multilingual", "lang": "ta", "question": "குழந்தைகளுக்கு எதிரான பாலியல் வன்கொடுமைக்கு என்ன தண்டனை?", "gold": [["POCSO", "4", "penetrative sexual assault"], ["POCSO", "6", "aggravated penetrative"], ["POCSO", "8", "sexual assault"], ["POCSO", "10", "aggravated sexual assault"]]}
+{"id": "ml10", "type": "multilingual", "lang": "mr", "question": "हेल्मेट न घालता दुचाकी चालवल्यास काय दंड आहे?", "gold": [["MVA", "129", "headgear"]]}
+{"id": "ml11", "type": "multilingual", "lang": "or", "question": "ସୂଚନା ଅଧିକାର ଆଇନରେ ଉତ୍ତର ପାଇବା ପାଇଁ କେତେ ଦିନ ଲାଗେ?", "gold": [["RTI", "7", "thirty days"]]}
+{"id": "ml12", "type": "multilingual", "lang": "or", "question": "ଘରୋଇ ହିଂସାରୁ ମହିଳାମାନଙ୍କୁ ସୁରକ୍ଷା ଦେବା ପାଇଁ କେଉଁ ଆଇନ ଅଛି?", "gold": [["DV", "3", "domestic violence"], ["DV", "12", "Magistrate"], ["DV", "18", "protection order"]]}
+{"id": "ml13", "type": "multilingual", "lang": "as", "question": "চুৰি কৰাৰ শাস্তি কি?", "gold": [["BNS", "303", "theft"]]}
+{"id": "ml14", "type": "multilingual", "lang": "as", "question": "মোৰ আধাৰৰ বায়োমেট্ৰিক তথ্য আনক দিব পাৰিনে?", "gold": [["AADHAAR", "29", "core biometric"]]}
+{"id": "ml15", "type": "multilingual", "lang": "gu", "question": "મારા પતિ દહેજ માટે મને ત્રાસ આપે છે, કાયદો શું કહે છે?", "gold": [["BNS", "85", "cruelty"], ["BNS", "86", "harassment"], ["DV", "3", "dowry"]]}
+{"id": "mt01", "type": "multiturn", "lang": "en", "history": [{"role": "user", "content": "What is the punishment for theft under the BNS?"}, {"role": "assistant", "content": "Theft is defined and punished under Section 303 of the Bharatiya Nyaya Sanhita, 2023."}], "question": "What if it is a chain being snatched?", "gold": [["BNS", "304", "snatching"]]}
+{"id": "mt02", "type": "multiturn", "lang": "en", "history": [{"role": "user", "content": "My husband beats me and harasses me for dowry."}, {"role": "assistant", "content": "You can seek relief under the Protection of Women from Domestic Violence Act, 2005 by applying to a Magistrate."}], "question": "Can I get an order stopping him from contacting me?", "gold": [["DV", "18", "protection order"]]}
+{"id": "mt03", "type": "multiturn", "lang": "en", "history": [{"role": "user", "content": "I filed an RTI application with the district office."}, {"role": "assistant", "content": "Under Section 7 of the RTI Act the PIO must reply within thirty days."}], "question": "They have not replied for two months. What next?", "gold": [["RTI", "19", "appeal"], ["RTI", "20", "two hundred and fifty rupees"]]}
+{"id": "mt04", "type": "multiturn", "lang": "en", "history": [{"role": "user", "content": "On what grounds can I get a divorce under the Hindu Marriage Act?"}, {"role": "assistant", "content": "Section 13 lists grounds such as cruelty, desertion and adultery."}], "question": "And if both of us agree to separate?", "gold": [["HMA", "13B", "mutual consent"]]}
+{"id": "mt05", "type": "multiturn", "lang": "en", "history": [{"role": "user", "content": "Someone made a fake profile pretending to be me."}, {"role": "assistant", "content": "Using someone's identity information fraudulently is covered by Section 66C of the IT Act."}], "question": "What is the punishment for that?", "gold": [["ITA", "66C", "three years"]]}
+{"id": "mt06", "type": "multiturn", "lang": "en", "history": [{"role": "user", "content": "I was fined for drunk driving last year."}, {"role": "assistant", "content": "Drunk driving is an offence under Section 185 of the Motor Vehicles Act."}], "question": "What happens if I am caught again?", "gold": [["MVA", "185", "second or subsequent"]]}
+{"id": "mt07", "type": "multiturn", "lang": "en", "history": [{"role": "user", "content": "What are my rights if the police arrest me?"}, {"role": "assistant", "content": "Under the BNSS you must be told the grounds of arrest and your right to bail."}], "question": "How soon must they take me to a magistrate?", "gold": [["BNSS", "58", "twenty-four hours"], ["COI", "22", "twenty-four hours"]]}
+{"id": "mt08", "type": "multiturn", "lang": "en", "history": [{"role": "user", "content": "I signed an agreement to buy a flat and paid an advance."}, {"role": "assistant", "content": "That agreement to sell is a contract between you and the seller."}], "question": "Now the seller refuses to sell. Can the court force him?", "gold": [["SRA", "10", "specific performance"]]}
+{"id": "mt09", "type": "multiturn", "lang": "en", "history": [{"role": "user", "content": "Tell me about Article 21."}, {"role": "assistant", "content": "Article 21 protects the right to life and personal liberty."}], "question": "Does that include a right to education for children?", "gold": [["COI", "21A", "free and compulsory education"]]}
+{"id": "mt10", "type": "multiturn", "lang": "en", "history": [{"role": "user", "content": "What is input tax credit under GST?"}, {"role": "assistant", "content": "Section 16 of the CGST Act lets a registered person take credit of tax paid on inputs."}], "question": "Is there a deadline to claim it?", "gold": [["CGST", "16", "annual return"]]}
