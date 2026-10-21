@@ -39,9 +39,22 @@ def extract_text_from_pdf(pdf_path: str) -> str:
 # Mapping from filename stems to proper act names (for special cases)
 FILENAME_TO_ACT = {
     "engaadhaar": ("Aadhaar Act", "2016"),
+    "BENEFITS AND SERVICES) ACT, 2016": (
+        "Aadhaar (Targeted Delivery of Financial and Other Subsidies, Benefits and Services) Act, 2016", "2016"),
     "constitution_of_india_2024_english": ("Constitution of India", "2024"),
-    "DIP_Problem_statements_6th_sem": ("DIP Problem Statements", ""),
+    "pocso_act_2012": ("Protection of Children from Sexual Offences (POCSO) Act, 2012", "2012"),
+    "central_goods_and_services_tax_act_2017": ("Central Goods and Services Tax Act, 2017", "2017"),
+    "protection_of_women_from_domestic_violence_act_2005": (
+        "Protection of Women from Domestic Violence Act, 2005", "2005"),
+    "transfer_of_property_act_1882": ("Transfer of Property Act, 1882", "1882"),
+    "right_to_information_act_2005": ("Right to Information Act, 2005", "2005"),
 }
+
+# Settings shared by build-time and runtime ingestion (one source of truth, see fix #5)
+EMBEDDING_MODEL_NAME = os.getenv('EMBEDDING_MODEL', 'all-MiniLM-L6-v2')
+COLLECTION_NAME = os.getenv('CHROMA_COLLECTION', 'legal_sections')
+
+CHUNK_MAX_CHARS = 1500      # sections longer than this are split at sentence boundaries
 
 
 def act_name_from_filename(stem: str) -> tuple:
@@ -120,11 +133,65 @@ def split_at_sentence_boundary(text: str, max_chars: int = 1500) -> list:
     return parts
 
 
+def context_header(meta: dict) -> str:
+    """'Bharatiya Nyaya Sanhita, 2023 - Section 303: Theft'. Prepended to the chunk text
+    before embedding / BM25 indexing so a chunk is findable by its act and section even
+    when its body never names them (contextual chunk headers)."""
+    header = meta.get('act_name', '')
+    if meta.get('section'):
+        label = "Article" if meta.get('source_file', '').startswith('constitution') else "Section"
+        header += f" - {label} {meta['section']}"
+    if meta.get('section_title'):
+        header += f": {meta['section_title']}"
+    if meta.get('part'):
+        header += f" (part {meta['part']})"
+    return header
+
+
+def chunk_id(meta: dict, index: int) -> str:
+    """Stable id, so re-ingesting an act overwrites its chunks instead of duplicating them."""
+    stem = Path(meta.get('source_file', 'unknown')).stem
+    if meta.get('section'):
+        return f"{stem}::s{meta['section']}::p{meta.get('part', 1)}"
+    return f"{stem}::x{index}"
+
+
 def chunk_legal_text(text: str, source_file: str, act_name: str, year: str) -> list:
     """
-    Chunk legal text by sections and chapters.
-    Text is cleaned first, then split by sections.
-    Large sections are split at sentence boundaries to keep clauses meaningful.
+    Chunk an Act into one chunk per real section (split further when long).
+    Schedules / CPC Orders that are not numbered sections are kept as unnumbered chunks.
+    """
+    from sections import parse_act
+
+    parsed = parse_act(text)
+    chunks = []
+    for sec in parsed.sections:
+        parts = split_at_sentence_boundary(sec.text, max_chars=CHUNK_MAX_CHARS)
+        for part_num, part_text in enumerate(parts, 1):
+            meta = {
+                "act_name": act_name, "year": year, "source_file": source_file,
+                "chapter": sec.chapter, "section": sec.number, "section_title": sec.title,
+            }
+            if len(parts) > 1:
+                meta["part"] = part_num
+            chunks.append({"metadata": meta, "text": part_text})
+    for heading, body in parsed.extra:
+        for part_text in split_at_sentence_boundary(body, max_chars=CHUNK_MAX_CHARS):
+            if len(part_text.strip()) < 80:
+                continue
+            chunks.append({"metadata": {
+                "act_name": act_name, "year": year, "source_file": source_file,
+                "chapter": heading, "section": "", "section_title": heading or "Schedule",
+            }, "text": part_text})
+    for i, c in enumerate(chunks):
+        c["metadata"]["chunk_id"] = chunk_id(c["metadata"], i)
+    return chunks
+
+
+def chunk_legal_text_v1(text: str, source_file: str, act_name: str, year: str) -> list:
+    """
+    The original chunker, kept only so the eval can reproduce the baseline index.
+    It misses sections printed without a space after the number ("303.(1) Whoever").
     """
     # Clean the raw text first
     text = clean_raw_text(text)
@@ -236,98 +303,60 @@ def save_chunks_jsonl(chunks: list, output_path: str):
             f.write(json.dumps(chunk, ensure_ascii=False) + '\n')
 
 
-def build_vector_store(chunks_dir: str, vector_db_dir: str):
-    """Build ChromaDB vector store from all chunk files."""
-    from chromadb import PersistentClient
-    from sentence_transformers import SentenceTransformer
-    import gc
-    
-    model_name = os.getenv('EMBEDDING_MODEL', 'all-MiniLM-L6-v2')
-    print(f"Loading embedding model: {model_name}...")
-    model = SentenceTransformer(model_name)
-    
-    # Initialize ChromaDB
-    client = PersistentClient(path=str(vector_db_dir))
-    
-    # Delete existing collection if it exists
-    try:
-        client.delete_collection("legal_docs")
-    except Exception:
-        pass
-    
-    collection = client.create_collection(
-        name="legal_docs",
-        metadata={"hnsw:space": "cosine"}
-    )
-    
-    chunk_files = list(Path(chunks_dir).glob("*.jsonl"))
-    print(f"Found {len(chunk_files)} chunk file(s)")
-    
-    total_chunks = 0
-    embedding_batch_size = 8
-    db_batch_size = 32
-    
-    # Process chunks in memory-efficient batches
-    batch_texts = []
-    batch_metadatas = []
-    batch_ids = []
-    
-    for chunk_file in chunk_files:
+def load_chunk_files(chunks_dir) -> list:
+    chunks = []
+    for chunk_file in sorted(Path(chunks_dir).glob("*.jsonl")):
         with open(chunk_file, 'r', encoding='utf-8') as f:
             for line_num, line in enumerate(f):
-                if not line.strip():
-                    continue
-                data = json.loads(line)
-                text = data['text']
-                metadata = data['metadata']
-                
-                # Flatten metadata for ChromaDB (only string values)
-                flat_metadata = {}
-                for k, v in metadata.items():
-                    if isinstance(v, (str, int, float, bool)):
-                        flat_metadata[k] = str(v)
-                
-                doc_id = f"{chunk_file.stem}_{line_num}"
-                batch_texts.append(text)
-                batch_metadatas.append(flat_metadata)
-                batch_ids.append(doc_id)
-                
-                # Process when batch reaches size limit
-                if len(batch_texts) >= db_batch_size:
-                    print(f"Processing batch of {len(batch_texts)} chunks...")
-                    embeddings = model.encode(batch_texts, show_progress_bar=False, batch_size=embedding_batch_size)
-                    
-                    collection.add(
-                        documents=batch_texts,
-                        metadatas=batch_metadatas,
-                        ids=batch_ids,
-                        embeddings=embeddings.tolist()
-                    )
-                    
-                    total_chunks += len(batch_texts)
-                    print(f"  Added {total_chunks} chunks total to ChromaDB")
-                    
-                    # Clear batch and memory
-                    batch_texts = []
-                    batch_metadatas = []
-                    batch_ids = []
-                    gc.collect()
-    
-    # Process remaining chunks
-    if batch_texts:
-        print(f"Processing final batch of {len(batch_texts)} chunks...")
-        embeddings = model.encode(batch_texts, show_progress_bar=False, batch_size=embedding_batch_size)
-        
-        collection.add(
-            documents=batch_texts,
-            metadatas=batch_metadatas,
-            ids=batch_ids,
-            embeddings=embeddings.tolist()
+                if line.strip():
+                    data = json.loads(line)
+                    data['metadata'].setdefault('chunk_id', f"{chunk_file.stem}_{line_num}")
+                    chunks.append(data)
+    return chunks
+
+
+def upsert_chunks(collection, model, chunks: list, batch_size: int = 32) -> int:
+    """Embed '<context header>\\n<text>' and upsert by stable chunk id (idempotent)."""
+    import gc
+    total = 0
+    for start in range(0, len(chunks), batch_size):
+        batch = chunks[start:start + batch_size]
+        metas = [{k: str(v) for k, v in c['metadata'].items() if isinstance(v, (str, int, float, bool))}
+                 for c in batch]
+        embed_inputs = [f"{context_header(m)}\n{c['text']}" for m, c in zip(metas, batch)]
+        embeddings = model.encode(embed_inputs, show_progress_bar=False, batch_size=8)
+        collection.upsert(
+            ids=[m['chunk_id'] for m in metas],
+            documents=[c['text'] for c in batch],
+            metadatas=metas,
+            embeddings=embeddings.tolist(),
         )
-        
-        total_chunks += len(batch_texts)
-    
-    print(f"Successfully indexed {total_chunks} chunks into ChromaDB")
+        total += len(batch)
+        gc.collect()
+    return total
+
+
+def build_vector_store(chunks_dir: str, vector_db_dir: str, collection_name: str = None):
+    """(Re)build the Chroma collection from all chunk files."""
+    from chromadb import PersistentClient
+    from sentence_transformers import SentenceTransformer
+
+    collection_name = collection_name or COLLECTION_NAME
+    print(f"Loading embedding model: {EMBEDDING_MODEL_NAME}...")
+    model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+    client = PersistentClient(path=str(vector_db_dir))
+    try:
+        client.delete_collection(collection_name)
+    except Exception:
+        pass
+    collection = client.create_collection(
+        name=collection_name,
+        metadata={"hnsw:space": "cosine", "embedding_model": EMBEDDING_MODEL_NAME},
+    )
+    chunks = load_chunk_files(chunks_dir)
+    print(f"Embedding {len(chunks)} chunks into '{collection_name}'...")
+    total = upsert_chunks(collection, model, chunks)
+    print(f"Successfully indexed {total} chunks into ChromaDB")
 
 
 def ingest_all():
@@ -349,11 +378,8 @@ def ingest_all():
     for old_chunk in CHUNKS_DIR.glob("*"):
         old_chunk.unlink()
         print(f"  Deleted {old_chunk.name}")
-    if VECTOR_DB_DIR.exists():
-        shutil.rmtree(VECTOR_DB_DIR)
-        VECTOR_DB_DIR.mkdir(parents=True, exist_ok=True)
-        print("  Cleared vector_db/")
-    
+    # The vector store is not wiped: build_vector_store() recreates only its own collection.
+
     for pdf_path in pdf_files:
         stem = pdf_path.stem
         act_name, year = act_name_from_filename(stem)
@@ -380,5 +406,21 @@ def ingest_all():
     print("Done!")
 
 
+def rechunk_all():
+    """Re-chunk from the already extracted text (no PDF parsing) and rebuild the index."""
+    for old_chunk in CHUNKS_DIR.glob("*_chunks.jsonl"):
+        old_chunk.unlink()
+    for txt_path in sorted(EXTRACTED_TEXT_DIR.glob("*.txt")):
+        act_name, year = act_name_from_filename(txt_path.stem)
+        text = txt_path.read_text(encoding='utf-8')
+        chunks = chunk_legal_text(text, txt_path.name, act_name, year)
+        save_chunks_jsonl(chunks, str(CHUNKS_DIR / f"{txt_path.stem}_chunks.jsonl"))
+        print(f"  {len(chunks):5} chunks  {act_name}")
+    build_vector_store(str(CHUNKS_DIR), str(VECTOR_DB_DIR))
+
+
 if __name__ == "__main__":
-    ingest_all()
+    if "--rechunk" in sys.argv:
+        rechunk_all()
+    else:
+        ingest_all()
