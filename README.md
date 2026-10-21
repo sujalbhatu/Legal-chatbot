@@ -92,5 +92,37 @@ This is the user interface. It runs on Vite's default port (usually 5173).
 
 ---
 
+## 🧠 Conversation Memory (short-term + long-term)
+
+Long consultations would otherwise resend the whole chat to the LLM every turn, so prompt size (and cost) grows with every message. The RAG service keeps two layers of memory instead:
+
+- **Short-term:** the last 4 messages, sent word for word.
+- **Long-term:** one rolling summary of everything older, stored on the chat session in MongoDB (`memorySummary`, `summarizedCount`).
+
+When more than 10 unsummarized messages pile up, all but the last 4 are folded into the summary with a small fast model (`llama-3.1-8b-instant`): `new_summary = summarize(old_summary + evicted_messages)`. The summary always covers the whole conversation but stays bounded in size, and compaction runs only when the window overflows — not on every request. If the summarizer fails, the service falls back to a bounded recent window and retries next turn.
+
+Settings (in `backend/rag_model/.env`, all optional):
+
+```env
+MEMORY_STRATEGY=summary          # summary | window (last 6 messages) | full (entire history)
+MEMORY_TRIGGER_MESSAGES=10       # compact when unsummarized history exceeds this
+MEMORY_SHORT_TERM_MESSAGES=4     # always sent verbatim
+MEMORY_SUMMARY_MODEL=llama-3.1-8b-instant
+```
+
+Every LLM call (translation, act detection, summarization, answer) is metered per request; the token counts are returned by `/api/query` and stored on each assistant message.
+
+### Measure the token saving
+
+```bash
+cd backend/rag_model
+python -m unittest discover -s tests -v          # memory logic, no API calls
+python eval/benchmark_memory.py                  # replays a 20-turn consultation with full / window / summary memory
+```
+
+The benchmark uses Groq's reported token usage for every call (summarization included, so the saving is net) and writes a report to `eval/results/`, including each strategy's answer to a final question that checks whether facts from turn 1 were remembered.
+
+---
+
 ## 🎉 Access the Application
 Once all three servers are running, open your web browser and go to the link provided by the frontend terminal (usually `http://localhost:5173`).

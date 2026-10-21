@@ -33,18 +33,21 @@ def query():
         if not user_query:
             return jsonify({"error": "Query cannot be empty"}), 400
         
-        chat_history = data.get('chat_history', [])
+        chat_history = data.get('chat_history', [])  # messages not yet summarized
         language = data.get('language', None)  # Optional language override
+        memory_summary = data.get('memory_summary', '')  # long-term memory stored on the chat session
         
         pipeline = get_pipeline()
-        result = pipeline.query(user_query, chat_history, language)
+        result = pipeline.query(user_query, chat_history, language, memory_summary)
         
         return jsonify({
             "success": True,
             "answer": result['answer'],
             "sources": result['sources'],
             "language": result['language'],
-            "language_name": result['language_name']
+            "language_name": result['language_name'],
+            "memory": result.get('memory'),
+            "usage": result.get('usage')
         })
     
     except Exception as e:

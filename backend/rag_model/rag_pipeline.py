@@ -22,7 +22,19 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
     raise ValueError("GROQ_API_KEY environment variable not set. Please add it to .env file.")
 
-groq_client = Groq(api_key=GROQ_API_KEY)
+# Every chat.completions.create call is metered per request (see llm_usage.py)
+import llm_usage
+from memory import MemoryConfig, build_memory, summary_block, make_llm_summarizer
+
+groq_client = llm_usage.MeteredClient(Groq(api_key=GROQ_API_KEY))
+
+# Conversation memory strategy:
+#   summary - short-term window + recursive long-term summary (default)
+#   window  - last 6 messages only (previous behaviour)
+#   full    - entire history every turn (baseline for the token benchmark)
+MEMORY_STRATEGY = os.getenv("MEMORY_STRATEGY", "summary").lower()
+# A small, fast, non-reasoning model is enough to compress chat history.
+MEMORY_SUMMARY_MODEL = os.getenv("MEMORY_SUMMARY_MODEL", "llama-3.1-8b-instant")
 
 # Paths
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -204,6 +216,16 @@ class LegalRAGPipeline:
         self.collection = self.chroma_client.get_or_create_collection("legal_docs")
         print(f"  Vector store loaded: {self.collection.count()} documents")
         
+        # Conversation memory
+        self.memory_strategy = MEMORY_STRATEGY
+        self.memory_config = MemoryConfig()
+        self.summarize_history = make_llm_summarizer(
+            groq_client, MEMORY_SUMMARY_MODEL, self.memory_config.summary_max_tokens
+        )
+        print(f"  Memory strategy: {self.memory_strategy} "
+              f"(compact after {self.memory_config.trigger_messages} messages, "
+              f"keep last {self.memory_config.short_term_messages} verbatim)")
+
         # Groq is initialized with API key from environment
         print("  Initializing Groq LLM...")
         print(f"  Supported languages: {', '.join(LANGUAGE_CODES.values())}")
@@ -224,20 +246,21 @@ class LegalRAGPipeline:
         
         lang_name = LANGUAGE_CODES.get(source_lang, source_lang)
         try:
-            response = groq_client.chat.completions.create(
-                model=self._get_groq_model(),
-                messages=[
-                    {"role": "system", "content": (
-                        "You are a translator. Translate the following text from "
-                        f"{lang_name} to English. Output ONLY the English translation, "
-                        "nothing else. Keep legal terminology accurate."
-                    )},
-                    {"role": "user", "content": text}
-                ],
-                temperature=0.1,
-                max_tokens=512,
-                timeout=15
-            )
+            with llm_usage.purpose("translate"):
+                response = groq_client.chat.completions.create(
+                    model=self._get_groq_model(),
+                    messages=[
+                        {"role": "system", "content": (
+                            "You are a translator. Translate the following text from "
+                            f"{lang_name} to English. Output ONLY the English translation, "
+                            "nothing else. Keep legal terminology accurate."
+                        )},
+                        {"role": "user", "content": text}
+                    ],
+                    temperature=0.1,
+                    max_tokens=512,
+                    timeout=15
+                )
             translated = response.choices[0].message.content.strip()
             print(f"  Translated [{lang_name} → English]: '{text[:50]}' → '{translated[:50]}'")
             return translated
@@ -353,7 +376,49 @@ class LegalRAGPipeline:
         
         return "\n\n---\n\n".join(context_parts)
     
-    def query(self, user_query: str, chat_history: list = None, language: str = None) -> dict:
+    def query(self, user_query: str, chat_history: list = None, language: str = None,
+              memory_summary: str = None) -> dict:
+        """
+        Answer a query and report the tokens every LLM call used for it.
+
+        chat_history   -- messages not yet folded into the long-term summary
+        memory_summary -- long-term summary stored on the chat session ('' for a new chat)
+        """
+        usage_token = llm_usage.begin()
+        try:
+            result = self._run_query(user_query, chat_history, language, memory_summary)
+        finally:
+            usage = llm_usage.end(usage_token)
+        result["usage"] = usage
+        print(f"  Tokens this turn: {usage['prompt_tokens']} prompt + {usage['completion_tokens']} completion "
+              f"across {usage['llm_calls']} LLM calls")
+        return result
+
+    def _build_memory(self, chat_history: list, memory_summary: str) -> dict:
+        """Short-term window + long-term summary (or the window/full baselines)."""
+        history = [m for m in (chat_history or []) if m.get('role') in ('user', 'assistant') and m.get('content')]
+        summary = (memory_summary or "").strip()
+
+        if self.memory_strategy == "full":
+            return {"summary": summary, "recent": history, "summarized_count": 0, "compacted": False}
+        if self.memory_strategy == "window":
+            return {"summary": summary, "recent": history[-6:], "summarized_count": 0, "compacted": False}
+
+        with llm_usage.purpose("memory_summary"):
+            result = build_memory(history, summary, self.summarize_history, self.memory_config)
+        if result.error:
+            print(f"  ⚠ Memory summarization failed, using recent window only: {result.error}")
+        if result.compacted:
+            print(f"  🧠 Memory: folded {result.newly_summarized} older messages into the long-term summary")
+        return {
+            "summary": result.summary,
+            "recent": result.recent,
+            "summarized_count": result.newly_summarized,
+            "compacted": result.compacted,
+        }
+
+    def _run_query(self, user_query: str, chat_history: list = None, language: str = None,
+                   memory_summary: str = None) -> dict:
         """
         Process a legal query through the RAG pipeline with language detection.
         
@@ -400,7 +465,8 @@ class LegalRAGPipeline:
             from indiacode_fetcher import fetch_and_ingest_if_needed
             # Pass the ORIGINAL user_query to the intent extractor (LLM understands Hindi perfectly)
             # Passing the translated query previously destroyed native act names like "Nagarik Suraksha"
-            fetch_result = fetch_and_ingest_if_needed(user_query, groq_client)
+            with llm_usage.purpose("act_detection"):
+                fetch_result = fetch_and_ingest_if_needed(user_query, groq_client)
             
             if fetch_result.get('ingested', False):
                 # Reload the ChromaDB collection to pick up newly ingested data
@@ -571,13 +637,13 @@ class LegalRAGPipeline:
             {"role": "system", "content": system_prompt}
         ]
         
-        # Add chat history for multi-turn context
-        if chat_history:
-            for msg in chat_history[-6:]:  # Keep last 6 messages for context
-                messages.append({
-                    "role": msg.get('role', 'user'),
-                    "content": msg.get('content', '')
-                })
+        # Add conversation memory: long-term summary in the system prompt,
+        # short-term messages verbatim
+        memory = self._build_memory(chat_history, memory_summary)
+        if memory["summary"]:
+            messages[0]["content"] += summary_block(memory["summary"])
+        for msg in memory["recent"]:
+            messages.append({"role": msg["role"], "content": msg["content"]})
         
         # Add current query
         messages.append({"role": "user", "content": user_query})
@@ -595,14 +661,15 @@ class LegalRAGPipeline:
         
         for model_name in available_models:
             try:
-                response = groq_client.chat.completions.create(
-                    model=model_name,
-                    messages=messages,
-                    temperature=0.2,
-                    max_tokens=2048,
-                    top_p=0.9,
-                    timeout=30
-                )
+                with llm_usage.purpose("answer"):
+                    response = groq_client.chat.completions.create(
+                        model=model_name,
+                        messages=messages,
+                        temperature=0.2,
+                        max_tokens=2048,
+                        top_p=0.9,
+                        timeout=30
+                    )
                 answer = response.choices[0].message.content
                 print(f"✓ Using Groq model: {model_name}")
                 break
@@ -638,7 +705,12 @@ class LegalRAGPipeline:
             "answer": answer,
             "sources": formatted_sources[:2],  # Return only top 2 most relevant sources
             "language": language,
-            "language_name": LANGUAGE_CODES.get(language, 'Unknown')
+            "language_name": LANGUAGE_CODES.get(language, 'Unknown'),
+            "memory": {
+                "strategy": self.memory_strategy,
+                "summary": memory["summary"],
+                "summarized_count": memory["summarized_count"],
+            },
         }
 
 
@@ -660,15 +732,20 @@ if __name__ == "__main__":
     print("Supported languages: English, Hindi, Bengali, Santhali")
     print("Type 'quit' to exit.\n")
     
-    history = []
+    history = []   # messages not yet folded into the summary
+    summary = ""   # long-term memory
     while True:
         query = input("Your question: ").strip()
         if query.lower() in ('quit', 'exit', 'q'):
             break
         
-        result = pipeline.query(query, history)
+        result = pipeline.query(query, history, memory_summary=summary)
         print(f"\nAssistant ({result['language_name']}): {result['answer']}")
-        print(f"[Sources: {len(result['sources'])} documents cited]\n")
-        
+        print(f"[Sources: {len(result['sources'])} documents cited | tokens: {result['usage']['total_tokens']}]\n")
+
+        memory = result.get("memory", {})
+        if memory.get("summarized_count"):
+            history = history[memory["summarized_count"]:]
+            summary = memory["summary"]
         history.append({"role": "user", "content": query})
         history.append({"role": "assistant", "content": result['answer']})

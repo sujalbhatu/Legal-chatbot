@@ -1,0 +1,26 @@
+{
+  "name": "Cyber impersonation and UPI fraud - 20-turn consultation",
+  "note": "Turn 1 states facts (Rahul, Rs 18,000) that only the last turn asks about, so it also tests whether memory keeps early details.",
+  "questions": [
+    "Someone made a fake Instagram profile with my photos and is messaging my friends asking for money. My friend Rahul already sent Rs 18,000 to them through UPI. Which laws cover this?",
+    "Which section of the IT Act applies to cheating by impersonation using a computer resource?",
+    "What is the punishment under that section?",
+    "Does the Bharatiya Nyaya Sanhita also have a section for cheating by personation?",
+    "How is cheating by personation different from ordinary cheating?",
+    "Should I file the FIR myself, or does Rahul have to file it because he lost the money?",
+    "What can we do if the police refuse to register the FIR?",
+    "What is a Zero FIR and can we use it here?",
+    "The person also posted morphed pictures of me. Is that a separate offence?",
+    "Is that offence bailable?",
+    "How long do the police have to complete the investigation?",
+    "Can Rahul get his money back through the court?",
+    "What evidence should we preserve from Instagram and from the UPI app?",
+    "Are screenshots admissible as evidence under the Bharatiya Sakshya Adhiniyam?",
+    "Do we need a certificate for electronic evidence?",
+    "If the person behind the profile turns out to be a minor, what changes?",
+    "Can I also send a legal notice to the person once we know who it is?",
+    "Is there a time limit for filing the complaint?",
+    "Should we go to the cyber crime portal first or the police station?",
+    "Before I go, summarise my case for me: who lost how much money, which sections you said apply, and the first step I should take."
+  ]
+}

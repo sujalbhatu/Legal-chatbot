@@ -150,8 +150,9 @@ router.post('/sessions/:id/query', async (req, res) => {
             return res.status(404).json({ error: 'Session not found.' });
         }
 
-        // Build chat history for multi-turn
-        const chatHistory = session.messages.map(m => ({
+        // Short-term memory: only the messages not yet folded into the long-term summary
+        const summarizedCount = Math.min(session.summarizedCount || 0, session.messages.length);
+        const chatHistory = session.messages.slice(summarizedCount).map(m => ({
             role: m.role,
             content: m.content
         }));
@@ -161,7 +162,8 @@ router.post('/sessions/:id/query', async (req, res) => {
         try {
             const payload = {
                 query: query.trim(),
-                chat_history: chatHistory
+                chat_history: chatHistory,
+                memory_summary: session.memorySummary || ''
             };
 
             // Include language if provided (optional - RAG API will auto-detect if not provided)
@@ -194,12 +196,26 @@ router.post('/sessions/:id/query', async (req, res) => {
         });
 
         // Add assistant response
+        const usage = ragResponse.usage || {};
         session.messages.push({
             role: 'assistant',
             content: ragResponse.answer || 'I apologize, but I was unable to generate a response.',
             sources: ragResponse.sources || [],
-            language: ragResponse.language || 'en'
+            language: ragResponse.language || 'en',
+            usage: {
+                promptTokens: usage.prompt_tokens || 0,
+                completionTokens: usage.completion_tokens || 0,
+                totalTokens: usage.total_tokens || 0
+            }
         });
+
+        // Long-term memory: the RAG service folded the oldest `summarized_count`
+        // messages we sent into a new summary — remember where the summary ends.
+        const memory = ragResponse.memory;
+        if (memory && memory.summarized_count > 0) {
+            session.memorySummary = memory.summary || '';
+            session.summarizedCount = summarizedCount + memory.summarized_count;
+        }
 
         await session.save();
 

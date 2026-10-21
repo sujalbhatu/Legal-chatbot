@@ -27,6 +27,12 @@ const messageSchema = new mongoose.Schema({
     timestamp: {
         type: Date,
         default: Date.now
+    },
+    // LLM tokens spent producing this answer (all calls: translate, act detection, memory, answer)
+    usage: {
+        promptTokens: Number,
+        completionTokens: Number,
+        totalTokens: Number
     }
 });
 
@@ -43,6 +49,16 @@ const chatSessionSchema = new mongoose.Schema({
         trim: true
     },
     messages: [messageSchema],
+    // Long-term memory: a rolling summary of messages[0 .. summarizedCount-1].
+    // Only messages after summarizedCount are sent to the RAG service verbatim.
+    memorySummary: {
+        type: String,
+        default: ''
+    },
+    summarizedCount: {
+        type: Number,
+        default: 0
+    },
     isSolved: {
         type: Boolean,
         default: false
