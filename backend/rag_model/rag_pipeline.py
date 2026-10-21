@@ -7,6 +7,7 @@ Supports: English, Hindi, Bengali, and Santhali.
 import os
 import re
 import json
+import threading
 from pathlib import Path
 from chromadb import PersistentClient
 from sentence_transformers import SentenceTransformer
@@ -683,7 +684,9 @@ class LegalRAGPipeline:
             print("  1. Visit: https://console.groq.com/docs/speech-text")
             print("  2. Check which models your account has access to")
             print("  3. Update GROQ_MODEL in .env file with an available model")
-            answer = f"Error: No available Groq models. Last error: {last_error}"
+            # Don't hand the raw provider error to the user as an "answer": it would be
+            # shown, saved in the chat and later folded into the memory summary.
+            raise LLMUnavailableError(f"No Groq model answered. Last error: {last_error}")
         
         # Step 6: Format sources for frontend
         formatted_sources = []
@@ -714,15 +717,30 @@ class LegalRAGPipeline:
         }
 
 
-# Singleton instance
+class LLMUnavailableError(RuntimeError):
+    """Every Groq model in the fallback list failed for this request."""
+
+
+# Singleton instance. Gunicorn serves requests on several threads, so creation is
+# locked: otherwise two first requests could each load the embedding model.
 _pipeline = None
+_pipeline_lock = threading.Lock()
 
 def get_pipeline() -> LegalRAGPipeline:
     """Get or create the singleton RAG pipeline instance."""
     global _pipeline
     if _pipeline is None:
-        _pipeline = LegalRAGPipeline()
+        with _pipeline_lock:
+            if _pipeline is None:
+                _pipeline = LegalRAGPipeline()
     return _pipeline
+
+
+def reset_pipeline():
+    """Drop the singleton so the next get_pipeline() reloads the vector store (after ingestion)."""
+    global _pipeline
+    with _pipeline_lock:
+        _pipeline = None
 
 
 if __name__ == "__main__":
