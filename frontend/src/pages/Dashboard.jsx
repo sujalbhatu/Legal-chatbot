@@ -1,251 +1,299 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus, MessageSquare, Clock, CheckCircle, ArrowRight, LogOut, Scale, Sun, Moon, Trash2 } from 'lucide-react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import {
+    MessagesSquare, CircleDot, CheckCircle2, MessageCircleQuestion, Search, ArrowRight, Trash2,
+    RotateCcw, CornerDownLeft, Clock, AlertTriangle, Sparkles
+} from 'lucide-react';
 import { chatService, authService } from '../services/api';
-import { useTheme } from '../contexts/ThemeContext';
+import AppShell from '../components/AppShell';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { TopicIcon } from '../components/Brand';
+import { TOPICS } from '../data/content';
+
+const FILTERS = [['all', 'All'], ['active', 'Active'], ['solved', 'Solved']];
+
+function greeting() {
+    const h = new Date().getHours();
+    if (h < 5) return 'Good evening';
+    if (h < 12) return 'Good morning';
+    if (h < 17) return 'Good afternoon';
+    return 'Good evening';
+}
+
+/** The last message as one plain line (answers are markdown with [n] citations). */
+function plainPreview(text) {
+    return (text || '')
+        .replace(/\[(\d+)\]/g, '')
+        .replace(/[*_`#>]+/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function timeAgo(dateString) {
+    const diff = (Date.now() - new Date(dateString).getTime()) / 1000;
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} h ago`;
+    if (diff < 7 * 86400) return `${Math.floor(diff / 86400)} d ago`;
+    return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short' }).format(new Date(dateString));
+}
 
 export default function Dashboard() {
+    const navigate = useNavigate();
+    const [params, setParams] = useSearchParams();
     const [sessions, setSessions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [filter, setFilter] = useState('all'); // all, active, solved
-    const [user, setUser] = useState(null);
-    const navigate = useNavigate();
-    const { theme, toggleTheme } = useTheme();
+    const [filter, setFilter] = useState('all');
+    const [search, setSearch] = useState('');
+    const [question, setQuestion] = useState('');
+    const [starting, setStarting] = useState(false);
+    const [toDelete, setToDelete] = useState(null);
+    const user = authService.getCurrentUser();
+    const firstName = (user?.name || '').trim().split(/\s+/)[0];
+    const handledAsk = useRef(false);
 
-    useEffect(() => {
-        setUser(authService.getCurrentUser());
-        loadSessions();
-    }, []);
-
-    const loadSessions = async () => {
+    const loadSessions = useCallback(async () => {
         try {
             setError('');
             const data = await chatService.getSessions();
             setSessions(data.sessions);
         } catch (err) {
             console.error('Failed to load sessions', err);
-            setError('Failed to load your queries. Please check your connection or log in again.');
+            setError('Could not load your conversations. Check your connection and try again.');
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
-    const handleCreateSession = async () => {
+    useEffect(() => { loadSessions(); }, [loadSessions]);
+
+    // Start a conversation; the chat page sends `ask` as its first question
+    const startChat = useCallback(async (ask) => {
+        if (starting) return;
+        setStarting(true);
+        setError('');
         try {
-            setError('');
             const data = await chatService.createSession('New Legal Query');
-            navigate(`/chat/${data.session._id}`);
+            const q = (ask || '').trim();
+            navigate(`/chat/${data.session._id}${q ? `?ask=${encodeURIComponent(q)}` : ''}`);
         } catch (err) {
             console.error('Failed to create session', err);
-            setError('Failed to create a new session. Please try again.');
+            setError('Could not start a new conversation. Please try again.');
+            setStarting(false);
+        }
+    }, [navigate, starting]);
+
+    // A question typed on the landing page arrives as ?ask=
+    useEffect(() => {
+        const ask = params.get('ask');
+        if (ask && !handledAsk.current) {
+            handledAsk.current = true;
+            setParams({}, { replace: true });
+            startChat(ask);
+        }
+    }, [params, setParams, startChat]);
+
+    const toggleSolved = async (e, s) => {
+        e.stopPropagation();
+        try {
+            if (s.isSolved) await chatService.reopenSession(s._id);
+            else await chatService.solveSession(s._id);
+            setSessions(prev => prev.map(x => x._id === s._id ? { ...x, isSolved: !s.isSolved } : x));
+        } catch (err) {
+            console.error('Failed to update session', err);
         }
     };
 
-    const handleLogout = () => {
-        authService.logout();
-        navigate('/login');
-    };
-
-    const handleDeleteSession = async (e, sessionId) => {
-        e.stopPropagation();
-        if (!window.confirm('Are you sure you want to delete this query? This cannot be undone.')) return;
+    const confirmDelete = async () => {
+        const s = toDelete;
+        setToDelete(null);
         try {
-            await chatService.deleteSession(sessionId);
-            setSessions(prev => prev.filter(s => s._id !== sessionId));
+            await chatService.deleteSession(s._id);
+            setSessions(prev => prev.filter(x => x._id !== s._id));
         } catch (err) {
             console.error('Failed to delete session', err);
+            setError('Could not delete that conversation.');
         }
     };
 
-    const filteredSessions = sessions.filter(s => {
-        if (filter === 'active') return !s.isSolved;
-        if (filter === 'solved') return s.isSolved;
-        return true;
-    });
+    const stats = useMemo(() => ({
+        total: sessions.length,
+        active: sessions.filter(s => !s.isSolved).length,
+        solved: sessions.filter(s => s.isSolved).length,
+        questions: sessions.reduce((n, s) => n + Math.floor((s.messageCount || 0) / 2), 0),
+    }), [sessions]);
 
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return new Intl.DateTimeFormat('en-US', {
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        }).format(date);
-    };
+    const visible = useMemo(() => {
+        const q = search.trim().toLowerCase();
+        return sessions.filter(s => {
+            if (filter === 'active' && s.isSolved) return false;
+            if (filter === 'solved' && !s.isSolved) return false;
+            if (!q) return true;
+            return (s.title || '').toLowerCase().includes(q) || (s.lastMessage || '').toLowerCase().includes(q);
+        });
+    }, [sessions, filter, search]);
+
+    const STAT_CARDS = [
+        { label: 'Conversations', value: stats.total, icon: MessagesSquare },
+        { label: 'Active', value: stats.active, icon: CircleDot },
+        { label: 'Solved', value: stats.solved, icon: CheckCircle2 },
+        { label: 'Questions asked', value: stats.questions, icon: MessageCircleQuestion },
+    ];
 
     return (
-        <div className="app-layout">
-            {/* Sidebar */}
-            <div className="sidebar">
-                <div 
-                    style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}
-                    onClick={() => navigate('/')}
-                >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '8px', background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(16, 185, 129, 0.1))', border: '1px solid var(--border-focus)' }}>
-                        <Scale size={18} color="var(--accent-gold)" />
+        <AppShell onNewChat={() => startChat()} newChatBusy={starting}>
+            <div className="page">
+                <header className="dash-hero">
+                    <div>
+                        <p className="dash-date">{new Intl.DateTimeFormat('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date())}</p>
+                        <h1 className="page-title">{greeting()}{firstName ? `, ${firstName}` : ''}</h1>
+                        <p className="page-subtitle">What would you like to understand about Indian law today?</p>
                     </div>
-                    <span className="mobile-hide" style={{ fontWeight: 600, fontSize: '1.1rem', letterSpacing: '-0.01em' }}>OpenForge</span>
-                </div>
+                </header>
 
-                <div className="sidebar-middle" style={{ padding: '1.5rem', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                    <button
-                        className="btn btn-primary new-query-btn"
-                        style={{ width: '100%', marginBottom: '2rem' }}
-                        onClick={handleCreateSession}
-                    >
-                        <Plus size={18} /> <span className="mobile-hide">New Query</span>
+                <form className="dash-ask" onSubmit={(e) => { e.preventDefault(); if (question.trim()) startChat(question); }}>
+                    <Sparkles size={18} className="dash-ask-icon" />
+                    <input value={question} onChange={(e) => setQuestion(e.target.value)} maxLength={2000}
+                        placeholder="Describe your situation or ask about a law…" aria-label="Ask a new question" />
+                    <button type="submit" className="btn btn-primary" disabled={!question.trim() || starting}>
+                        {starting ? 'Starting…' : <>Ask <CornerDownLeft size={16} /></>}
                     </button>
+                </form>
 
-                    <div className="filters-section" style={{ marginBottom: '1rem' }}>
-                        <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '0.75rem' }}>
-                            Filters
-                        </div>
-
-                        <button
-                            className={`btn ${filter === 'all' ? 'btn-secondary' : 'btn-icon'}`}
-                            style={{ width: '100%', justifyContent: 'flex-start', padding: '0.5rem 0.75rem', marginBottom: '0.25rem', border: filter === 'all' ? '1px solid var(--border-color)' : '1px solid transparent' }}
-                            onClick={() => setFilter('all')}
-                        >
-                            <MessageSquare size={16} /> All Queries
+                <div className="dash-topics">
+                    {TOPICS.map(t => (
+                        <button key={t.key} type="button" className="chip chip-icon" onClick={() => startChat(t.questions[0])}
+                            title={t.questions[0]} disabled={starting}>
+                            <TopicIcon name={t.icon} size={15} /> {t.label}
                         </button>
-                        <button
-                            className={`btn ${filter === 'active' ? 'btn-secondary' : 'btn-icon'}`}
-                            style={{ width: '100%', justifyContent: 'flex-start', padding: '0.5rem 0.75rem', marginBottom: '0.25rem', border: filter === 'active' ? '1px solid var(--border-color)' : '1px solid transparent' }}
-                            onClick={() => setFilter('active')}
-                        >
-                            <Clock size={16} color="var(--accent-gold)" /> Active
-                        </button>
-                        <button
-                            className={`btn ${filter === 'solved' ? 'btn-secondary' : 'btn-icon'}`}
-                            style={{ width: '100%', justifyContent: 'flex-start', padding: '0.5rem 0.75rem', border: filter === 'solved' ? '1px solid var(--border-color)' : '1px solid transparent' }}
-                            onClick={() => setFilter('solved')}
-                        >
-                            <CheckCircle size={16} color="var(--accent-emerald)" /> Solved
-                        </button>
-                    </div>
+                    ))}
                 </div>
 
-                <div className="sidebar-bottom" style={{ padding: '1.5rem', borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }} onClick={() => navigate('/profile')}>
-                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--accent-primary-transparent)', border: '1px solid var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', color: 'var(--accent-primary)' }}>
-                            {user?.name?.charAt(0).toUpperCase() || 'U'}
+                <section className="stat-grid" aria-label="Your activity">
+                    {STAT_CARDS.map(({ label, value, icon: Icon }) => (
+                        <div key={label} className="stat-card">
+                            <span className="stat-icon"><Icon size={18} /></span>
+                            <div>
+                                <div className="stat-value">{loading ? '–' : value}</div>
+                                <div className="stat-label">{label}</div>
+                            </div>
                         </div>
-                        <div className="mobile-hide" style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span style={{ fontSize: '0.875rem', fontWeight: 500, lineHeight: 1.2, color: 'var(--text-primary)' }}>{user?.name || 'User'}</span>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--accent-primary)' }}>View Profile</span>
-                        </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button className="btn-icon" onClick={toggleTheme} title="Toggle Theme">
-                            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-                        </button>
-                        <button className="btn-icon" onClick={handleLogout} title="Sign Out">
-                            <LogOut size={16} />
-                        </button>
-                    </div>
-                </div>
-            </div>
+                    ))}
+                </section>
 
-            {/* Main Content */}
-            <div className="main-content" style={{ overflowY: 'auto' }}>
-                <div style={{ padding: '3rem 4rem', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
-                        <div>
-                            <h1 style={{ marginBottom: '0.5rem' }}>Your Queries</h1>
-                            <p style={{ margin: 0, fontSize: '1.1rem' }}>Review past answers or start a new legal research session.</p>
+                <section className="card list-card">
+                    <div className="list-toolbar">
+                        <h2 className="section-title">Your conversations</h2>
+                        <div className="list-controls">
+                            <div className="search-box">
+                                <Search size={16} />
+                                <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search conversations"
+                                    aria-label="Search conversations" />
+                            </div>
+                            <div className="segmented" role="tablist" aria-label="Filter">
+                                {FILTERS.map(([key, label]) => (
+                                    <button key={key} type="button" role="tab" aria-selected={filter === key}
+                                        className={filter === key ? 'active' : ''} onClick={() => setFilter(key)}>
+                                        {label}
+                                        <span className="segmented-count">
+                                            {key === 'all' ? stats.total : key === 'active' ? stats.active : stats.solved}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
 
                     {error && (
-                        <div style={{ padding: '1rem 1.5rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: 'var(--radius-md)', color: '#ef4444', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                <span>⚠️</span>
-                                <span>{error}</span>
-                            </div>
-                            <button className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.875rem' }} onClick={loadSessions}>
-                                Retry
-                            </button>
+                        <div className="form-alert form-alert-error list-error">
+                            <AlertTriangle size={16} /> {error}
+                            <button type="button" className="btn btn-secondary btn-sm" onClick={loadSessions}>Retry</button>
                         </div>
                     )}
 
                     {loading ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <div className="conv-list">
                             {[1, 2, 3].map(i => (
-                                <div key={i} className="glass-card" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center' }}>
-                                    <div className="skeleton-box" style={{ width: '40px', height: '40px', borderRadius: '8px', marginRight: '1rem' }}></div>
-                                    <div style={{ flexGrow: 1 }}>
-                                        <div className="skeleton-box" style={{ width: '40%', height: '1.2rem', marginBottom: '0.5rem' }}></div>
-                                        <div className="skeleton-box" style={{ width: '20%', height: '0.8rem' }}></div>
+                                <div key={i} className="conv-row conv-skeleton">
+                                    <div className="skeleton-box" style={{ width: 36, height: 36, borderRadius: 10 }} />
+                                    <div style={{ flex: 1 }}>
+                                        <div className="skeleton-box" style={{ width: '45%', height: 14, marginBottom: 8 }} />
+                                        <div className="skeleton-box" style={{ width: '70%', height: 12 }} />
                                     </div>
-                                    <div className="skeleton-box" style={{ width: '80px', height: '30px', borderRadius: '16px' }}></div>
                                 </div>
                             ))}
                         </div>
-                    ) : filteredSessions.length === 0 ? (
-                        <div className="glass-card" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-                            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.05)', marginBottom: '1.5rem' }}>
-                                <MessageSquare size={32} color="var(--text-muted)" />
-                            </div>
-                            <h3 style={{ marginBottom: '0.5rem' }}>No queries found</h3>
-                            <p style={{ marginBottom: '2rem', maxWidth: '400px', margin: '0 auto 2rem' }}>
-                                {filter === 'all'
-                                    ? "You haven't started any legal queries yet. Start a new session to get AI-powered legal assistance."
-                                    : `You don't have any ${filter} queries right now.`}
-                            </p>
-                            {filter === 'all' && (
-                                <button className="btn btn-primary" onClick={handleCreateSession}>
-                                    Start New Session
-                                </button>
+                    ) : visible.length === 0 ? (
+                        <div className="empty">
+                            <span className="empty-icon"><MessagesSquare size={26} /></span>
+                            {sessions.length === 0 ? (
+                                <>
+                                    <h3>No conversations yet</h3>
+                                    <p>Ask your first question above, or start with one of these:</p>
+                                    <div className="empty-suggestions">
+                                        {TOPICS.slice(0, 3).map(t => (
+                                            <button key={t.key} type="button" className="chip" onClick={() => startChat(t.questions[0])}>
+                                                {t.questions[0]}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <h3>Nothing matches</h3>
+                                    <p>Try a different search or filter.</p>
+                                </>
                             )}
                         </div>
                     ) : (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-                            {filteredSessions.map(session => (
-                                <div
-                                    key={session._id}
-                                    className="glass-card animate-fade-in"
-                                    style={{ display: 'flex', flexDirection: 'column', padding: '1.5rem', cursor: 'pointer', height: '220px' }}
-                                    onClick={() => navigate(`/chat/${session._id}`)}
-                                >
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                                        <div className={`badge ${session.isSolved ? 'badge-success' : 'badge-warning'}`}>
-                                            {session.isSolved ? 'Solved' : 'Active'}
+                        <ul className="conv-list">
+                            {visible.map(s => (
+                                <li key={s._id}>
+                                    <div className="conv-row" role="button" tabIndex={0}
+                                        onClick={() => navigate(`/chat/${s._id}`)}
+                                        onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/chat/${s._id}`); }}>
+                                        <span className={`conv-status ${s.isSolved ? 'solved' : 'active'}`}>
+                                            {s.isSolved ? <CheckCircle2 size={18} /> : <MessagesSquare size={18} />}
+                                        </span>
+                                        <div className="conv-main">
+                                            <div className="conv-title">{s.title || 'New Legal Query'}</div>
+                                            <div className="conv-preview">{plainPreview(s.lastMessage) || 'No messages yet'}</div>
                                         </div>
-                                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                            {formatDate(session.updatedAt)}
+                                        <div className="conv-meta">
+                                            <span className={`badge ${s.isSolved ? 'badge-success' : 'badge-warning'}`}>
+                                                {s.isSolved ? 'Solved' : 'Active'}
+                                            </span>
+                                            <span className="conv-time"><Clock size={12} /> {timeAgo(s.updatedAt)}</span>
                                         </div>
-                                    </div>
-
-                                    <h4 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', flexGrow: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                                        {session.title}
-                                    </h4>
-
-                                    <p style={{ fontSize: '0.875rem', flexGrow: 1, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', margin: 0, opacity: 0.8 }}>
-                                        {session.lastMessage || 'No messages yet...'}
-                                    </p>
-
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                                        <span>{session.messageCount} messages</span>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                            <button
-                                                className="btn-icon"
-                                                title="Delete query"
-                                                onClick={(e) => handleDeleteSession(e, session._id)}
-                                                style={{ padding: '0.3rem', borderRadius: '6px' }}
-                                            >
-                                                <Trash2 size={14} color="var(--text-muted)" />
+                                        <div className="conv-actions">
+                                            <button type="button" className="btn-icon" title={s.isSolved ? 'Reopen' : 'Mark as solved'}
+                                                aria-label={s.isSolved ? 'Reopen' : 'Mark as solved'} onClick={(e) => toggleSolved(e, s)}>
+                                                {s.isSolved ? <RotateCcw size={16} /> : <CheckCircle2 size={16} />}
                                             </button>
-                                            <ArrowRight size={16} className="text-muted" />
+                                            <button type="button" className="btn-icon btn-icon-danger" title="Delete" aria-label="Delete"
+                                                onClick={(e) => { e.stopPropagation(); setToDelete(s); }}>
+                                                <Trash2 size={16} />
+                                            </button>
+                                            <ArrowRight size={16} className="conv-arrow" />
                                         </div>
                                     </div>
-                                </div>
+                                </li>
                             ))}
-                        </div>
+                        </ul>
                     )}
-                </div>
+                </section>
             </div>
-        </div>
+
+            <ConfirmDialog
+                open={!!toDelete}
+                title="Delete this conversation?"
+                message={toDelete ? `"${toDelete.title}" and all its messages will be removed. This cannot be undone.` : ''}
+                confirmLabel="Delete"
+                danger
+                onConfirm={confirmDelete}
+                onCancel={() => setToDelete(null)}
+            />
+        </AppShell>
     );
 }

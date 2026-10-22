@@ -1,86 +1,81 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import {
-    Send, ArrowLeft, CheckCircle, Scale, BookOpen, AlertTriangle, FileText, ChevronDown, ChevronRight,
-    Loader2, User, Sun, Moon, RotateCcw, ThumbsUp, ThumbsDown, Languages, Sparkles
+    ArrowLeft, CheckCircle, BookOpen, AlertTriangle, FileText, ChevronDown, ChevronRight, Loader2, User,
+    Sun, Moon, RotateCcw, ThumbsUp, ThumbsDown, Languages, Sparkles, ArrowUp, Square, Copy, Check, Trash2,
+    UserPlus, Info
 } from 'lucide-react';
-import { chatService } from '../services/api';
+import { chatService, authService } from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatAssistantMessage, formatUserMessage } from '../utils/formatMessage';
+import { Logo, TopicIcon } from '../components/Brand';
+import { LANGUAGES, TOPICS } from '../data/content';
 
-const LANGUAGES = [
-    ['auto', 'Auto-detect'], ['en', 'English'], ['hi', 'हिन्दी'], ['bn', 'বাংলা'], ['mr', 'मराठी'],
-    ['ta', 'தமிழ்'], ['te', 'తెలుగు'], ['gu', 'ગુજરાતી'], ['kn', 'ಕನ್ನಡ'], ['ml', 'മലയാളം'],
-    ['pa', 'ਪੰਜਾਬੀ'], ['or', 'ଓଡ଼ିଆ'], ['as', 'অসমীয়া'], ['sat', 'ᱥᱟᱱᱛᱟᱲᱤ'], ['ur', 'اردو'],
-];
-
-const EXAMPLES = [
-    'Someone stole my bike. What offence is this under the BNS?',
-    'How do I file an RTI application and how long do they have to reply?',
-    'My husband and in-laws harass me for dowry. What can I do?',
-    'Someone made a fake Instagram account with my photos.',
-];
+const GUEST_KEY = 'openforge_guest_chat';
 
 const readLanguage = () => {
     try { return localStorage.getItem('legal_lang') || 'auto'; } catch { return 'auto'; }
 };
+const readGuestChat = () => {
+    try { return JSON.parse(sessionStorage.getItem(GUEST_KEY) || '[]'); } catch { return []; }
+};
 
-// Legal disclaimer component
-const LegalDisclaimer = () => (
-    <div style={{ backgroundColor: 'rgba(251, 191, 36, 0.1)', border: '1px solid rgba(251, 191, 36, 0.3)', borderRadius: 'var(--radius-md)', padding: '0.75rem 1rem', display: 'flex', gap: '0.75rem', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
-        <AlertTriangle size={20} color="var(--accent-gold)" style={{ flexShrink: 0, marginTop: '2px' }} />
-        <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-            <strong style={{ color: 'var(--accent-gold)' }}>AI Disclaimer:</strong> Answers are generated from 123 central Indian Acts
-            (Constitution, BNS, BNSS, BSA, CPC, Contract, Property, Marriage and Divorce, Domestic Violence, POCSO, Juvenile
-            Justice, IT, Motor Vehicles, GST, RTI, Aadhaar and more) and cite the exact sections used. This is general information, NOT legal advice.
-        </div>
+// One retrieved section. `open` is controlled so a [n] chip in the answer can open it.
+const SourceCard = ({ source, n, open, onToggle, anchorId }) => (
+    <div id={anchorId} className={`source-card${open ? ' source-card-open' : ''}`}>
+        <button type="button" className="source-card-head" onClick={onToggle} aria-expanded={open}>
+            <span className="source-num">{n}</span>
+            <span className="source-title">
+                <span className="source-act">{source.act_name}</span>
+                {source.section && (
+                    <span className="source-section">
+                        {source.source_file?.startsWith('constitution') ? 'Article' : 'Section'} {source.section}
+                        {source.section_title ? `: ${source.section_title}` : ''}
+                    </span>
+                )}
+            </span>
+            <span className="source-badges">
+                {source.cited && <span className="badge badge-success" style={{ fontSize: '0.65rem' }}>Cited</span>}
+                {open ? <ChevronDown size={16} color="var(--text-muted)" /> : <ChevronRight size={16} color="var(--text-muted)" />}
+            </span>
+        </button>
+        {open && (
+            <div className="source-card-body">
+                <div className="source-body-head"><FileText size={16} /> Text of the section</div>
+                <p className="source-text">{source.text}</p>
+            </div>
+        )}
     </div>
 );
 
-// One retrieved section. `open` is controlled so a [n] chip in the answer can open it.
-const SourceCard = ({ source, n, open, onToggle, anchorId }) => {
+function CopyButton({ text }) {
+    const [done, setDone] = useState(false);
+    const copy = async () => {
+        try {
+            await navigator.clipboard.writeText(text);
+            setDone(true);
+            setTimeout(() => setDone(false), 1500);
+        } catch { /* clipboard blocked */ }
+    };
     return (
-        <div id={anchorId} className={`source-card${open ? ' source-card-open' : ''}`}>
-            <button type="button" className="source-card-head" onClick={onToggle} aria-expanded={open}>
-                <span className="source-num">{n}</span>
-                <span className="source-title">
-                    <span className="source-act">{source.act_name}</span>
-                    {source.section && (
-                        <span className="source-section">
-                            {source.source_file?.startsWith('constitution') ? 'Article' : 'Section'} {source.section}
-                            {source.section_title ? `: ${source.section_title}` : ''}
-                        </span>
-                    )}
-                </span>
-                <span className="source-badges">
-                    {source.cited && <span className="badge badge-success" style={{ fontSize: '0.65rem' }}>Cited</span>}
-                    {open ? <ChevronDown size={16} color="var(--text-muted)" /> : <ChevronRight size={16} color="var(--text-muted)" />}
-                </span>
-            </button>
-            {open && (
-                <div className="source-card-body">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                        <FileText size={16} color="var(--accent-emerald)" />
-                        <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>Text of the section</span>
-                    </div>
-                    <p className="source-text">{source.text}</p>
-                </div>
-            )}
-        </div>
+        <button type="button" className="btn-icon feedback-btn" onClick={copy} aria-label="Copy answer" title="Copy answer">
+            {done ? <Check size={15} /> : <Copy size={15} />}
+        </button>
     );
-};
+}
 
-// Sources, follow-ups and feedback under an assistant answer
+// Sources, follow-ups, copy and feedback under an assistant answer.
 // (The reranker's score is kept in the data but not shown: it ranks well, yet gives
 // correct sections for plain-language questions absolute scores near 0, so a
 // "Low relevance" label would mislead.)
-const AnswerExtras = ({ msg, msgKey, openSource, setOpenSource, onFollowUp, onFeedback, isLast, busy, live }) => {
+const AnswerExtras = ({ msg, msgKey, openSource, setOpenSource, onFollowUp, onFeedback, isLast, busy, live, allowFeedback }) => {
     const all = msg.sources || [];
     const cited = all.filter(s => s.cited).length;
     // A saved answer that cites nothing (small talk, "not found") shows no source list
     const sources = live || cited ? all : [];
     return (
         <>
+            {msg.stopped && <div className="answer-note"><Info size={15} /> You stopped this answer before the end; it was not saved.</div>}
             {msg.unsupportedCitations?.length > 0 && (
                 <div className="answer-note answer-note-warn">
                     <AlertTriangle size={15} />
@@ -90,7 +85,7 @@ const AnswerExtras = ({ msg, msgKey, openSource, setOpenSource, onFollowUp, onFe
             )}
 
             {sources.length > 0 && (
-                <div style={{ marginTop: '1rem' }}>
+                <div className="sources-block">
                     <div className="sources-heading">
                         <BookOpen size={16} /> {live ? `Reading ${sources.length} sections` : `Sources (${cited} cited, ${sources.length} retrieved)`}
                     </div>
@@ -117,44 +112,73 @@ const AnswerExtras = ({ msg, msgKey, openSource, setOpenSource, onFollowUp, onFe
                 </div>
             )}
 
-            {msg._id && !String(msg._id).startsWith('temp') && (
+            {!live && (
                 <div className="feedback-row">
-                    <span>Was this helpful?</span>
-                    <button type="button" className={`btn-icon feedback-btn${msg.feedback?.rating === 'up' ? ' active' : ''}`}
-                        aria-label="Helpful" onClick={() => onFeedback(msg, 'up')}>
-                        <ThumbsUp size={15} />
-                    </button>
-                    <button type="button" className={`btn-icon feedback-btn${msg.feedback?.rating === 'down' ? ' active' : ''}`}
-                        aria-label="Not helpful" onClick={() => onFeedback(msg, 'down')}>
-                        <ThumbsDown size={15} />
-                    </button>
+                    <CopyButton text={msg.content || ''} />
+                    {allowFeedback && (
+                        <>
+                            <span className="feedback-sep" />
+                            <span>Helpful?</span>
+                            <button type="button" className={`btn-icon feedback-btn${msg.feedback?.rating === 'up' ? ' active' : ''}`}
+                                aria-label="Helpful" onClick={() => onFeedback(msg, 'up')}>
+                                <ThumbsUp size={15} />
+                            </button>
+                            <button type="button" className={`btn-icon feedback-btn${msg.feedback?.rating === 'down' ? ' active' : ''}`}
+                                aria-label="Not helpful" onClick={() => onFeedback(msg, 'down')}>
+                                <ThumbsDown size={15} />
+                            </button>
+                        </>
+                    )}
                 </div>
             )}
         </>
     );
 };
 
-export default function Chat() {
+export default function Chat({ guest = false }) {
     const { id } = useParams();
     const navigate = useNavigate();
+    const [params, setParams] = useSearchParams();
     const [session, setSession] = useState(null);
-    const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState(() => (guest ? readGuestChat() : []));
     const [query, setQuery] = useState('');
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!guest);
     const [sending, setSending] = useState(false);
     const [streaming, setStreaming] = useState(null);   // { text, sources, grounded } while an answer streams
     const [error, setError] = useState('');
     const [language, setLanguage] = useState(readLanguage);
     const [openSource, setOpenSource] = useState(null); // { msgKey, n }
+    const [guestLeft, setGuestLeft] = useState(null);
     const messagesEndRef = useRef(null);
     const abortRef = useRef(null);
+    const inputRef = useRef(null);
+    const askedRef = useRef(false);
+    const streamingRef = useRef(null);
     const { theme, toggleTheme } = useTheme();
+    const solved = !guest && session?.isSolved;
 
     useEffect(() => {
-        loadSession();
-        return () => abortRef.current?.abort();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [id]);
+        if (guest) {
+            chatService.guestStatus().then(s => setGuestLeft(s.remainingToday)).catch(() => {});
+            return () => abortRef.current?.abort();
+        }
+        let cancelled = false;
+        (async () => {
+            try {
+                setLoading(true);
+                const data = await chatService.getSession(id);
+                if (cancelled) return;
+                setSession(data.session);
+                setMessages(data.session.messages);
+            } catch (err) {
+                console.error('Failed to load session', err);
+                navigate('/dashboard');
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        })();
+        return () => { cancelled = true; abortRef.current?.abort(); };
+    }, [id, guest, navigate]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -164,56 +188,107 @@ export default function Chat() {
         try { localStorage.setItem('legal_lang', language); } catch { /* private mode */ }
     }, [language]);
 
-    const loadSession = async () => {
-        try {
-            setLoading(true);
-            const data = await chatService.getSession(id);
-            setSession(data.session);
-            setMessages(data.session.messages);
-        } catch (err) {
-            console.error('Failed to load session', err);
-            navigate('/dashboard');
-        } finally {
-            setLoading(false);
-        }
-    };
+    useEffect(() => {
+        if (!guest) return;
+        try { sessionStorage.setItem(GUEST_KEY, JSON.stringify(messages.slice(-40))); } catch { /* full or blocked */ }
+    }, [guest, messages]);
+
+    // Grow the input with its content (up to ~6 lines)
+    useEffect(() => {
+        const el = inputRef.current;
+        if (!el) return;
+        el.style.height = 'auto';
+        el.style.height = `${Math.min(el.scrollHeight, 168)}px`;
+    }, [query]);
 
     const send = useCallback(async (text) => {
         const userQuery = text.trim();
-        if (!userQuery || sending || session?.isSolved) return;
+        if (!userQuery || sending || solved) return;
         setQuery('');
         setError('');
         setSending(true);
         setOpenSource(null);
 
-        const tempUser = { _id: `temp-${Date.now()}`, role: 'user', content: userQuery, sources: [] };
+        const stamp = Date.now();
+        const tempUser = { _id: `temp-u-${stamp}`, role: 'user', content: userQuery, sources: [] };
+        const history = messages.slice(-8).map(m => ({ role: m.role, content: m.content, language: m.language }));
         setMessages(prev => [...prev, tempUser]);
-        setStreaming({ text: '', sources: [], grounded: true });
+        streamingRef.current = { text: '', sources: [], grounded: true };
+        setStreaming(streamingRef.current);
+        const update = (patch) => {
+            streamingRef.current = { ...streamingRef.current, ...patch(streamingRef.current) };
+            setStreaming(streamingRef.current);
+        };
 
         const controller = new AbortController();
         abortRef.current = controller;
+        const handlers = {
+            onMeta: (meta) => update(() => ({ sources: meta.sources || [], grounded: meta.grounded })),
+            onToken: (t) => update(s => ({ text: s.text + t })),
+        };
+        const lang = language === 'auto' ? undefined : language;
         try {
-            const data = await chatService.streamQuery(id, userQuery, language === 'auto' ? undefined : language, {
-                onMeta: (meta) => setStreaming(s => ({ ...s, sources: meta.sources || [], grounded: meta.grounded })),
-                onToken: (t) => setStreaming(s => ({ ...s, text: s.text + t })),
-            }, controller.signal);
-            setMessages(prev => [...prev.filter(m => m._id !== tempUser._id), ...data.messages]);
-            if (data.session?.title) setSession(prev => ({ ...prev, title: data.session.title }));
+            if (guest) {
+                const data = await chatService.streamGuest(userQuery, lang, history, handlers, controller.signal);
+                setMessages(prev => [...prev, { ...data.message, _id: `guest-a-${stamp}` }]);
+                if (typeof data.remainingToday === 'number') setGuestLeft(data.remainingToday);
+            } else {
+                const data = await chatService.streamQuery(id, userQuery, lang, handlers, controller.signal);
+                setMessages(prev => [...prev.filter(m => m._id !== tempUser._id), ...data.messages]);
+                if (data.session?.title) setSession(prev => ({ ...prev, title: data.session.title }));
+            }
         } catch (err) {
-            if (controller.signal.aborted) return;
-            console.error('Failed to send query', err);
-            setMessages(prev => prev.filter(m => m._id !== tempUser._id));
-            setError(err.message || 'Failed to send query. Please try again.');
-            setQuery(userQuery);
+            if (controller.signal.aborted) {
+                // Stopped by the user: keep what was written so far
+                const partial = streamingRef.current;
+                if (partial?.text) {
+                    setMessages(prev => [...prev, {
+                        _id: `temp-stop-${stamp}`, role: 'assistant', content: partial.text,
+                        sources: partial.sources, stopped: true,
+                    }]);
+                } else {
+                    // Nothing was written yet: take the question back
+                    setMessages(prev => prev.filter(m => m._id !== tempUser._id));
+                    setQuery(userQuery);
+                }
+            } else {
+                console.error('Failed to send query', err);
+                setMessages(prev => prev.filter(m => m._id !== tempUser._id));
+                setError(err.message || 'Failed to send your question. Please try again.');
+                setQuery(userQuery);
+            }
         } finally {
+            streamingRef.current = null;
             setStreaming(null);
             setSending(false);
+            abortRef.current = null;
         }
-    }, [id, language, sending, session?.isSolved]);
+    }, [id, guest, language, messages, sending, solved]);
+
+    // A question handed over from the landing page or dashboard (?ask=)
+    // Deferred with a timer so React's dev double-mount (mount, unmount, mount) cancels
+    // the first attempt instead of aborting a request already in flight.
+    useEffect(() => {
+        const ask = params.get('ask');
+        if (!ask || askedRef.current || loading) return;
+        const timer = setTimeout(() => {
+            askedRef.current = true;
+            setParams({}, { replace: true });
+            send(ask);
+        }, 0);
+        return () => clearTimeout(timer);
+    }, [params, setParams, loading, send]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         send(query);
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+            e.preventDefault();
+            send(query);
+        }
     };
 
     const handleFeedback = async (msg, rating) => {
@@ -236,210 +311,221 @@ export default function Chat() {
             document.getElementById(`src-${msgKey}-${n}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
     };
 
-    const markAsSolved = async () => {
+    const setSolved = async (value) => {
         try {
-            await chatService.solveSession(id);
-            setSession(prev => ({ ...prev, isSolved: true }));
+            if (value) await chatService.solveSession(id);
+            else await chatService.reopenSession(id);
+            setSession(prev => ({ ...prev, isSolved: value }));
         } catch (err) {
-            console.error('Failed to mark as solved', err);
+            console.error('Failed to update session', err);
         }
     };
 
-    const reopenSession = async () => {
-        try {
-            await chatService.reopenSession(id);
-            setSession(prev => ({ ...prev, isSolved: false }));
-        } catch (err) {
-            console.error('Failed to reopen session', err);
-        }
+    const clearGuestChat = () => {
+        abortRef.current?.abort();
+        setMessages([]);
+        setError('');
     };
 
     if (loading) {
         return (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <Loader2 size={40} color="var(--accent-gold)" className="animate-pulse" />
+            <div className="page-loading">
+                <Loader2 size={36} className="animate-spin" />
             </div>
         );
     }
 
     const lastAssistantIndex = messages.map(m => m.role).lastIndexOf('assistant');
+    const isAuth = authService.isAuthenticated();
 
     return (
-        <div className="app-layout chat-layout">
-            <div className="main-content chat-main">
-
-                {/* Chat Header */}
-                <header className="chat-header" style={{ padding: '1rem 2rem', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', backgroundColor: 'var(--bg-panel)', backdropFilter: 'blur(10px)', position: 'sticky', top: 0, zIndex: 10 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', minWidth: 0 }}>
-                        <button className="btn-icon" onClick={() => navigate('/dashboard')} aria-label="Back to dashboard">
+        <div className="chat-page">
+            <header className="chat-topbar">
+                <div className="chat-topbar-left">
+                    {guest ? (
+                        <Logo size={30} onClick={() => navigate('/')} />
+                    ) : (
+                        <button type="button" className="btn-icon" onClick={() => navigate('/dashboard')} aria-label="Back to dashboard">
                             <ArrowLeft size={20} />
                         </button>
-                        <div style={{ minWidth: 0 }}>
-                            <h3 className="chat-title">{session?.title || 'Legal Query'}</h3>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.25rem' }}>
-                                <span className={`badge ${session?.isSolved ? 'badge-success' : 'badge-warning'}`} style={{ fontSize: '0.65rem' }}>
-                                    {session?.isSolved ? 'Solved' : 'Active Session'}
-                                </span>
-                                <span className="mobile-hide" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                    {messages.length} messages
-                                </span>
+                    )}
+                    <div className="chat-topbar-title">
+                        {guest ? (
+                            <span className="badge badge-neutral guest-badge">
+                                <span className="mobile-hide">Guest mode{guestLeft !== null ? ' · ' : ''}</span>
+                                {guestLeft !== null ? `${guestLeft} left` : <span className="mobile-only">Guest</span>}
+                                <span className="mobile-hide">{guestLeft !== null ? ' today' : ''}</span>
+                            </span>
+                        ) : (
+                            <>
+                                <h1 className="chat-title">{session?.title || 'Legal Query'}</h1>
+                                <span className={`badge ${solved ? 'badge-success' : 'badge-warning'}`}>{solved ? 'Solved' : 'Active'}</span>
+                            </>
+                        )}
+                    </div>
+                </div>
+                <div className="chat-topbar-actions">
+                    {guest ? (
+                        <>
+                            {messages.length > 0 && (
+                                <button type="button" className="btn btn-secondary btn-sm" onClick={clearGuestChat} title="Clear this chat">
+                                    <Trash2 size={15} /> <span className="mobile-hide">Clear</span>
+                                </button>
+                            )}
+                            {!isAuth && (
+                                <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate('/signup')}>
+                                    <UserPlus size={15} /> <span className="mobile-hide">Save chats free</span>
+                                </button>
+                            )}
+                        </>
+                    ) : (
+                        <button type="button" className="btn btn-secondary btn-sm" onClick={() => setSolved(!solved)}>
+                            {solved ? <RotateCcw size={15} /> : <CheckCircle size={15} />}
+                            <span className="mobile-hide">{solved ? 'Reopen' : 'Mark solved'}</span>
+                        </button>
+                    )}
+                    <button type="button" className="btn-icon" onClick={toggleTheme} aria-label="Toggle theme">
+                        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                    </button>
+                    {!guest && (
+                        <button type="button" className="profile-btn mobile-hide" onClick={() => navigate('/profile')} aria-label="Profile">
+                            <User size={17} />
+                        </button>
+                    )}
+                </div>
+            </header>
+
+            <div className="chat-scroll">
+                <div className="chat-column">
+                    {messages.length === 0 && !streaming ? (
+                        <div className="chat-empty">
+                            <span className="chat-empty-mark"><Logo size={52} withText={false} /></span>
+                            <h2>What would you like to know?</h2>
+                            <p>
+                                Describe your situation in your own words, in English or your language. Every answer cites
+                                the exact sections it uses; tap a number like <span className="cite-chip cite-chip-static">1</span> to read one.
+                            </p>
+                            {guest && (
+                                <p className="chat-empty-note">
+                                    <Info size={14} /> Guest chats stay in this browser tab only.{' '}
+                                    {!isAuth && <><Link to="/signup">Create a free account</Link> to save them.</>}
+                                </p>
+                            )}
+                            <div className="chat-empty-grid">
+                                {TOPICS.map(t => (
+                                    <button key={t.key} type="button" className="chat-empty-card" onClick={() => send(t.questions[0])}
+                                        disabled={sending || solved}>
+                                        <span className="chat-empty-card-head"><TopicIcon name={t.icon} size={15} /> {t.label}</span>
+                                        <span className="chat-empty-card-q">{t.questions[0]}</span>
+                                    </button>
+                                ))}
                             </div>
                         </div>
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
-                        {!session?.isSolved && (
-                            <button className="btn btn-secondary header-action" onClick={markAsSolved} title="Mark as solved">
-                                <CheckCircle size={16} color="var(--accent-emerald)" /> <span className="mobile-hide">Mark as Solved</span>
-                            </button>
-                        )}
-                        {session?.isSolved && (
-                            <button className="btn btn-secondary header-action" onClick={reopenSession} title="Reopen">
-                                <RotateCcw size={16} color="var(--accent-gold)" /> <span className="mobile-hide">Reopen</span>
-                            </button>
-                        )}
-                        <button className="btn-icon" onClick={toggleTheme} title="Toggle Theme" aria-label="Toggle theme">
-                            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-                        </button>
-                        <button type="button" className="profile-btn mobile-hide" onClick={() => navigate('/profile')} title="View Profile" aria-label="View profile">
-                            <User size={18} />
-                        </button>
-                    </div>
-                </header>
-
-                {/* Chat Messages */}
-                <div className="chat-scroll" style={{ flexGrow: 1, overflowY: 'auto', padding: '2rem 1rem' }}>
-                    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-
-                        <LegalDisclaimer />
-
-                        {messages.length === 0 && !streaming ? (
-                            <div style={{ textAlign: 'center', padding: '3rem 0', color: 'var(--text-muted)' }}>
-                                <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.05)', marginBottom: '1.5rem' }}>
-                                    <Scale size={32} />
-                                </div>
-                                <h2>How can I help you today?</h2>
-                                <p style={{ maxWidth: '520px', margin: '0 auto 2rem' }}>
-                                    Ask about Indian law in English or your own language. Every answer cites the exact
-                                    sections it is based on — tap a number like <span className="cite-chip cite-chip-static">1</span> to read the section.
-                                </p>
-                                <div className="followups" style={{ justifyContent: 'center' }}>
-                                    {EXAMPLES.map(ex => (
-                                        <button key={ex} type="button" className="followup-chip" onClick={() => send(ex)} disabled={sending || session?.isSolved}>
-                                            {ex}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                                {messages.map((msg, index) => {
-                                    const msgKey = msg._id || index;
-                                    return (
-                                        <div key={msgKey} className={`chat-row ${msg.role === 'user' ? 'chat-row-user' : ''}`}>
-                                            <div className={`chat-avatar ${msg.role === 'user' ? '' : 'chat-avatar-ai'}`}>
-                                                {msg.role === 'user' ? <User size={20} color="var(--text-secondary)" /> : <Scale size={20} color="var(--accent-gold)" />}
-                                            </div>
-                                            <div className="chat-bubble-wrap">
-                                                <div className="glass-card" style={{
-                                                    padding: '1.25rem 1.5rem',
-                                                    backgroundColor: msg.role === 'user' ? 'rgba(59, 130, 246, 0.1)' : 'var(--bg-panel)',
-                                                    borderTopRightRadius: msg.role === 'user' ? '4px' : 'var(--radius-lg)',
-                                                    borderTopLeftRadius: msg.role === 'assistant' ? '4px' : 'var(--radius-lg)',
-                                                }}>
-                                                    <div
-                                                        className={msg.role === 'user' ? 'msg-user-text' : 'msg-ai-text'}
-                                                        onClick={msg.role === 'assistant' ? (e) => handleAnswerClick(e, msgKey) : undefined}
-                                                        dangerouslySetInnerHTML={{
-                                                            __html: msg.role === 'user' ? formatUserMessage(msg.content) : formatAssistantMessage(msg.content)
-                                                        }}
-                                                    />
-                                                </div>
-                                                {msg.role === 'assistant' && (
-                                                    <AnswerExtras msg={msg} msgKey={msgKey} openSource={openSource} setOpenSource={setOpenSource}
-                                                        onFollowUp={send} onFeedback={handleFeedback} isLast={index === lastAssistantIndex}
-                                                        busy={sending || session?.isSolved} />
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-
-                                {/* The answer being streamed */}
-                                {streaming && (
-                                    <div className="chat-row">
-                                        <div className="chat-avatar chat-avatar-ai">
-                                            <Scale size={20} color="var(--accent-gold)" />
-                                        </div>
+                    ) : (
+                        <div className="chat-thread">
+                            {messages.map((msg, index) => {
+                                const msgKey = msg._id || index;
+                                const isUser = msg.role === 'user';
+                                return (
+                                    <div key={msgKey} className={`chat-row ${isUser ? 'chat-row-user' : ''}`}>
+                                        {!isUser && <div className="chat-avatar chat-avatar-ai"><Logo size={34} withText={false} /></div>}
                                         <div className="chat-bubble-wrap">
-                                            <div className="glass-card" style={{ padding: '1.25rem 1.5rem', borderTopLeftRadius: '4px', backgroundColor: 'var(--bg-panel)' }}>
-                                                {streaming.text ? (
-                                                    <div className="msg-ai-text streaming"
-                                                        onClick={(e) => handleAnswerClick(e, 'streaming')}
-                                                        dangerouslySetInnerHTML={{ __html: formatAssistantMessage(streaming.text) }} />
-                                                ) : (
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                                        <Loader2 size={18} color="var(--accent-primary)" className="animate-spin" />
-                                                        <span style={{ color: 'var(--accent-primary)', fontSize: '0.875rem', fontWeight: 500 }} className="animate-pulse">
-                                                            {streaming.sources.length
-                                                                ? `Found ${streaming.sources.length} relevant sections, writing the answer…`
-                                                                : 'Searching the Acts…'}
-                                                        </span>
-                                                    </div>
-                                                )}
+                                            <div className={`bubble ${isUser ? 'bubble-user' : 'bubble-ai'}`}>
+                                                <div
+                                                    className={isUser ? 'msg-user-text' : 'msg-ai-text'}
+                                                    onClick={!isUser ? (e) => handleAnswerClick(e, msgKey) : undefined}
+                                                    dangerouslySetInnerHTML={{
+                                                        __html: isUser ? formatUserMessage(msg.content) : formatAssistantMessage(msg.content)
+                                                    }}
+                                                />
                                             </div>
-                                            {streaming.sources.length > 0 && (
-                                                <AnswerExtras msg={{ sources: streaming.sources, grounded: streaming.grounded }} msgKey="streaming"
-                                                    openSource={openSource} setOpenSource={setOpenSource} onFollowUp={send}
-                                                    onFeedback={() => {}} isLast={false} busy live />
+                                            {!isUser && (
+                                                <AnswerExtras msg={msg} msgKey={msgKey} openSource={openSource} setOpenSource={setOpenSource}
+                                                    onFollowUp={send} onFeedback={handleFeedback} isLast={index === lastAssistantIndex}
+                                                    busy={sending || solved}
+                                                    allowFeedback={!guest && !String(msg._id || '').startsWith('temp')} />
                                             )}
                                         </div>
                                     </div>
-                                )}
-                                <div ref={messagesEndRef} />
-                            </div>
-                        )}
-                    </div>
-                </div>
+                                );
+                            })}
 
-                {/* Input Area */}
-                <div className="chat-footer" style={{ padding: '1.25rem 2rem', borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)' }}>
-                    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-                        {error && <div className="chat-error" role="alert">{error}</div>}
-                        <form onSubmit={handleSubmit} style={{ position: 'relative' }}>
-                            <input
-                                type="text"
-                                value={query}
-                                maxLength={2000}
-                                onChange={(e) => setQuery(e.target.value)}
-                                placeholder={session?.isSolved ? 'This session is marked as solved. Reopen it to continue.' : 'Ask a legal question, in any Indian language…'}
-                                disabled={sending || session?.isSolved}
-                                aria-label="Your question"
-                                className="chat-input"
-                            />
-                            <button
-                                type="submit"
-                                aria-label="Send"
-                                disabled={!query.trim() || sending || session?.isSolved}
-                                className={`chat-send${query.trim() && !sending && !session?.isSolved ? ' chat-send-ready' : ''}`}
-                            >
-                                {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} style={{ marginLeft: '2px' }} />}
-                            </button>
-                        </form>
-                        <div className="chat-footer-row">
-                            <label className="lang-picker">
-                                <Languages size={14} />
-                                <span className="mobile-hide">Answer in</span>
-                                <select value={language} onChange={(e) => setLanguage(e.target.value)} aria-label="Answer language">
-                                    {LANGUAGES.map(([code, name]) => <option key={code} value={code}>{name}</option>)}
-                                </select>
-                            </label>
-                            <span>Can make mistakes. Check the cited sections before relying on them.</span>
+                            {streaming && (
+                                <div className="chat-row">
+                                    <div className="chat-avatar chat-avatar-ai"><Logo size={34} withText={false} /></div>
+                                    <div className="chat-bubble-wrap">
+                                        <div className="bubble bubble-ai">
+                                            {streaming.text ? (
+                                                <div className="msg-ai-text streaming"
+                                                    onClick={(e) => handleAnswerClick(e, 'streaming')}
+                                                    dangerouslySetInnerHTML={{ __html: formatAssistantMessage(streaming.text) }} />
+                                            ) : (
+                                                <div className="thinking">
+                                                    <span className="thinking-dots"><span /><span /><span /></span>
+                                                    {streaming.sources.length
+                                                        ? `Found ${streaming.sources.length} relevant sections, writing the answer…`
+                                                        : 'Searching the Acts…'}
+                                                </div>
+                                            )}
+                                        </div>
+                                        {streaming.sources.length > 0 && (
+                                            <AnswerExtras msg={{ sources: streaming.sources, grounded: streaming.grounded }} msgKey="streaming"
+                                                openSource={openSource} setOpenSource={setOpenSource} onFollowUp={send}
+                                                onFeedback={() => {}} isLast={false} busy live />
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                            <div ref={messagesEndRef} />
                         </div>
+                    )}
+                </div>
+            </div>
+
+            <footer className="chat-composer">
+                <div className="chat-column">
+                    {error && (
+                        <div className="chat-error" role="alert">
+                            {error}
+                            {guest && /account/i.test(error) && <> <Link to="/signup">Create a free account</Link></>}
+                        </div>
+                    )}
+                    <form onSubmit={handleSubmit} className={`composer ${solved ? 'composer-disabled' : ''}`}>
+                        <textarea
+                            ref={inputRef}
+                            rows={1}
+                            value={query}
+                            maxLength={2000}
+                            onChange={(e) => setQuery(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            placeholder={solved ? 'This conversation is marked as solved. Reopen it to continue.' : 'Ask a legal question, in any Indian language…'}
+                            disabled={solved}
+                            aria-label="Your question"
+                        />
+                        {sending ? (
+                            <button type="button" className="composer-btn composer-stop" onClick={() => abortRef.current?.abort()}
+                                aria-label="Stop generating" title="Stop">
+                                <Square size={14} fill="currentColor" />
+                            </button>
+                        ) : (
+                            <button type="submit" className={`composer-btn ${query.trim() && !solved ? 'ready' : ''}`}
+                                disabled={!query.trim() || solved} aria-label="Send">
+                                <ArrowUp size={18} />
+                            </button>
+                        )}
+                    </form>
+                    <div className="chat-footer-row">
+                        <label className="lang-picker">
+                            <Languages size={14} />
+                            <span className="mobile-hide">Answer in</span>
+                            <select value={language} onChange={(e) => setLanguage(e.target.value)} aria-label="Answer language">
+                                {LANGUAGES.map(([code, name]) => <option key={code} value={code}>{name}</option>)}
+                            </select>
+                        </label>
+                        <span>General information from Indian Acts, not legal advice. Check the cited sections.</span>
                     </div>
                 </div>
-
-            </div>
+            </footer>
         </div>
     );
 }

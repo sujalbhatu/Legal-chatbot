@@ -1,296 +1,332 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Scale, BookOpen, Shield, MessageSquare, ArrowRight, Lock, Search, Sun, Moon } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import {
+    ArrowRight, BookOpen, Languages, MessageSquareQuote, SearchCheck, ShieldCheck, Sparkles, Sun, Moon,
+    ChevronDown, Zap, FileSearch, Scale, CornerDownLeft, UserRound, Lock
+} from 'lucide-react';
 import { authService } from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
+import { Logo, TopicIcon } from '../components/Brand';
+import { TOPICS, LANGUAGE_SAMPLES, STATS, FAQ } from '../data/content';
 
-/* ── Scroll-reveal hook ─────────────────────────────── */
-function useReveal() {
+/* Reveal sections as they scroll into view; content is visible anyway if the
+   observer never fires (old browsers, screenshots, reduced motion). */
+function Reveal({ children, className = '', delay = 0, as: Tag = 'div' }) {
     const ref = useRef(null);
     useEffect(() => {
         const el = ref.current;
         if (!el) return;
-        const observer = new IntersectionObserver(
-            ([entry]) => { if (entry.isIntersecting) { el.classList.add('visible'); observer.unobserve(el); } },
-            { threshold: 0.12 }
-        );
+        if (!('IntersectionObserver' in window)) { el.classList.add('visible'); return; }
+        const observer = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) { el.classList.add('visible'); observer.disconnect(); }
+        }, { threshold: 0.1 });
         observer.observe(el);
-        return () => observer.disconnect();
+        const fallback = setTimeout(() => el.classList.add('visible'), 1500);
+        return () => { observer.disconnect(); clearTimeout(fallback); };
     }, []);
-    return ref;
-}
-function Reveal({ children, className = '', delay = 0 }) {
-    const ref = useReveal();
-    const d = delay ? `reveal-d${delay}` : '';
-    return <div ref={ref} className={`reveal ${d} ${className}`}>{children}</div>;
+    return <Tag ref={ref} className={`reveal ${delay ? `reveal-d${delay}` : ''} ${className}`}>{children}</Tag>;
 }
 
-/* ── Chat mockup component ──────────────────────────── */
-function ChatMockup() {
+/* The product, as it really answers: cited facts, clickable sources, follow-ups */
+function AnswerPreview() {
     return (
-        <div className="l-mockup">
-            <div className="l-mockup-bar">
-                <div className="l-mockup-dot" />
-                <div className="l-mockup-dot" />
-                <div className="l-mockup-dot" />
-                <span style={{ marginLeft: '10px', fontSize: '0.72rem', color: 'var(--l-text-muted)', fontWeight: 500 }}>
-                    Legal Query — Aadhaar Act
-                </span>
+        <div className="lp-preview" aria-label="Example answer">
+            <div className="lp-preview-bar">
+                <span className="lp-dot" /><span className="lp-dot" /><span className="lp-dot" />
+                <span className="lp-preview-title">OpenForge</span>
             </div>
-            <div className="l-mockup-body">
-                <div className="l-msg l-msg-user">
-                    <div className="l-avatar">S</div>
-                    <div className="l-bubble">What is the penalty for impersonation under the Aadhaar Act?</div>
+            <div className="lp-preview-body">
+                <div className="lp-q">Someone snatched my phone from my hand. What is the punishment?</div>
+                <div className="lp-a">
+                    <div className="lp-a-head">Short answer</div>
+                    <p>This is <strong>snatching</strong>, an offence under the Bharatiya Nyaya Sanhita, punishable with
+                        imprisonment of up to <strong>three years</strong> and a fine <span className="cite-chip cite-chip-static">1</span>.</p>
+                    <div className="lp-a-head">What you can do next</div>
+                    <ul>
+                        <li>File an FIR at the nearest police station</li>
+                        <li>Share the phone&apos;s IMEI number with the police</li>
+                    </ul>
                 </div>
-                <div className="l-msg l-msg-ai">
-                    <div className="l-avatar"><Scale size={13} /></div>
-                    <div className="l-bubble">
-                        Under the Aadhaar Act, 2016, impersonation is addressed in <strong>Section 35</strong>.<br /><br />
-                        Whoever impersonates another person by providing false demographic or biometric information shall be punishable with <strong>imprisonment up to three years</strong> or a <strong>fine up to ₹10,000</strong>, or both.
-                    </div>
+                <div className="lp-source">
+                    <span className="lp-source-n">1</span>
+                    <span className="lp-source-text">
+                        <strong>Bharatiya Nyaya Sanhita, 2023</strong>
+                        <span>Section 304: Snatching</span>
+                    </span>
+                    <span className="badge badge-success">Cited</span>
                 </div>
-                <div className="l-source-tag">
-                    <BookOpen size={12} color="var(--l-gold)" />
-                    <span><strong style={{ color: 'var(--l-text-secondary)' }}>Source:</strong> Aadhaar Act, 2016 — Section 35 · 98% match</span>
+                <div className="lp-chips">
+                    <span className="lp-chip"><Sparkles size={12} /> Is snatching a bailable offence?</span>
+                    <span className="lp-chip"><Sparkles size={12} /> How do I file an e-FIR?</span>
                 </div>
             </div>
         </div>
     );
 }
 
-/* ── Feature visuals ────────────────────────────────── */
-function CitationVisual() {
-    const sources = [
-        { act: 'Aadhaar Act, 2016', section: 'Section 35', title: 'Penalty for impersonation', match: '98%' },
-        { act: 'Aadhaar Act, 2016', section: 'Section 40', title: 'Penalty for unauthorised access', match: '87%' },
-        { act: 'Aadhaar Act, 2016', section: 'Section 37', title: 'Penalty for tampering with data', match: '72%' },
-    ];
-    return (
-        <div className="l-mockup" style={{ fontSize: '0.82rem' }}>
-            <div className="l-mockup-bar">
-                <div className="l-mockup-dot" /><div className="l-mockup-dot" /><div className="l-mockup-dot" />
-                <span style={{ marginLeft: '10px', fontSize: '0.68rem', color: 'var(--l-text-muted)' }}>Response — Sources</span>
-            </div>
-            <div style={{ padding: '1.15rem' }}>
-                <div style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--l-text-muted)', marginBottom: '0.6rem', fontWeight: 600 }}>Cited Sources</div>
-                {sources.map((s, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0.6rem 0', borderTop: i ? `1px solid var(--l-border-light)` : 'none' }}>
-                        <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: 'var(--l-gold-light)', color: 'var(--l-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 700, flexShrink: 0 }}>{i + 1}</div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ color: 'var(--l-text)', fontWeight: 500, fontSize: '0.8rem' }}>{s.act}</div>
-                            <div style={{ color: 'var(--l-text-muted)', fontSize: '0.7rem' }}>{s.section}: {s.title}</div>
-                        </div>
-                        <div style={{ fontSize: '0.68rem', color: 'var(--l-accent)', fontWeight: 600, flexShrink: 0 }}>{s.match}</div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-}
+const STEPS = [
+    { icon: MessageSquareQuote, title: 'Ask in your own words', text: 'Describe your situation in plain English or your own language. No legal jargon needed.' },
+    { icon: FileSearch, title: 'We find the exact sections', text: 'Hybrid search reads across 123 Acts and picks the sections that actually apply to you.' },
+    { icon: BookOpen, title: 'Get a cited answer', text: 'A short answer, what the law says, and your next steps, with every fact linked to its section.' },
+];
 
-function QueriesVisual() {
-    const queries = [
-        'What happens if someone misuses my Aadhaar?',
-        'Can biometric data be shared with private companies?',
-        'How is the UIDAI constituted?',
-    ];
-    return (
-        <div className="l-mockup">
-            <div style={{ padding: '1.25rem' }}>
-                <div style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--l-text-muted)', marginBottom: '0.7rem', fontWeight: 600 }}>Example queries</div>
-                {queries.map((q, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0.6rem 0.7rem', background: i === 0 ? 'var(--l-accent-light)' : 'transparent', borderRadius: '8px', marginBottom: '0.2rem', border: i === 0 ? '1px solid rgba(30,58,95,0.1)' : '1px solid transparent' }}>
-                        <MessageSquare size={14} color={i === 0 ? 'var(--l-accent)' : 'var(--l-text-muted)'} />
-                        <span style={{ color: i === 0 ? 'var(--l-text)' : 'var(--l-text-secondary)', fontSize: '0.8rem' }}>{q}</span>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-}
+const FEATURES = [
+    { icon: BookOpen, title: 'Sources you can open', text: 'Tap any [1] in an answer to read the exact section it came from.' },
+    { icon: SearchCheck, title: 'Honest when unsure', text: 'If the Acts don\'t cover your question, it says so instead of making something up.' },
+    { icon: Languages, title: '14 languages', text: 'Hindi, Bengali, Marathi, Tamil, Odia, Assamese, Santali and more, auto-detected.' },
+    { icon: Zap, title: 'Answers stream in', text: 'The first words appear in under 2.5 seconds, so you are never left staring at a spinner.' },
+    { icon: Sparkles, title: 'Remembers the conversation', text: 'Ask follow-ups like "and if he is a minor?" and it keeps the context of your case.' },
+    { icon: ShieldCheck, title: 'Private and secure', text: 'Verified accounts and conversations only you can see. Guest questions are not stored.' },
+];
 
-function SecurityVisual() {
-    const items = ['OTP email verification', 'Bcrypt password hashing (salt 12)', 'JWT session tokens', 'Isolated user data'];
-    return (
-        <div className="l-mockup">
-            <div style={{ padding: '1.25rem' }}>
-                <div style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--l-text-muted)', marginBottom: '0.7rem', fontWeight: 600 }}>Security Layers</div>
-                {items.map((item, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0.55rem 0', borderTop: i ? '1px solid var(--l-border-light)' : 'none' }}>
-                        <div style={{ width: '20px', height: '20px', borderRadius: '5px', background: 'rgba(22,163,74,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <Lock size={11} color="#16a34a" />
-                        </div>
-                        <span style={{ color: 'var(--l-text-secondary)', fontSize: '0.8rem' }}>{item}</span>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-}
-
-/* ════════════════════════════════════════════════════════
-   Main Landing Component
-   ════════════════════════════════════════════════════════ */
 export default function Landing() {
     const navigate = useNavigate();
+    const { theme, toggleTheme } = useTheme();
     const isAuth = authService.isAuthenticated();
     const [scrolled, setScrolled] = useState(false);
-    const { theme, toggleTheme } = useTheme();
+    const [question, setQuestion] = useState('');
+    const [topic, setTopic] = useState(TOPICS[0].key);
+    const [openFaq, setOpenFaq] = useState(0);
 
     useEffect(() => {
-        const fn = () => setScrolled(window.scrollY > 40);
-        window.addEventListener('scroll', fn, { passive: true });
-        return () => window.removeEventListener('scroll', fn);
+        const onScroll = () => setScrolled(window.scrollY > 24);
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
     }, []);
 
-    const go = useCallback((p) => () => navigate(p), [navigate]);
+    // Signed-in users ask from their dashboard (saved); visitors use guest mode
+    const ask = (q) => {
+        const text = (q ?? question).trim();
+        const target = isAuth ? '/dashboard' : '/try';
+        navigate(text ? `${target}?ask=${encodeURIComponent(text)}` : target);
+    };
+    const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    const activeTopic = TOPICS.find(t => t.key === topic) || TOPICS[0];
 
     return (
-        <div className="landing">
-
-            {/* ── Nav ────────────────────────────────── */}
-            <nav className={`l-nav ${scrolled ? 'scrolled' : ''}`}>
-                <div className="l-nav-inner">
-                    <div className="l-logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                        <Scale size={20} color="var(--l-accent)" />
-                        <span>OpenForge</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        <button className="l-btn l-btn-ghost" onClick={toggleTheme} style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="lp">
+            {/* ── Navigation ─────────────────────────────── */}
+            <header className={`lp-nav ${scrolled ? 'lp-nav-scrolled' : ''}`}>
+                <div className="lp-container lp-nav-inner">
+                    <Logo size={32} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
+                    <nav className="lp-nav-links" aria-label="Sections">
+                        <button type="button" onClick={() => scrollTo('how')}>How it works</button>
+                        <button type="button" onClick={() => scrollTo('topics')}>What you can ask</button>
+                        <button type="button" onClick={() => scrollTo('faq')}>FAQ</button>
+                    </nav>
+                    <div className="lp-nav-actions">
+                        <button type="button" className="btn-icon" onClick={toggleTheme} aria-label="Toggle theme">
                             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                         </button>
-                        {!isAuth && <button className="l-btn l-btn-ghost" onClick={go('/login')}>Sign In</button>}
-                        <button className="l-btn l-btn-primary" onClick={go(isAuth ? '/dashboard' : '/signup')}>
-                            {isAuth ? 'Dashboard' : 'Get Started'}
-                        </button>
+                        {isAuth ? (
+                            <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate('/dashboard')}>
+                                Dashboard <ArrowRight size={15} />
+                            </button>
+                        ) : (
+                            <>
+                                <Link to="/login" className="lp-signin">Sign in</Link>
+                                <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate('/try')}>
+                                    Try free <ArrowRight size={15} />
+                                </button>
+                            </>
+                        )}
                     </div>
                 </div>
-            </nav>
+            </header>
 
-            {/* ── Hero ───────────────────────────────── */}
-            <section className="l-hero">
-                <div className="l-section">
-                    <div className="l-hero-grid">
-                        <div className="l-hero-text">
-                            <Reveal>
-                                <div className="l-hero-tag">
-                                    <Scale size={12} /> Legal Research Tool
-                                </div>
-                            </Reveal>
-                            <Reveal delay={1}>
-                                <h1>Ask a question.<br />Get the exact statute.</h1>
-                            </Reveal>
-                            <Reveal delay={2}>
-                                <p>Query Indian statutory laws in plain language. Receive answers backed by precise section citations — not guesswork.</p>
-                            </Reveal>
-                            <Reveal delay={3}>
-                                <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-                                    <button className="l-btn l-btn-primary l-btn-lg" onClick={go(isAuth ? '/dashboard' : '/signup')}>
-                                        Start for free <ArrowRight size={15} />
-                                    </button>
-                                    <button className="l-btn l-btn-secondary l-btn-lg" onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}>
-                                        See it in action
-                                    </button>
-                                </div>
-                            </Reveal>
+            {/* ── Hero ───────────────────────────────────── */}
+            <section className="lp-hero">
+                <div className="lp-container lp-hero-grid">
+                    <div className="lp-hero-text">
+                        <span className="lp-eyebrow"><Scale size={13} /> Indian law · 123 Acts · 14 languages</span>
+                        <h1><span className="lp-nowrap">Understand Indian law</span><br /><span className="lp-accent">in plain language.</span></h1>
+                        <p className="lp-lead">
+                            Describe your situation and get a clear answer based on the actual text of Indian Acts,
+                            with the exact sections cited so you can check every word.
+                        </p>
+                        <form className="lp-ask" onSubmit={(e) => { e.preventDefault(); ask(); }}>
+                            <input
+                                value={question}
+                                onChange={(e) => setQuestion(e.target.value)}
+                                placeholder="e.g. My landlord won't return my deposit"
+                                aria-label="Your legal question"
+                                maxLength={2000}
+                            />
+                            <button type="submit" className="btn btn-primary">
+                                Ask <CornerDownLeft size={16} />
+                            </button>
+                        </form>
+                        <div className="lp-hero-meta">
+                            <span><Lock size={13} /> No sign-up needed</span>
+                            <span><BookOpen size={13} /> Every answer cites its sources</span>
                         </div>
-                        <div className="l-hero-visual">
-                            <Reveal delay={2}>
-                                <ChatMockup />
-                            </Reveal>
+                        <div className="lp-try-chips">
+                            {['What are my rights if I am arrested?', 'How do I file an RTI application?', 'Is a non-compete clause valid?'].map(q => (
+                                <button type="button" key={q} className="chip" onClick={() => ask(q)}>{q}</button>
+                            ))}
                         </div>
+                    </div>
+                    <div className="lp-hero-visual">
+                        <AnswerPreview />
                     </div>
                 </div>
             </section>
 
-            {/* ── Trust Bar ──────────────────────────── */}
-            <div className="l-section">
-                <Reveal>
-                    <div className="l-trust">
-                        <div className="l-trust-item"><div className="l-trust-val">50+</div><div className="l-trust-label">Indian Statutes</div></div>
-                        <div className="l-trust-item"><div className="l-trust-val">Exact</div><div className="l-trust-label">Section Citations</div></div>
-                        <div className="l-trust-item"><div className="l-trust-val">&lt; 3s</div><div className="l-trust-label">Response Time</div></div>
-                        <div className="l-trust-item"><div className="l-trust-val">Encrypted</div><div className="l-trust-label">End-to-End</div></div>
+            {/* ── Stats ──────────────────────────────────── */}
+            <section className="lp-container">
+                <Reveal className="lp-stats">
+                    {STATS.map(s => (
+                        <div className="lp-stat" key={s.label}>
+                            <div className="lp-stat-value">{s.value}</div>
+                            <div className="lp-stat-label">{s.label}</div>
+                        </div>
+                    ))}
+                </Reveal>
+            </section>
+
+            {/* ── How it works ───────────────────────────── */}
+            <section id="how" className="lp-section">
+                <div className="lp-container">
+                    <Reveal className="lp-heading">
+                        <span className="lp-kicker">How it works</span>
+                        <h2>From your question to the exact law, in seconds</h2>
+                    </Reveal>
+                    <div className="lp-steps">
+                        {STEPS.map(({ icon: Icon, title, text }, i) => (
+                            <Reveal key={title} delay={i + 1} className="lp-step">
+                                <span className="lp-step-num">{i + 1}</span>
+                                <span className="lp-step-icon"><Icon size={22} /></span>
+                                <h3>{title}</h3>
+                                <p>{text}</p>
+                            </Reveal>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ── Features ───────────────────────────────── */}
+            <section className="lp-section lp-section-alt">
+                <div className="lp-container">
+                    <Reveal className="lp-heading">
+                        <span className="lp-kicker">Why OpenForge</span>
+                        <h2>Built to be trusted, not just to sound confident</h2>
+                    </Reveal>
+                    <div className="lp-features">
+                        {FEATURES.map(({ icon: Icon, title, text }, i) => (
+                            <Reveal key={title} delay={(i % 3) + 1} className="lp-feature">
+                                <span className="lp-feature-icon"><Icon size={20} /></span>
+                                <h3>{title}</h3>
+                                <p>{text}</p>
+                            </Reveal>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ── Topics ─────────────────────────────────── */}
+            <section id="topics" className="lp-section">
+                <div className="lp-container">
+                    <Reveal className="lp-heading">
+                        <span className="lp-kicker">What you can ask</span>
+                        <h2>Everyday legal questions, answered from the law itself</h2>
+                    </Reveal>
+                    <Reveal className="lp-topics">
+                        <div className="lp-topic-tabs" role="tablist" aria-label="Topics">
+                            {TOPICS.map(t => (
+                                <button key={t.key} type="button" role="tab" aria-selected={topic === t.key}
+                                    className={`lp-topic-tab ${topic === t.key ? 'active' : ''}`} onClick={() => setTopic(t.key)}>
+                                    <TopicIcon name={t.icon} size={17} /> {t.label}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="lp-topic-panel" role="tabpanel">
+                            {activeTopic.questions.map(q => (
+                                <button key={q} type="button" className="lp-topic-q" onClick={() => ask(q)}>
+                                    <span>{q}</span>
+                                    <span className="lp-topic-go">Ask <ArrowRight size={14} /></span>
+                                </button>
+                            ))}
+                        </div>
+                    </Reveal>
+                </div>
+            </section>
+
+            {/* ── Languages ──────────────────────────────── */}
+            <section className="lp-section lp-section-alt">
+                <div className="lp-container">
+                    <Reveal className="lp-heading">
+                        <span className="lp-kicker">Your language</span>
+                        <h2>Ask in the language you think in</h2>
+                        <p>Language is detected automatically, or choose the answer language yourself.</p>
+                    </Reveal>
+                    <Reveal className="lp-langs">
+                        {LANGUAGE_SAMPLES.map(l => <span key={l} className="lp-lang">{l}</span>)}
+                    </Reveal>
+                </div>
+            </section>
+
+            {/* ── FAQ ────────────────────────────────────── */}
+            <section id="faq" className="lp-section">
+                <div className="lp-container lp-faq-wrap">
+                    <Reveal className="lp-heading lp-heading-left">
+                        <span className="lp-kicker">FAQ</span>
+                        <h2>Questions people ask first</h2>
+                        <p>Still unsure? Ask OpenForge directly. It is free to try.</p>
+                    </Reveal>
+                    <div className="lp-faq">
+                        {FAQ.map((item, i) => (
+                            <div key={item.q} className={`lp-faq-item ${openFaq === i ? 'open' : ''}`}>
+                                <button type="button" className="lp-faq-q" aria-expanded={openFaq === i}
+                                    onClick={() => setOpenFaq(openFaq === i ? -1 : i)}>
+                                    {item.q} <ChevronDown size={18} />
+                                </button>
+                                {openFaq === i && <p className="lp-faq-a">{item.a}</p>}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ── Final CTA ──────────────────────────────── */}
+            <section className="lp-container">
+                <Reveal className="lp-cta">
+                    <div>
+                        <h2>Have a legal question right now?</h2>
+                        <p>Ask it free, without signing up. Create an account to save your conversations.</p>
+                    </div>
+                    <div className="lp-cta-actions">
+                        <button type="button" className="btn lp-cta-primary" onClick={() => navigate(isAuth ? '/dashboard' : '/try')}>
+                            Ask a question <ArrowRight size={16} />
+                        </button>
+                        {!isAuth && (
+                            <button type="button" className="btn lp-cta-secondary" onClick={() => navigate('/signup')}>
+                                <UserRound size={16} /> Create free account
+                            </button>
+                        )}
                     </div>
                 </Reveal>
-            </div>
-
-            {/* ── Features ───────────────────────────── */}
-            <section style={{ padding: '4rem 0 2rem' }}>
-                <div className="l-section">
-                    <Reveal>
-                        <p style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--l-text-muted)', textAlign: 'center', marginBottom: '0.4rem', fontWeight: 600 }}>Features</p>
-                        <h2 style={{ textAlign: 'center', fontSize: '2rem', letterSpacing: '-0.02em', marginBottom: '3rem', fontWeight: 600 }}>
-                            Built for accuracy, not hype.
-                        </h2>
-                    </Reveal>
-
-                    {/* Feature 1 */}
-                    <Reveal>
-                        <div className="l-feature-row">
-                            <div className="l-feature-text">
-                                <div className="l-feature-icon" style={{ background: 'var(--l-accent-light)' }}>
-                                    <BookOpen size={20} color="var(--l-accent)" />
-                                </div>
-                                <h3>Every answer cites the source.</h3>
-                                <p>Responses include the precise Section number, full clause text, and a similarity score. You can verify every claim against the original statute in one click.</p>
-                            </div>
-                            <div className="l-feature-visual"><CitationVisual /></div>
-                        </div>
-                    </Reveal>
-
-                    {/* Feature 2 */}
-                    <Reveal>
-                        <div className="l-feature-row reverse">
-                            <div className="l-feature-text">
-                                <div className="l-feature-icon" style={{ background: 'var(--l-gold-light)' }}>
-                                    <Search size={20} color="var(--l-gold)" />
-                                </div>
-                                <h3>Ask in your own words.</h3>
-                                <p>No legal jargon required. Type your question naturally. The retrieval engine converts your intent into a semantic vector and finds the most relevant clauses across the full corpus.</p>
-                            </div>
-                            <div className="l-feature-visual"><QueriesVisual /></div>
-                        </div>
-                    </Reveal>
-
-                    {/* Feature 3 */}
-                    <Reveal>
-                        <div className="l-feature-row">
-                            <div className="l-feature-text">
-                                <div className="l-feature-icon" style={{ background: 'rgba(22,163,74,0.07)' }}>
-                                    <Shield size={20} color="#16a34a" />
-                                </div>
-                                <h3>Your data stays yours.</h3>
-                                <p>Email verified via OTP. Passwords hashed with bcrypt. Sessions isolated per user. Your research queries are never shared, sold, or used to train models.</p>
-                            </div>
-                            <div className="l-feature-visual"><SecurityVisual /></div>
-                        </div>
-                    </Reveal>
-                </div>
             </section>
 
-            {/* ── Demo CTA ───────────────────────────── */}
-            <section id="demo">
-                <div className="l-section">
-                    <Reveal>
-                        <div className="l-cta-section">
-                            <h2>See it for yourself.</h2>
-                            <p>Every answer traces back to the original legal text. No hallucinations. No guesswork.</p>
-                            <button className="l-btn l-btn-primary l-btn-lg" onClick={go(isAuth ? '/dashboard' : '/signup')}>
-                                Try it free <ArrowRight size={15} />
-                            </button>
-                        </div>
-                    </Reveal>
-                </div>
-            </section>
-
-            {/* ── Footer ─────────────────────────────── */}
-            <footer>
-                <div className="l-section">
-                    <div className="l-footer">
-                        <div className="l-footer-logo"><Scale size={16} /> OpenForge</div>
-                        <div className="l-footer-copy">&copy; {new Date().getFullYear()} OpenForge. All rights reserved.</div>
+            {/* ── Footer ─────────────────────────────────── */}
+            <footer className="lp-footer">
+                <div className="lp-container lp-footer-inner">
+                    <div className="lp-footer-brand">
+                        <Logo size={28} />
+                        <p>Indian law in plain language, with sources.</p>
                     </div>
+                    <nav className="lp-footer-links" aria-label="Footer">
+                        <Link to="/try">Ask as guest</Link>
+                        <Link to={isAuth ? '/dashboard' : '/signup'}>{isAuth ? 'Dashboard' : 'Create account'}</Link>
+                        {!isAuth && <Link to="/login">Sign in</Link>}
+                        <button type="button" onClick={() => scrollTo('faq')}>FAQ</button>
+                    </nav>
+                </div>
+                <div className="lp-container lp-footer-legal">
+                    <p>OpenForge provides general information about Indian law based on the text of Acts. It is not
+                        legal advice and does not create a lawyer-client relationship. For your specific situation,
+                        consult a qualified advocate.</p>
+                    <p>© {new Date().getFullYear()} OpenForge</p>
                 </div>
             </footer>
         </div>
