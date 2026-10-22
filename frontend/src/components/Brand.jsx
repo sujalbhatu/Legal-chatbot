@@ -20,3 +20,13 @@ export function TopicIcon({ name, size = 18 }) {
     const Icon = TOPIC_ICONS[name] || Scale;
     return <Icon size={size} />;
 }
+
+/** The ink surface's moving light and grain; place inside an element with class "ink". */
+export function InkBackdrop() {
+    return (
+        <>
+            <div className="ink-aurora" aria-hidden="true"><span /><span /><span /></div>
+            <div className="ink-grain" aria-hidden="true" />
+        </>
+    );
+}

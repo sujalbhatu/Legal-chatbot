@@ -8,7 +8,7 @@ import { chatService, authService } from '../services/api';
 import AppShell from '../components/AppShell';
 import ConfirmDialog from '../components/ConfirmDialog';
 import CommandPalette from '../components/CommandPalette';
-import { TopicIcon } from '../components/Brand';
+import { TopicIcon, InkBackdrop } from '../components/Brand';
 import { TOPICS, LANGUAGES, LIBRARY, LAW_AREAS } from '../data/content';
 import { actInfo, citationLabel, uniqueCitations } from '../utils/acts';
 
@@ -259,9 +259,8 @@ export default function Dashboard() {
         <AppShell sessions={sessions || undefined} onNewChat={() => focusComposer('')} newChatBusy={starting}>
             <div className="cd">
                 {/* ── The ask: one place to start ── */}
-                <section className="cd-hero">
-                    <div className="cd-aurora" aria-hidden="true"><span /><span /><span /></div>
-                    <div className="cd-grain" aria-hidden="true" />
+                <section className="cd-hero ink">
+                    <InkBackdrop />
                     <div className="cd-hero-inner">
                         <div className="cd-topline">
                             <span className="cd-date">{today}</span>

@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { authService } from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
-import { Logo, TopicIcon } from '../components/Brand';
+import { Logo, TopicIcon, InkBackdrop } from '../components/Brand';
 import { TOPICS, LANGUAGE_SAMPLES, STATS, FAQ } from '../data/content';
 
 /* Reveal sections as they scroll into view; content is visible anyway if the
@@ -136,7 +136,8 @@ export default function Landing() {
             </header>
 
             {/* ── Hero ───────────────────────────────────── */}
-            <section className="lp-hero">
+            <section className="lp-hero ink">
+                <InkBackdrop />
                 <div className="lp-container lp-hero-grid">
                     <div className="lp-hero-text">
                         <span className="lp-eyebrow"><Scale size={13} /> Indian law · 123 Acts · 14 languages</span>
@@ -290,7 +291,8 @@ export default function Landing() {
 
             {/* ── Final CTA ──────────────────────────────── */}
             <section className="lp-container">
-                <Reveal className="lp-cta">
+                <Reveal className="lp-cta ink">
+                    <InkBackdrop />
                     <div>
                         <h2>Have a legal question right now?</h2>
                         <p>Ask it free, without signing up. Create an account to save your conversations.</p>

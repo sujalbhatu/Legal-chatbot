@@ -194,9 +194,9 @@ export default function Chat({ guest = false }) {
         return () => { cancelled = true; abortRef.current?.abort(); };
     }, [id, guest, navigate]);
 
-    // Opening a conversation shows its end
+    // Opening a conversation shows its end (an empty one stays at its welcome)
     useLayoutEffect(() => {
-        if (!loading && scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        if (!loading && scrollRef.current && messages.length) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }, [loading]);
 
     // A new question moves to the top of the view and the answer is read from its start,
@@ -376,9 +376,9 @@ export default function Chat({ guest = false }) {
                     <div className="chat-topbar-title">
                         {guest ? (
                             <span className="badge badge-neutral guest-badge">
-                                <span className="mobile-hide">Guest mode{guestLeft !== null ? ' · ' : ''}</span>
-                                {guestLeft !== null ? `${guestLeft} left` : <span className="mobile-only">Guest</span>}
-                                <span className="mobile-hide">{guestLeft !== null ? ' today' : ''}</span>
+                                {/* one text node each: the badge is a flex box, which drops spaces between parts */}
+                                <span className="mobile-hide">{guestLeft !== null ? `Guest mode · ${guestLeft} left today` : 'Guest mode'}</span>
+                                <span className="mobile-only">{guestLeft !== null ? `${guestLeft} left` : 'Guest'}</span>
                             </span>
                         ) : (
                             <>
@@ -431,8 +431,11 @@ export default function Chat({ guest = false }) {
                             </p>
                             {guest && (
                                 <p className="chat-empty-note">
-                                    <Info size={14} /> Guest chats stay in this browser tab only.{' '}
-                                    {!isAuth && <><Link to="/signup">Create a free account</Link> to save them.</>}
+                                    <Info size={14} />
+                                    <span>
+                                        Guest chats stay in this browser tab only.{' '}
+                                        {!isAuth && <><Link to="/signup">Create a free account</Link> to save them.</>}
+                                    </span>
                                 </p>
                             )}
                             <div className="chat-empty-grid">
