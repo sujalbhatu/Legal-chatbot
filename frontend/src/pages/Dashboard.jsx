@@ -11,9 +11,9 @@ import CommandPalette from '../components/CommandPalette';
 import { TopicIcon } from '../components/Brand';
 import { TOPICS, LIBRARY } from '../data/content';
 import { actInfo, citationLabel, uniqueCitations } from '../utils/acts';
+import { plainPreview } from '../utils/preview';
 
 const FILTERS = [['all', 'All'], ['active', 'Active'], ['solved', 'Solved']];
-const PREVIEW_CHARS = 240;  // the sessions API sends at most this much of the last message
 
 function greeting() {
     const h = new Date().getHours();
@@ -21,18 +21,6 @@ function greeting() {
     if (h < 12) return 'Good morning';
     if (h < 17) return 'Good afternoon';
     return 'Good evening';
-}
-
-/** The last message as one plain line: the short answer itself, without greeting, markdown or [n]. */
-function plainPreview(text) {
-    const t = text || '';
-    const short = t.search(/\*\*Short answer\*\*/i);
-    const plain = (short >= 0 ? t.slice(short).replace(/^\*\*Short answer\*\*/i, '') : t)
-        .replace(/\[(\d+)\]/g, '')
-        .replace(/[*_`#>]+/g, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-    return t.length >= PREVIEW_CHARS ? `${plain.replace(/\s+\S*$/, '')}…` : plain;
 }
 
 function timeAgo(dateString) {

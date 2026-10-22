@@ -42,7 +42,7 @@ api.interceptors.response.use(
 );
 
 /** POST `body` and read the Server-Sent Events answer stream (meta, token, done, error). */
-async function streamSSE(url, body, handlers, signal, withAuth) {
+export async function streamSSE(url, body, handlers, signal, withAuth) {
     const token = withAuth ? localStorage.getItem('legal_token') : null;
     const response = await fetch(url, {
         method: 'POST',

@@ -197,6 +197,7 @@ export default function Chat({ guest = false }) {
     // Opening a conversation shows its end (an empty one stays at its welcome)
     useLayoutEffect(() => {
         if (!loading && scrollRef.current && messages.length) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- once when loading ends; new messages scroll their question to the top instead
     }, [loading]);
 
     // A new question moves to the top of the view and the answer is read from its start,
