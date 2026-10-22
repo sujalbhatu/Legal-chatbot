@@ -98,3 +98,15 @@ export const FAQ = [
         a: 'Passwords are hashed, accounts are verified by email, and each conversation is visible only to you. Guest questions are not stored on our servers.',
     },
 ];
+
+// Key Acts in the index, for the dashboard's library panel (all of these are searchable)
+export const LIBRARY = [
+    { short: 'BNS', name: 'Bharatiya Nyaya Sanhita, 2023', scope: 'Offences and punishments (replaced the IPC)' },
+    { short: 'BNSS', name: 'Bharatiya Nagarik Suraksha Sanhita, 2023', scope: 'FIR, arrest, bail and trial (replaced the CrPC)' },
+    { short: 'BSA', name: 'Bharatiya Sakshya Adhiniyam, 2023', scope: 'Evidence, including electronic records' },
+    { short: 'CoI', name: 'Constitution of India', scope: 'Fundamental rights and duties' },
+    { short: 'ICA', name: 'Indian Contract Act, 1872', scope: 'Agreements, breach and compensation' },
+    { short: 'TPA', name: 'Transfer of Property Act, 1882', scope: 'Sale, lease, gift and mortgage' },
+    { short: 'ITA', name: 'Information Technology Act, 2000', scope: 'Hacking, identity theft and online fraud' },
+    { short: 'RTI', name: 'Right to Information Act, 2005', scope: 'Getting information from public bodies' },
+];

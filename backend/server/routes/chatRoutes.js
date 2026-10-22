@@ -37,7 +37,7 @@ router.get('/sessions', async (req, res) => {
                     messageCount: { $size: '$messages' },
                     lastMessage: {
                         $substrCP: [
-                            { $ifNull: [{ $arrayElemAt: ['$messages.content', -1] }, ''] }, 0, 100
+                            { $ifNull: [{ $arrayElemAt: ['$messages.content', -1] }, ''] }, 0, 240
                         ]
                     }
                 }

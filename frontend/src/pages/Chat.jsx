@@ -73,15 +73,15 @@ function CopyButton({ text }) {
 // (The reranker's score is kept in the data but not shown: it ranks well, yet gives
 // correct sections for plain-language questions absolute scores near 0, so a
 // "Low relevance" label would mislead.)
-const AnswerExtras = ({ msg, msgKey, openSource, setOpenSource, onFollowUp, onFeedback, isLast, busy, live, allowFeedback }) => {
+const AnswerExtras = ({ msg, msgKey, openSource, setOpenSource, onFollowUp, onFeedback, isLast, busy, allowFeedback }) => {
     const [showAll, setShowAll] = useState(false);
     const numbered = (msg.sources || []).map((source, i) => ({ source, n: source.n || i + 1 }));
     const cited = numbered.filter(x => x.source.cited);
     // A saved answer that cites nothing (small talk, "not found") shows no source list
-    const all = live || cited.length ? numbered : [];
+    const all = cited.length ? numbered : [];
     const openN = openSource?.msgKey === msgKey ? openSource.n : null;
     // Cited sections first; the others only on request (or when a [n] chip opened one)
-    const shown = live || showAll ? all : all.filter(x => x.source.cited || x.n === openN);
+    const shown = showAll ? all : all.filter(x => x.source.cited || x.n === openN);
     const hidden = all.length - shown.length;
     const open = all.find(x => x.n === openN);
     const toggle = (n) => setOpenSource(prev => (prev?.msgKey === msgKey && prev?.n === n ? null : { msgKey, n }));
@@ -100,14 +100,14 @@ const AnswerExtras = ({ msg, msgKey, openSource, setOpenSource, onFollowUp, onFe
                 <div className="src-block">
                     <div className="src-label">
                         <BookOpen size={14} />
-                        {live ? `Reading ${all.length} sections` : `Sources · ${cited.length} cited`}
+                        Sources · {cited.length} cited
                     </div>
                     <div className="src-chips">
                         {shown.map(({ source, n }) => (
                             <SourceChip key={n} source={source} n={n} anchorId={`src-${msgKey}-${n}`}
                                 open={openN === n} onToggle={() => toggle(n)} />
                         ))}
-                        {!live && (hidden > 0 || showAll) && all.length > cited.length && (
+                        {(hidden > 0 || showAll) && all.length > cited.length && (
                             <button type="button" className="src-more" onClick={() => setShowAll(v => !v)}>
                                 {showAll ? 'Show cited only' : `+${hidden} more searched`}
                             </button>
@@ -127,25 +127,23 @@ const AnswerExtras = ({ msg, msgKey, openSource, setOpenSource, onFollowUp, onFe
                 </div>
             )}
 
-            {!live && (
-                <div className="feedback-row">
-                    <CopyButton text={msg.content || ''} />
-                    {allowFeedback && (
-                        <>
-                            <span className="feedback-sep" />
-                            <span>Helpful?</span>
-                            <button type="button" className={`btn-icon feedback-btn${msg.feedback?.rating === 'up' ? ' active' : ''}`}
-                                aria-label="Helpful" onClick={() => onFeedback(msg, 'up')}>
-                                <ThumbsUp size={15} />
-                            </button>
-                            <button type="button" className={`btn-icon feedback-btn${msg.feedback?.rating === 'down' ? ' active' : ''}`}
-                                aria-label="Not helpful" onClick={() => onFeedback(msg, 'down')}>
-                                <ThumbsDown size={15} />
-                            </button>
-                        </>
-                    )}
-                </div>
-            )}
+            <div className="feedback-row">
+                <CopyButton text={msg.content || ''} />
+                {allowFeedback && (
+                    <>
+                        <span className="feedback-sep" />
+                        <span>Helpful?</span>
+                        <button type="button" className={`btn-icon feedback-btn${msg.feedback?.rating === 'up' ? ' active' : ''}`}
+                            aria-label="Helpful" onClick={() => onFeedback(msg, 'up')}>
+                            <ThumbsUp size={15} />
+                        </button>
+                        <button type="button" className={`btn-icon feedback-btn${msg.feedback?.rating === 'down' ? ' active' : ''}`}
+                            aria-label="Not helpful" onClick={() => onFeedback(msg, 'down')}>
+                            <ThumbsDown size={15} />
+                        </button>
+                    </>
+                )}
+            </div>
         </>
     );
 };
@@ -483,7 +481,6 @@ export default function Chat({ guest = false }) {
                                         <div className="bubble bubble-ai">
                                             {streaming.text ? (
                                                 <div className="msg-ai-text streaming"
-                                                    onClick={(e) => handleAnswerClick(e, 'streaming')}
                                                     dangerouslySetInnerHTML={{ __html: formatAssistantMessage(streaming.text) }} />
                                             ) : (
                                                 <div className="thinking">
@@ -494,11 +491,6 @@ export default function Chat({ guest = false }) {
                                                 </div>
                                             )}
                                         </div>
-                                        {streaming.sources.length > 0 && (
-                                            <AnswerExtras msg={{ sources: streaming.sources, grounded: streaming.grounded }} msgKey="streaming"
-                                                openSource={openSource} setOpenSource={setOpenSource} onFollowUp={send}
-                                                onFeedback={() => {}} isLast={false} busy live />
-                                        )}
                                     </div>
                                 </div>
                             )}
