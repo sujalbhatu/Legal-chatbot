@@ -36,6 +36,57 @@ def extract_text_from_pdf(pdf_path: str) -> str:
     return text
 
 
+SECTION_START_RE = re.compile(r'^(\d{1,3}[A-Z]{0,3})\s?\.\s?(?=[(“"A-Z])')
+MIN_MARGIN_TITLES = 10   # fewer matches than this: the Act does not use margin notes
+
+
+def margin_titles_from_pdf(pdf_path: str) -> dict:
+    """
+    Section titles of Acts printed with margin notes (the 2023 Gazette codes BNS, BNSS
+    and BSA), read from the PDF layout: a note is a narrow block in the outer margin
+    whose top lines up with the first line of its section ("138." at y=111.3, note at
+    y=111.9). Plain text extraction glues the notes into the body, often without spaces
+    ("Power toreleasepersonsimprisoned"), so most BNSS titles were lost.
+    Returns {section number: title}; {} when PyMuPDF is missing or the Act has no notes.
+    """
+    try:
+        import fitz   # PyMuPDF
+    except ImportError:
+        return {}
+    titles = {}
+    with fitz.open(pdf_path) as doc:
+        for page in doc:
+            width = page.rect.width
+            starts, notes = [], []
+            for x0, y0, x1, _y1, text, *_ in page.get_text("blocks"):
+                text = " ".join(text.split())
+                if not text or y0 < 70:              # running header
+                    continue
+                if x1 < width * 0.2 or x0 > width * 0.8:
+                    notes.append((y0, text))
+                else:
+                    m = SECTION_START_RE.match(text)
+                    if m:
+                        starts.append((y0, m.group(1)))
+            for y, note in notes:
+                near = [num for sy, num in starts if abs(sy - y) <= 4]
+                if len(near) == 1 and len(note) <= 160:
+                    titles.setdefault(near[0], note if note.endswith('etc.') else note.rstrip(' .'))
+    return titles if len(titles) >= MIN_MARGIN_TITLES else {}
+
+
+def titles_path(stem: str) -> Path:
+    return EXTRACTED_TEXT_DIR / f"{stem}.titles.json"
+
+
+def save_margin_titles(pdf_path: Path) -> int:
+    """Write <stem>.titles.json next to the extracted text when the PDF has margin notes."""
+    titles = margin_titles_from_pdf(str(pdf_path))
+    if titles:
+        titles_path(pdf_path.stem).write_text(json.dumps(titles, ensure_ascii=False, indent=0), encoding="utf-8")
+    return len(titles)
+
+
 # Mapping from filename stems to proper act names (for special cases)
 FILENAME_TO_ACT = {
     "engaadhaar": ("Aadhaar Act", "2016"),
@@ -185,14 +236,17 @@ def chunk_id(meta: dict, index: int) -> str:
     return f"{stem}::x{index}"
 
 
-def chunk_legal_text(text: str, source_file: str, act_name: str, year: str) -> list:
+def chunk_legal_text(text: str, source_file: str, act_name: str, year: str, titles: dict = None) -> list:
     """
     Chunk an Act into one chunk per real section (split further when long).
     Schedules / CPC Orders that are not numbered sections are kept as unnumbered chunks.
+    `titles` (from the PDF layout, see margin_titles_from_pdf) win over titles parsed from text.
     """
     from sections import parse_act
 
     parsed = parse_act(text)
+    for sec in parsed.sections:
+        sec.title = (titles or {}).get(sec.number) or sec.title
     chunks = []
     for sec in parsed.sections:
         parts = split_at_sentence_boundary(sec.text, max_chars=CHUNK_MAX_CHARS)
@@ -421,11 +475,12 @@ def ingest_all():
         with open(txt_path, 'w', encoding='utf-8') as f:
             f.write(text)
         print(f"  Saved to {txt_path.name}")
+        save_margin_titles(pdf_path)
         
         # Step 2: Chunk text (using filename-based act name)
         chunks_path = CHUNKS_DIR / f"{stem}_chunks.jsonl"
         print(f"  Chunking text...")
-        chunks = chunk_legal_text(text, f"{stem}.txt", act_name, year)
+        chunks = chunk_legal_text(text, f"{stem}.txt", act_name, year, load_titles(stem))
         save_chunks_jsonl(chunks, str(chunks_path))
         print(f"  Created {len(chunks)} chunks -> {chunks_path.name}")
     
@@ -444,8 +499,22 @@ def extract_new_pdfs():
         if txt_path.exists():
             continue
         txt_path.write_text(extract_text_from_pdf(str(pdf_path)), encoding="utf-8")
+        save_margin_titles(pdf_path)
         added += 1
     print(f"Extracted text for {added} new PDF(s)")
+
+
+def extract_margin_titles_all():
+    """(Re)build the <stem>.titles.json files for every PDF, without re-extracting text."""
+    for pdf_path in sorted(RAW_PDFS_DIR.glob("**/*.pdf")):
+        n = save_margin_titles(pdf_path)
+        if n:
+            print(f"  {n:4} margin titles  {pdf_path.stem}")
+
+
+def load_titles(stem: str) -> dict:
+    path = titles_path(stem)
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
 
 
 def rechunk_all():
@@ -455,7 +524,7 @@ def rechunk_all():
     for txt_path in sorted(EXTRACTED_TEXT_DIR.glob("*.txt")):
         act_name, year = act_name_from_filename(txt_path.stem)
         text = txt_path.read_text(encoding='utf-8')
-        chunks = chunk_legal_text(text, txt_path.name, act_name, year)
+        chunks = chunk_legal_text(text, txt_path.name, act_name, year, load_titles(txt_path.stem))
         save_chunks_jsonl(chunks, str(CHUNKS_DIR / f"{txt_path.stem}_chunks.jsonl"))
         print(f"  {len(chunks):5} chunks  {act_name}")
     build_vector_store(str(CHUNKS_DIR), str(VECTOR_DB_DIR))
@@ -466,6 +535,8 @@ if __name__ == "__main__":
         extract_new_pdfs()
         rechunk_all()
     elif "--rechunk" in sys.argv:
+        if "--titles" in sys.argv:
+            extract_margin_titles_all()
         rechunk_all()
     else:
         ingest_all()
