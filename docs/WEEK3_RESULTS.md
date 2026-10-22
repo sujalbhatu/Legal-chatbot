@@ -6,7 +6,8 @@ from files in `backend/rag_model/eval/results/`; every table says which.
 
 > **Status of this document.** All numbers are final (22 Oct 2026). The end-to-end
 > comparison in §5 ran on 22 Oct with the same answer model as the baseline
-> (`gpt-oss-20b`), on the final 123-Act index.
+> (`gpt-oss-20b`), on the final 123-Act index. Deployed 22-23 Oct; server
+> measurements and later fixes are in §13-14.
 
 ## 1. What changed, in one paragraph
 
@@ -406,19 +407,87 @@ How it was measured:
 10. **What would you do next?**
     - Get lawyers or law students to label 100 real user questions (the thumbs-down
       feedback now collected is the queue).
-    - Measure memory on the server.
+    - Move to a bigger instance: on the 1 GB VM the reranker costs ~8 s per question (§14).
     - Replace the outdated Motor Vehicles Act PDF.
     - Try a multilingual reranker if the memory budget allows.
 
-## 13. Deploy checklist (needs Sujal; nothing deployed)
+## 13. Deploy (done 22-23 Oct 2026, on the Oracle VM)
 
-1. Back up `/opt/legal-query`. Copy the branch code; install `requirements.txt` (CPU torch
-   first, see its header).
-2. Download `lid.176.ftz` and set `FASTTEXT_LID_MODEL`. Set `RAG_ADMIN_TOKEN`, and
-   `CORS_ORIGINS` if the domain differs.
-3. Copy `data/raw_pdfs/central_acts/*.pdf` (from `Desktop\scraper_legel\indiacode_pdfs`,
-   renamed per `MANIFEST.json`), then rebuild the index on the server with
-   `python ingest.py --add-new` (about 8 minutes on the laptop for 123 Acts).
-4. Restart legal-rag and check memory (see §4 for the `RETRIEVAL_MODE` decision), then
-   restart legal-node. Existing JWTs keep working (no `tv` = version 0).
-5. Decide whether to replace the Motor Vehicles Act PDF.
+What was done, in order (rollback copies are listed at the end):
+
+1. Backed up `/opt/legal-query` (code, data, frontend; no venv/node_modules) to
+   `/opt/backups/legal-query-20261022-2257.tar.gz`, plus the old `legal-rag.service`.
+2. Installed `rank-bm25` and `fasttext-wheel` into the existing venv and downloaded
+   `lid.176.ftz` to `data/models/`. Pre-downloaded the reranker
+   (`cross-encoder/ms-marco-MiniLM-L-6-v2`), because the service runs with
+   `ProtectSystem=strict` and cannot write to the model cache; the service now has
+   `HF_HUB_OFFLINE=1`.
+3. Copied the code from branch `frontend-redesign` (committed state, LF line endings) over
+   `/opt/legal-query`, keeping the server's own gunicorn settings (port 5001, no preload).
+4. Index: instead of rebuilding on the VM, exported only the `legal_sections` collection
+   from the laptop (embeddings copied as they are, same nearest neighbours) into a clean
+   106 MB Chroma database and uploaded it. Act-name manifests copied too.
+5. Frontend: built on the laptop, uploaded to `frontend/dist`.
+6. `.env`: added `FASTTEXT_LID_MODEL` and a random `RAG_ADMIN_TOKEN`.
+7. `legal-rag.service`: `MemoryHigh=650M`, `MemoryMax=800M` (was a hard 500M), plus a
+   drop-in `legal-rag.service.d/retrieval.conf` with `RERANKER_INT8=1` (see §14).
+8. Gunicorn: models load in a background thread when the worker starts, and workers are no
+   longer recycled every 200 requests (each recycle meant a two-minute reload).
+
+Rollback: `/opt/legal-query/data/vector_db.old-20261022-2259`,
+`/opt/legal-query/frontend/dist.old-20261022-2259`, and the backup tarball above.
+
+Still open: the Motor Vehicles Act PDF (no amended copy found yet).
+
+## 14. After the first write-up (22-23 Oct)
+
+### Product
+- Frontend redesign: landing page, dashboard (stats, conversations grouped by day with the
+  sections each answer cited, Ctrl+K search), chat (answers read from the top; sources as
+  compact chips, only cited ones shown by default), auth pages with a show-password button.
+- Guest mode at `/try`: no login, streamed answers, nothing stored server-side; 10 questions
+  an hour and 25 a day per IP plus 400 a day overall, refunded if the answer fails.
+
+### Retrieval fixes found by using the product
+- **Abbreviations:** the cross-encoder did not know "RTI", so "How do I file an RTI
+  application?" ranked IT Act s.22 above RTI Act s.6 and the answer said nothing was found.
+  Common abbreviations (RTI, FIR, IPC, CrPC, BNS, POCSO, GST, PIO...) now get their full
+  names added to the search query. Retrieval MRR 0.582 -> 0.618 on the 115-question set.
+- **Minors and contracts:** "Is a contract signed by a 16-year-old valid?" missed Contract
+  Act s.11 about half the time; a context-specific hint (a minor or age under 18 *and* a
+  contract) fixed it; a crime question about a child still goes to POCSO.
+- **Section titles from the PDF layout:** BNSS titles 44 -> 526 of 531, CGST 0 -> 167.
+  Retrieval (before -> after): Recall@1 0.504 -> 0.522, MRR 0.618 -> 0.631, Recall@5
+  0.783 -> 0.765 (2 of 115 questions; within noise). The gain is mostly in what users see.
+
+### Engineering
+- Lint works again (the config referenced a plugin export that does not exist).
+- 13 frontend unit tests (Vitest): the answer stream parser (split chunks, CRLF, errors,
+  the guest 429 message), HTML escaping, citation chips, previews.
+- GitHub Actions CI: API tests, 57 RAG unit tests (without the ML packages, which the
+  tests stub) and the frontend lint, tests and build.
+
+### Measured on the server (Oracle VM: 1 GB RAM, 2 burstable AMD vCPUs, 2 GB swap)
+
+Same questions sent to the RAG service on the VM (`/api/query`, not streamed):
+
+| Version | Time per question | Bike theft question cites |
+|---|---:|---|
+| Before deploy (old code, 18 Acts) | 10.1 s, 16.7 s | BNS 304 (snatching), BNSS 129 (wrong) |
+| New, hybrid without reranker | 2.7-6 s | BNS 112 (organised crime, wrong) |
+| New, reranker 10 x 400 chars | 7.5-10 s | BNS 303 + 112 |
+| **New, int8 reranker (chosen)** | **10-15 s** | **BNS 305 (theft of a vehicle, right)** |
+
+- With the int8 reranker every test question cited the right section (BNS 305, RTI Act
+  s.6, BNSS 173, IT Act 66C, Contract Act s.11, Constitution Art. 21).
+- The reranker costs about 8 s per question on this CPU (0.4 s on the laptop). One torch
+  thread instead of two made no difference: the VM's CPU is the limit.
+- Memory: legal-rag holds 330-490 MB resident, under `MemoryHigh=650M`; the VM uses about
+  1.4 GB of swap overall (RollOne shares the VM). RollOne stayed up throughout.
+- Model load after a restart: about 140 s, now done in the background.
+- Through nginx and Node the answer streams (first bytes after about 1.5 s, then the
+  status line until search finishes).
+
+Next step for speed: a bigger instance (an Always Free Ampere A1 has 4 cores and 24 GB),
+where the reranker would run in well under a second.
+
