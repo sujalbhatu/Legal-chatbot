@@ -162,7 +162,7 @@ export default function Landing() {
                             <span><BookOpen size={13} /> Every answer cites its sources</span>
                         </div>
                         <div className="lp-try-chips">
-                            {['What are my rights if I am arrested?', 'How do I file an RTI application?', 'Is a non-compete clause valid?'].map(q => (
+                            {['What are my rights if I am arrested?', 'How do I file an RTI application?', 'Is a non-compete clause in my job valid?'].map(q => (
                                 <button type="button" key={q} className="chip" onClick={() => ask(q)}>{q}</button>
                             ))}
                         </div>

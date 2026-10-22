@@ -4,7 +4,7 @@ import { Save, KeyRound, SlidersHorizontal, UserRound, LogOut, Sun, Moon, Langua
 import { authService, chatService } from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
 import AppShell from '../components/AppShell';
-import { FormError, FormSuccess } from '../components/AuthLayout';
+import { FormError, FormSuccess, PasswordInput } from '../components/AuthLayout';
 import { LANGUAGES } from '../data/content';
 
 const readLang = () => { try { return localStorage.getItem('legal_lang') || 'auto'; } catch { return 'auto'; } };
@@ -119,13 +119,17 @@ export default function Profile() {
                         <div className="field-row">
                             <div className="input-group">
                                 <label className="input-label" htmlFor="p-pw">New password</label>
-                                <input id="p-pw" type="password" className="input-field" value={password} autoComplete="new-password"
-                                    onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" />
+                                <div className="field-control">
+                                    <PasswordInput id="p-pw" className="input-field" value={password} autoComplete="new-password"
+                                        onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" />
+                                </div>
                             </div>
                             <div className="input-group">
                                 <label className="input-label" htmlFor="p-pw2">Confirm new password</label>
-                                <input id="p-pw2" type="password" className="input-field" value={confirmPassword} autoComplete="new-password"
-                                    onChange={(e) => setConfirmPassword(e.target.value)} />
+                                <div className="field-control">
+                                    <PasswordInput id="p-pw2" className="input-field" value={confirmPassword} autoComplete="new-password"
+                                        onChange={(e) => setConfirmPassword(e.target.value)} />
+                                </div>
                             </div>
                         </div>
                         <div className="settings-actions">

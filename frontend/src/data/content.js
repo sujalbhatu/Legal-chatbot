@@ -48,7 +48,7 @@ export const TOPICS = [
         questions: [
             'Who has to register under GST?',
             'Is a non-compete clause in my job contract valid?',
-            'Is a contract signed by a 16-year-old valid?',
+            'Can a minor sign a valid contract in India?',
         ],
     },
 ];

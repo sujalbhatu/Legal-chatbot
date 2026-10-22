@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { BookOpen, Languages, ShieldCheck, Sun, Moon, ArrowRight } from 'lucide-react';
+import { BookOpen, Languages, ShieldCheck, Sun, Moon, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { Logo } from './Brand';
 
@@ -64,9 +65,25 @@ export function Field({ id, label, icon: Icon, aside, className = '', ...inputPr
             </div>
             <div className="field-control">
                 {Icon && <Icon size={17} className="field-icon" />}
-                <input id={id} className={`input-field ${Icon ? 'has-icon' : ''} ${className}`} {...inputProps} />
+                {inputProps.type === 'password'
+                    ? <PasswordInput id={id} className={`input-field ${Icon ? 'has-icon' : ''} ${className}`} {...inputProps} />
+                    : <input id={id} className={`input-field ${Icon ? 'has-icon' : ''} ${className}`} {...inputProps} />}
             </div>
         </div>
+    );
+}
+
+/** Password input with a show/hide button. Needs a positioned parent (.field-control). */
+export function PasswordInput({ className = '', ...inputProps }) {
+    const [show, setShow] = useState(false);
+    return (
+        <>
+            <input {...inputProps} type={show ? 'text' : 'password'} className={`${className} has-toggle`} />
+            <button type="button" className="pw-toggle" onClick={() => setShow(s => !s)} tabIndex={-1}
+                aria-label={show ? 'Hide password' : 'Show password'} aria-pressed={show} title={show ? 'Hide password' : 'Show password'}>
+                {show ? <EyeOff size={17} /> : <Eye size={17} />}
+            </button>
+        </>
     );
 }
 

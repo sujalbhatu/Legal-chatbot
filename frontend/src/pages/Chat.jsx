@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import {
-    ArrowLeft, CheckCircle, BookOpen, AlertTriangle, FileText, ChevronDown, ChevronRight, Loader2, User,
+    ArrowLeft, CheckCircle, BookOpen, AlertTriangle, Loader2, User,
     Sun, Moon, RotateCcw, ThumbsUp, ThumbsDown, Languages, Sparkles, ArrowUp, Square, Copy, Check, Trash2,
-    UserPlus, Info
+    UserPlus, Info, X
 } from 'lucide-react';
 import { chatService, authService } from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
@@ -20,31 +20,36 @@ const readGuestChat = () => {
     try { return JSON.parse(sessionStorage.getItem(GUEST_KEY) || '[]'); } catch { return []; }
 };
 
-// One retrieved section. `open` is controlled so a [n] chip in the answer can open it.
-const SourceCard = ({ source, n, open, onToggle, anchorId }) => (
-    <div id={anchorId} className={`source-card${open ? ' source-card-open' : ''}`}>
-        <button type="button" className="source-card-head" onClick={onToggle} aria-expanded={open}>
-            <span className="source-num">{n}</span>
-            <span className="source-title">
-                <span className="source-act">{source.act_name}</span>
-                {source.section && (
-                    <span className="source-section">
-                        {source.source_file?.startsWith('constitution') ? 'Article' : 'Section'} {source.section}
-                        {source.section_title ? `: ${source.section_title}` : ''}
-                    </span>
-                )}
+const sectionLabel = (source) => {
+    if (!source.section) return '';
+    return `${source.source_file?.startsWith('constitution') ? 'Art.' : 'Sec.'} ${source.section}`;
+};
+
+// One retrieved section as a small chip; `open` is controlled so a [n] chip in the answer can open it.
+const SourceChip = ({ source, n, open, onToggle, anchorId }) => (
+    <button type="button" id={anchorId} onClick={onToggle} aria-expanded={open}
+        className={`src-chip${source.cited ? ' src-chip-cited' : ''}${open ? ' src-chip-open' : ''}`}
+        title={`${source.act_name}${source.section ? `, ${sectionLabel(source)}` : ''}${source.section_title ? `: ${source.section_title}` : ''}`}>
+        <span className="src-chip-n">{n}</span>
+        <span className="src-chip-act">{source.act_name}</span>
+        {source.section && <span className="src-chip-sec">{sectionLabel(source)}</span>}
+    </button>
+);
+
+// The text of the open section, under the chips.
+const SourcePanel = ({ source, n, onClose }) => (
+    <div className="src-panel">
+        <div className="src-panel-head">
+            <span className="src-chip-n">{n}</span>
+            <span className="src-panel-title">
+                <strong>{source.act_name}</strong>
+                {source.section && <span>{sectionLabel(source)}{source.section_title ? `: ${source.section_title}` : ''}</span>}
             </span>
-            <span className="source-badges">
-                {source.cited && <span className="badge badge-success" style={{ fontSize: '0.65rem' }}>Cited</span>}
-                {open ? <ChevronDown size={16} color="var(--text-muted)" /> : <ChevronRight size={16} color="var(--text-muted)" />}
-            </span>
-        </button>
-        {open && (
-            <div className="source-card-body">
-                <div className="source-body-head"><FileText size={16} /> Text of the section</div>
-                <p className="source-text">{source.text}</p>
-            </div>
-        )}
+            <button type="button" className="btn-icon src-panel-close" onClick={onClose} aria-label="Close section">
+                <X size={15} />
+            </button>
+        </div>
+        <p className="src-panel-text">{source.text}</p>
     </div>
 );
 
@@ -69,10 +74,17 @@ function CopyButton({ text }) {
 // correct sections for plain-language questions absolute scores near 0, so a
 // "Low relevance" label would mislead.)
 const AnswerExtras = ({ msg, msgKey, openSource, setOpenSource, onFollowUp, onFeedback, isLast, busy, live, allowFeedback }) => {
-    const all = msg.sources || [];
-    const cited = all.filter(s => s.cited).length;
+    const [showAll, setShowAll] = useState(false);
+    const numbered = (msg.sources || []).map((source, i) => ({ source, n: source.n || i + 1 }));
+    const cited = numbered.filter(x => x.source.cited);
     // A saved answer that cites nothing (small talk, "not found") shows no source list
-    const sources = live || cited ? all : [];
+    const all = live || cited.length ? numbered : [];
+    const openN = openSource?.msgKey === msgKey ? openSource.n : null;
+    // Cited sections first; the others only on request (or when a [n] chip opened one)
+    const shown = live || showAll ? all : all.filter(x => x.source.cited || x.n === openN);
+    const hidden = all.length - shown.length;
+    const open = all.find(x => x.n === openN);
+    const toggle = (n) => setOpenSource(prev => (prev?.msgKey === msgKey && prev?.n === n ? null : { msgKey, n }));
     return (
         <>
             {msg.stopped && <div className="answer-note"><Info size={15} /> You stopped this answer before the end; it was not saved.</div>}
@@ -84,21 +96,24 @@ const AnswerExtras = ({ msg, msgKey, openSource, setOpenSource, onFollowUp, onFe
                 </div>
             )}
 
-            {sources.length > 0 && (
-                <div className="sources-block">
-                    <div className="sources-heading">
-                        <BookOpen size={16} /> {live ? `Reading ${sources.length} sections` : `Sources (${cited} cited, ${sources.length} retrieved)`}
+            {all.length > 0 && (
+                <div className="src-block">
+                    <div className="src-label">
+                        <BookOpen size={14} />
+                        {live ? `Reading ${all.length} sections` : `Sources · ${cited.length} cited`}
                     </div>
-                    {sources.map((source, i) => {
-                        const n = source.n || i + 1;
-                        return (
-                            <SourceCard key={n} source={source} n={n}
-                                anchorId={`src-${msgKey}-${n}`}
-                                open={openSource?.msgKey === msgKey && openSource?.n === n}
-                                onToggle={() => setOpenSource(prev =>
-                                    prev?.msgKey === msgKey && prev?.n === n ? null : { msgKey, n })} />
-                        );
-                    })}
+                    <div className="src-chips">
+                        {shown.map(({ source, n }) => (
+                            <SourceChip key={n} source={source} n={n} anchorId={`src-${msgKey}-${n}`}
+                                open={openN === n} onToggle={() => toggle(n)} />
+                        ))}
+                        {!live && (hidden > 0 || showAll) && all.length > cited.length && (
+                            <button type="button" className="src-more" onClick={() => setShowAll(v => !v)}>
+                                {showAll ? 'Show cited only' : `+${hidden} more searched`}
+                            </button>
+                        )}
+                    </div>
+                    {open && <SourcePanel source={open.source} n={open.n} onClose={() => setOpenSource(null)} />}
                 </div>
             )}
 
@@ -149,7 +164,8 @@ export default function Chat({ guest = false }) {
     const [language, setLanguage] = useState(readLanguage);
     const [openSource, setOpenSource] = useState(null); // { msgKey, n }
     const [guestLeft, setGuestLeft] = useState(null);
-    const messagesEndRef = useRef(null);
+    const scrollRef = useRef(null);
+    const pinRef = useRef(null);        // id of a question to bring to the top of the view
     const abortRef = useRef(null);
     const inputRef = useRef(null);
     const askedRef = useRef(false);
@@ -180,9 +196,18 @@ export default function Chat({ guest = false }) {
         return () => { cancelled = true; abortRef.current?.abort(); };
     }, [id, guest, navigate]);
 
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }, [messages.length, sending, streaming?.text?.length]);
+    // Opening a conversation shows its end
+    useLayoutEffect(() => {
+        if (!loading && scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }, [loading]);
+
+    // A new question moves to the top of the view and the answer is read from its start,
+    // instead of following the stream down to the sources
+    useLayoutEffect(() => {
+        if (!pinRef.current) return;
+        document.getElementById(`row-${pinRef.current}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        pinRef.current = null;
+    }, [messages]);
 
     useEffect(() => {
         try { localStorage.setItem('legal_lang', language); } catch { /* private mode */ }
@@ -212,6 +237,7 @@ export default function Chat({ guest = false }) {
         const stamp = Date.now();
         const tempUser = { _id: `temp-u-${stamp}`, role: 'user', content: userQuery, sources: [] };
         const history = messages.slice(-8).map(m => ({ role: m.role, content: m.content, language: m.language }));
+        pinRef.current = tempUser._id;
         setMessages(prev => [...prev, tempUser]);
         streamingRef.current = { text: '', sources: [], grounded: true };
         setStreaming(streamingRef.current);
@@ -395,7 +421,7 @@ export default function Chat({ guest = false }) {
                 </div>
             </header>
 
-            <div className="chat-scroll">
+            <div className="chat-scroll" ref={scrollRef}>
                 <div className="chat-column">
                     {messages.length === 0 && !streaming ? (
                         <div className="chat-empty">
@@ -422,12 +448,12 @@ export default function Chat({ guest = false }) {
                             </div>
                         </div>
                     ) : (
-                        <div className="chat-thread">
+                        <div className={`chat-thread${sending ? ' chat-thread-pinned' : ''}`}>
                             {messages.map((msg, index) => {
                                 const msgKey = msg._id || index;
                                 const isUser = msg.role === 'user';
                                 return (
-                                    <div key={msgKey} className={`chat-row ${isUser ? 'chat-row-user' : ''}`}>
+                                    <div key={msgKey} id={`row-${msgKey}`} className={`chat-row ${isUser ? 'chat-row-user' : ''}`}>
                                         {!isUser && <div className="chat-avatar chat-avatar-ai"><Logo size={34} withText={false} /></div>}
                                         <div className="chat-bubble-wrap">
                                             <div className={`bubble ${isUser ? 'bubble-user' : 'bubble-ai'}`}>
@@ -476,7 +502,6 @@ export default function Chat({ guest = false }) {
                                     </div>
                                 </div>
                             )}
-                            <div ref={messagesEndRef} />
                         </div>
                     )}
                 </div>
