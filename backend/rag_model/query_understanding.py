@@ -62,6 +62,32 @@ def _manifest_aliases():
 
 
 _ALIASES = [(re.compile(p, re.IGNORECASE), stem) for p, stem in ACT_ALIASES + _manifest_aliases()]
+# Abbreviations people type but statutes spell out. The cross-encoder reranker has never
+# seen "RTI", so "How do I file an RTI application?" ranked IT Act s.22 ("application
+# for licence") above RTI Act s.6. The search query gets the full name added.
+ABBREVIATIONS = {
+    "rti": "Right to Information", "fir": "first information report",
+    "ipc": "Indian Penal Code Bharatiya Nyaya Sanhita", "bns": "Bharatiya Nyaya Sanhita",
+    "crpc": "Code of Criminal Procedure Bharatiya Nagarik Suraksha Sanhita",
+    "bnss": "Bharatiya Nagarik Suraksha Sanhita", "bsa": "Bharatiya Sakshya Adhiniyam",
+    "cpc": "Code of Civil Procedure", "pocso": "Protection of Children from Sexual Offences",
+    "ndps": "Narcotic Drugs and Psychotropic Substances", "gst": "Goods and Services Tax",
+    "pio": "Public Information Officer", "dv": "domestic violence", "mv": "motor vehicles",
+    "pil": "public interest litigation", "nri": "non-resident Indian",
+}
+_ABBR_RE = re.compile(r"\b(" + "|".join(ABBREVIATIONS) + r")\b", re.IGNORECASE)
+
+
+def spell_out(query: str) -> str:
+    """'file an RTI application' -> '... (Right to Information)' for retrieval only."""
+    names = []
+    for m in _ABBR_RE.finditer(query or ""):
+        name = ABBREVIATIONS[m.group(1).lower()]
+        if name.lower() not in query.lower() and name not in names:
+            names.append(name)
+    return f"{query} ({'; '.join(names)})" if names else query
+
+
 SECTION_REF_RE = re.compile(r"\b(?:section|sec\.?|s\.|article|art\.?)\s*(\d{1,3}[a-z]{0,2})\b", re.IGNORECASE)
 
 
@@ -139,6 +165,12 @@ def _expand(query: str, llm, model: str) -> Understanding:
 
 
 def understand(query: str, history: list, language: str, llm, model: str) -> Understanding:
+    u = _understand(query, history, language, llm, model)
+    u.search_query = spell_out(u.search_query)
+    return u
+
+
+def _understand(query: str, history: list, language: str, llm, model: str) -> Understanding:
     recent = [m for m in (history or []) if m.get("role") in ("user", "assistant")][-4:]
     if language == "en" and not recent:
         acts, refs = detect_acts(query), section_refs(query)

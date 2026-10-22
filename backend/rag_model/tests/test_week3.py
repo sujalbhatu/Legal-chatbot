@@ -166,6 +166,14 @@ class QueryUnderstandingTests(unittest.TestCase):
         self.assertIn("constitution_of_india_2024_english", qu.detect_acts("what does Article 21 say"))
         self.assertEqual(qu.section_refs("Section 13B and sec. 9 and Article 21A"), ["13B", "9", "21A"])
 
+    def test_abbreviations_are_spelled_out_for_search(self):
+        self.assertEqual(qu.spell_out("How do I file an RTI application?"),
+                         "How do I file an RTI application? (Right to Information)")
+        self.assertIn("first information report", qu.spell_out("police refused my FIR"))
+        # already spelled out, or only part of another word: unchanged
+        self.assertEqual(qu.spell_out("Right to Information RTI fee"), "Right to Information RTI fee")
+        self.assertEqual(qu.spell_out("the firm is hiring"), "the firm is hiring")
+
     def test_english_first_message_needs_no_llm_call_without_expansion(self):
         llm = FakeLLM()
         with mock.patch.dict(os.environ, {"QUERY_EXPANSION": "0"}):
