@@ -174,6 +174,12 @@ class QueryUnderstandingTests(unittest.TestCase):
         self.assertEqual(qu.spell_out("Right to Information RTI fee"), "Right to Information RTI fee")
         self.assertEqual(qu.spell_out("the firm is hiring"), "the firm is hiring")
 
+    def test_contract_by_a_minor_gets_the_statute_wording(self):
+        for q in ("Is a contract signed by a 16-year-old valid?", "Can a minor sign a loan agreement?"):
+            self.assertIn("competent to contract", qu.spell_out(q))
+        # a child in a criminal question is not a contract question
+        self.assertNotIn("competent to contract", qu.spell_out("A 15 year old was assaulted, what is the punishment?"))
+
     def test_english_first_message_needs_no_llm_call_without_expansion(self):
         llm = FakeLLM()
         with mock.patch.dict(os.environ, {"QUERY_EXPANSION": "0"}):

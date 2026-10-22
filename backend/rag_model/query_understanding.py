@@ -78,6 +78,18 @@ ABBREVIATIONS = {
 _ABBR_RE = re.compile(r"\b(" + "|".join(ABBREVIATIONS) + r")\b", re.IGNORECASE)
 
 
+# Everyday wording the statute words differently, added only in the right context.
+# "Is a contract signed by a 16-year-old valid?" missed Contract Act s.11 ("competent to
+# contract ... age of majority") about half the time; a crime question about a child must
+# not get contract terms, so each hint needs both its topic and its trigger.
+_AGE_RE = re.compile(r"\bminors?\b|\b(?:1[0-7]|[1-9])[- ]?(?:year|yr)s?[- ]old\b|\bunder(?:\s+the\s+age\s+of)?\s*18\b|\bunderage\b", re.IGNORECASE)
+_CONTRACT_RE = re.compile(r"\bcontracts?\b|\bagreements?\b|\bsign(?:ed|s|ing)?\b|\bdeal\b|\bloan\b|\bpromissory\b", re.IGNORECASE)
+LEGAL_HINTS = [
+    (lambda q: _AGE_RE.search(q) and _CONTRACT_RE.search(q),
+     "minor competent to contract age of majority void agreement"),
+]
+
+
 def spell_out(query: str) -> str:
     """'file an RTI application' -> '... (Right to Information)' for retrieval only."""
     names = []
@@ -85,6 +97,7 @@ def spell_out(query: str) -> str:
         name = ABBREVIATIONS[m.group(1).lower()]
         if name.lower() not in query.lower() and name not in names:
             names.append(name)
+    names += [hint for applies, hint in LEGAL_HINTS if query and applies(query)]
     return f"{query} ({'; '.join(names)})" if names else query
 
 
