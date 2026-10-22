@@ -1,6 +1,10 @@
 // Limits for guest (no-login) questions. Every question costs Groq tokens on a free
 // tier, so guests get a small per-IP allowance plus a global daily cap. Counters live
 // in memory: a restart resets them, which is acceptable for this purpose.
+// This assumes one Node process (true on the single VM). With several processes or
+// servers each would count separately; the counters would then move to Redis
+// (INCR on a per-IP, per-day key with an expiry).
+// Behind nginx the client IP comes from X-Forwarded-For (app.set('trust proxy', 1)).
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
