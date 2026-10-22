@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const guestRoutes = require('./routes/guestRoutes');
 
 const app = express();
 
@@ -26,6 +27,8 @@ app.use(express.json({ limit: '1mb' })); // Limit payload size
 
 // Routes
 app.use('/api/auth', authRoutes);
+// Guest mode (no login) is mounted before the signed-in chat routes, which require auth
+app.use('/api/chat/guest', guestRoutes);
 app.use('/api/chat', chatRoutes);
 
 // Health check
