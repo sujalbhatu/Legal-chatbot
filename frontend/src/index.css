@@ -1,27 +1,27 @@
 :root {
-  /* Default: dark theme (night ink and gold) */
-  --bg-primary: #060b18;
-  --bg-secondary: #0c1427;
-  --bg-tertiary: #152039;
-  --bg-panel: rgba(10, 17, 33, 0.82);
-  --bg-card: rgba(21, 32, 57, 0.6);
+  /* Default: Dark Theme (Ocean & Neon Blue) */
+  --bg-primary: #020617; 
+  --bg-secondary: #0f172a; 
+  --bg-tertiary: #1e293b; 
+  --bg-panel: rgba(15, 23, 42, 0.75);
+  --bg-card: rgba(30, 41, 59, 0.6);
   --bg-input: rgba(0, 0, 0, 0.2);
   --bg-input-focus: rgba(0, 0, 0, 0.4);
 
-  --text-primary: #f3efe4;
-  --text-secondary: #a7b0c3;
-  --text-muted: #6c7790;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #475569;
 
-  --accent-gold: #d4ae4a;
-  --accent-gold-hover: #c29a33;
-  --accent-gold-transparent: rgba(212, 174, 74, 0.14);
+  --accent-gold: #06b6d4; /* Neon Cyan */
+  --accent-gold-hover: #0891b2; 
+  --accent-gold-transparent: rgba(6, 182, 212, 0.15);
 
-  --bg-gradient-1: radial-gradient(circle at 15% 50%, rgba(212, 174, 74, 0.05), transparent 35%);
-  --bg-gradient-2: radial-gradient(circle at 85% 30%, rgba(129, 140, 248, 0.05), transparent 35%);
+  --bg-gradient-1: radial-gradient(circle at 15% 50%, rgba(6, 182, 212, 0.05), transparent 35%);
+  --bg-gradient-2: radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.05), transparent 35%);
 
-  --accent-emerald: #e6c56d;
-  --accent-emerald-hover: #d4ae4a;
-  --accent-emerald-transparent: rgba(230, 197, 109, 0.13);
+  --accent-emerald: #3b82f6; /* Deep Blue */
+  --accent-emerald-hover: #2563eb; 
+  --accent-emerald-transparent: rgba(59, 130, 246, 0.15);
 
   --accent-blue: #8b5cf6;
   --accent-blue-hover: #7c3aed;
@@ -29,16 +29,16 @@
   --accent-primary: var(--accent-gold);
   --accent-primary-transparent: var(--accent-gold-transparent);
 
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-color-hover: rgba(255, 255, 255, 0.16);
-  --border-focus: rgba(212, 174, 74, 0.55);
+  --border-color: rgba(6, 182, 212, 0.15);
+  --border-color-hover: rgba(6, 182, 212, 0.3);
+  --border-focus: rgba(6, 182, 212, 0.6);
   
-  --shadow-glow: 0 0 18px rgba(212, 174, 74, 0.3);
+  --shadow-glow: 0 0 15px rgba(6, 182, 212, 0.4);
 
-  --btn-primary-bg: linear-gradient(140deg, #f3d27a, #d4ae4a 60%, #b98f2b);
-  --btn-primary-hover: linear-gradient(140deg, #f6da8c, #dcb653 60%, #c29a33);
-  --btn-primary-text: #1a1405;
-  --btn-primary-shadow: 0 6px 18px -6px rgba(212, 174, 74, 0.6);
+  --btn-primary-bg: linear-gradient(135deg, var(--accent-gold), #0891b2);
+  --btn-primary-hover: linear-gradient(135deg, var(--accent-gold-hover), #0e7490);
+  --btn-primary-text: #000;
+  --btn-primary-shadow: 0 4px 14px rgba(6, 182, 212, 0.3);
 
   /* Spacing */
   --spacing-xs: 0.25rem;
@@ -67,31 +67,31 @@
 }
 
 body.light-theme {
-  /* Light theme (paper, ink and gold) */
-  --bg-primary: #f7f5ef;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #f1ede3;
-  --bg-panel: rgba(255, 255, 255, 0.86);
+  /* Professional Light Theme (Navy & Muted Gold) */
+  --bg-primary: #fafaf9; 
+  --bg-secondary: #ffffff; 
+  --bg-tertiary: #f5f5f0; 
+  --bg-panel: rgba(255, 255, 255, 0.85);
   --bg-card: #ffffff;
   --bg-input: #ffffff;
   --bg-input-focus: #f9f9f9;
 
-  --text-primary: #0e1526;
-  --text-secondary: #4f5668;
-  --text-muted: #8d93a3;
+  --text-primary: #1a1a2e;
+  --text-secondary: #5c5c6d;
+  --text-muted: #9ca3af;
 
-  /* 'gold' is the primary accent: ink in light, gold in dark */
-  --accent-gold: #0b1730;
-  --accent-gold-hover: #16284d;
-  --accent-gold-transparent: rgba(11, 23, 48, 0.07);
+  /* We map 'gold' to the Navy accent for primary buttons/highlights */
+  --accent-gold: #1e3a5f; 
+  --accent-gold-hover: #162d4a; 
+  --accent-gold-transparent: rgba(30, 58, 95, 0.08);
 
   --bg-gradient-1: radial-gradient(circle at 15% 50%, rgba(184, 149, 42, 0.03), transparent 35%);
   --bg-gradient-2: radial-gradient(circle at 85% 30%, rgba(30, 58, 95, 0.03), transparent 35%);
 
-  /* 'emerald' is the secondary accent: gold */
-  --accent-emerald: #b18a24;
-  --accent-emerald-hover: #9a7713;
-  --accent-emerald-transparent: rgba(177, 138, 36, 0.12);
+  /* We map 'emerald' to the actual Muted Gold color */
+  --accent-emerald: #b8952a; 
+  --accent-emerald-hover: #a18224; 
+  --accent-emerald-transparent: rgba(184, 149, 42, 0.10);
 
   --accent-blue: #0ea5e9;
   --accent-blue-hover: #0284c7;
@@ -99,16 +99,16 @@ body.light-theme {
   --accent-primary: var(--accent-gold);
   --accent-primary-transparent: var(--accent-gold-transparent);
 
-  --border-color: #e6e1d4;
-  --border-color-hover: #d5cdb9;
-  --border-focus: rgba(177, 138, 36, 0.5);
+  --border-color: #e5e5e0;
+  --border-color-hover: #d4d4cf;
+  --border-focus: rgba(30, 58, 95, 0.3);
   
   --shadow-glow: 0 4px 15px rgba(0, 0, 0, 0.05);
 
   --btn-primary-bg: var(--accent-gold);
   --btn-primary-hover: var(--accent-gold-hover);
   --btn-primary-text: #ffffff;
-  --btn-primary-shadow: 0 6px 16px -8px rgba(11, 23, 48, 0.55);
+  --btn-primary-shadow: 0 2px 8px rgba(30, 58, 95, 0.25);
 }
 
 * {

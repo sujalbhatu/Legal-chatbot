@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { BookOpen, Languages, ShieldCheck, Sun, Moon, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
-import { Logo, InkBackdrop } from './Brand';
+import { Logo } from './Brand';
 
 const POINTS = [
     { icon: BookOpen, title: 'Answers with sources', text: 'Every answer shows the exact sections of the Act it is based on.' },
@@ -17,8 +17,7 @@ export default function AuthLayout({ icon: Icon, title, subtitle, children, foot
 
     return (
         <div className="auth">
-            <section className="auth-brand ink" aria-hidden="false">
-                <InkBackdrop />
+            <section className="auth-brand" aria-hidden="false">
                 <Logo size={36} onClick={() => navigate('/')} className="brand-inverse" />
                 <div className="auth-brand-body">
                     <h2>Indian law, explained clearly.<br />With the sections to prove it.</h2>

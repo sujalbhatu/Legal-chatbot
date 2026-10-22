@@ -99,22 +99,14 @@ export const FAQ = [
     },
 ];
 
-// Key Acts in the index, for the dashboard's "Browse by Act" cards (all of these are searchable).
-// `area` sets the card's colour, so Acts of the same kind look alike.
+// Key Acts in the index, offered by the dashboard's search (all of these are searchable).
 export const LIBRARY = [
-    { short: 'BNS', name: 'Bharatiya Nyaya Sanhita, 2023', area: 'criminal', scope: 'Offences and punishments. Replaced the IPC.' },
-    { short: 'BNSS', name: 'Bharatiya Nagarik Suraksha Sanhita, 2023', area: 'criminal', scope: 'FIR, arrest, bail and trial. Replaced the CrPC.' },
-    { short: 'BSA', name: 'Bharatiya Sakshya Adhiniyam, 2023', area: 'criminal', scope: 'Evidence, including WhatsApp and other electronic records.' },
-    { short: 'COI', name: 'Constitution of India', area: 'rights', scope: 'Fundamental rights, writs and duties.' },
-    { short: 'RTI', name: 'Right to Information Act, 2005', area: 'rights', scope: 'Getting information from government offices.' },
-    { short: 'ICA', name: 'Indian Contract Act, 1872', area: 'civil', scope: 'Agreements, breach and compensation.' },
-    { short: 'TPA', name: 'Transfer of Property Act, 1882', area: 'civil', scope: 'Sale, lease, gift and mortgage of property.' },
-    { short: 'ITA', name: 'Information Technology Act, 2000', area: 'tech', scope: 'Hacking, identity theft and online fraud.' },
+    { short: 'BNS', name: 'Bharatiya Nyaya Sanhita, 2023', scope: 'Offences and punishments. Replaced the IPC.' },
+    { short: 'BNSS', name: 'Bharatiya Nagarik Suraksha Sanhita, 2023', scope: 'FIR, arrest, bail and trial. Replaced the CrPC.' },
+    { short: 'BSA', name: 'Bharatiya Sakshya Adhiniyam, 2023', scope: 'Evidence, including WhatsApp and other electronic records.' },
+    { short: 'COI', name: 'Constitution of India', scope: 'Fundamental rights, writs and duties.' },
+    { short: 'RTI', name: 'Right to Information Act, 2005', scope: 'Getting information from government offices.' },
+    { short: 'ICA', name: 'Indian Contract Act, 1872', scope: 'Agreements, breach and compensation.' },
+    { short: 'TPA', name: 'Transfer of Property Act, 1882', scope: 'Sale, lease, gift and mortgage of property.' },
+    { short: 'ITA', name: 'Information Technology Act, 2000', scope: 'Hacking, identity theft and online fraud.' },
 ];
-
-export const LAW_AREAS = {
-    criminal: 'Criminal law',
-    rights: 'Rights & government',
-    civil: 'Civil & property',
-    tech: 'Cyber law',
-};
