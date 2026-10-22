@@ -1,21 +1,16 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-    Search, Trash2, RotateCcw, CheckCircle2, CornerDownLeft, AlertTriangle, Plus, Languages, BookOpen,
-    Library, Lightbulb, ArrowUpRight, MessageSquare, MessagesSquare
+    Search, Trash2, RotateCcw, CheckCircle2, CornerDownLeft, AlertTriangle, Languages, ArrowRight,
+    MessagesSquare, Plus
 } from 'lucide-react';
 import { chatService, authService } from '../services/api';
 import AppShell from '../components/AppShell';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { TOPICS, LANGUAGES, LIBRARY } from '../data/content';
+import { TOPICS, LANGUAGES, LIBRARY, LAW_AREAS } from '../data/content';
 
 const FILTERS = [['all', 'All'], ['open', 'Open'], ['resolved', 'Resolved']];
 const STARTERS = [TOPICS[0].questions[1], TOPICS[2].questions[0], TOPICS[3].questions[0]];
-const TIPS = [
-    ['Give the facts', 'Who did what, when and where. Amounts and dates help.'],
-    ['Name the Act if you know it', '"Under the BNS…" or "Section 138" narrows the search.'],
-    ['Ask follow-ups', 'The conversation remembers your case, so "and if he is a minor?" works.'],
-];
 
 function greeting() {
     const h = new Date().getHours();
@@ -25,15 +20,19 @@ function greeting() {
     return 'Good evening';
 }
 
+const PREVIEW_CHARS = 240;  // the sessions API sends at most this much of the last message
+
 /** The last message as one plain line: the short answer itself, without greeting, markdown or [n]. */
 function plainPreview(text) {
     const t = text || '';
     const short = t.search(/\*\*Short answer\*\*/i);
-    return (short >= 0 ? t.slice(short).replace(/^\*\*Short answer\*\*/i, '') : t)
+    const plain = (short >= 0 ? t.slice(short).replace(/^\*\*Short answer\*\*/i, '') : t)
         .replace(/\[(\d+)\]/g, '')
         .replace(/[*_`#>]+/g, '')
         .replace(/\s+/g, ' ')
         .trim();
+    // cut by the API: end on a whole word
+    return t.length >= PREVIEW_CHARS ? `${plain.replace(/\s+\S*$/, '')}…` : plain;
 }
 
 function timeLabel(dateString) {
@@ -90,7 +89,7 @@ export default function Dashboard() {
             setSessions(data.sessions);
         } catch (err) {
             console.error('Failed to load sessions', err);
-            setError('Could not load your conversations. Check your connection and try again.');
+            setError('Could not load your cases. Check your connection and try again.');
             setSessions(prev => prev || []);
         }
     }, []);
@@ -101,7 +100,7 @@ export default function Dashboard() {
         try { localStorage.setItem('legal_lang', language); } catch { /* private mode */ }
     }, [language]);
 
-    // "/" jumps to the conversation search, as in most workspaces
+    // "/" jumps to the case search
     useEffect(() => {
         const onKey = (e) => {
             const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName);
@@ -144,9 +143,9 @@ export default function Dashboard() {
         if (text !== undefined) setQuestion(text);
         const el = composerRef.current;
         if (!el) return;
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         requestAnimationFrame(() => {
-            el.focus();
+            el.focus({ preventScroll: true });
             el.setSelectionRange(el.value.length, el.value.length);
         });
     };
@@ -175,7 +174,7 @@ export default function Dashboard() {
             setSessions(prev => prev.filter(x => x._id !== s._id));
         } catch (err) {
             console.error('Failed to delete session', err);
-            setError('Could not delete that conversation.');
+            setError('Could not delete that case.');
         }
     };
 
@@ -200,111 +199,107 @@ export default function Dashboard() {
     const today = new Intl.DateTimeFormat('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
 
     return (
-        <AppShell sessions={sessions || undefined} onNewChat={() => focusComposer()} newChatBusy={starting}>
-            <div className="ws">
-                <header className="ws-topbar">
-                    <div className="ws-crumbs">Home</div>
-                    <div className="ws-topbar-actions">
-                        <button type="button" className="ws-search-trigger" onClick={() => searchRef.current?.focus()}>
-                            <Search size={15} /> <span>Search conversations</span> <kbd>/</kbd>
-                        </button>
-                        <button type="button" className="btn btn-primary btn-sm" onClick={() => focusComposer()}>
-                            <Plus size={15} /> New question
-                        </button>
-                    </div>
-                </header>
-
-                <div className="ws-body">
-                    <section className="ws-head">
-                        <div>
-                            <p className="ws-date">{today}</p>
-                            <h1 className="ws-title">{greeting()}{firstName ? `, ${firstName}` : ''}</h1>
+        <AppShell sessions={sessions || undefined} onNewChat={() => focusComposer('')} newChatBusy={starting}>
+            <div className="dh">
+                {/* 1. Ask: the one place to start */}
+                <section className="dh-hero">
+                    <div className="dh-hero-inner">
+                        <div className="dh-hero-head">
+                            <div>
+                                <p className="dh-date">{today}</p>
+                                <h1 className="dh-title">{greeting()}{firstName ? `, ${firstName}` : ''}</h1>
+                                <p className="dh-sub">Describe your situation. You get the law that applies, with the exact sections to check.</p>
+                            </div>
+                            {!loading && counts.questions > 0 && (
+                                <div className="dh-hero-stat">
+                                    <strong>{counts.questions}</strong>
+                                    <span>{counts.questions === 1 ? 'question' : 'questions'} answered</span>
+                                </div>
+                            )}
                         </div>
-                        <dl className="ws-summary" aria-label="Your activity">
-                            <div><dt>Open</dt><dd>{loading ? '–' : counts.open}</dd></div>
-                            <div><dt>Resolved</dt><dd>{loading ? '–' : counts.resolved}</dd></div>
-                            <div><dt>Questions asked</dt><dd>{loading ? '–' : counts.questions}</dd></div>
-                        </dl>
-                    </section>
 
-                    <form className="ws-composer" onSubmit={submit}>
-                        <label htmlFor="ws-question" className="ws-composer-label">Ask about your situation</label>
-                        <textarea id="ws-question" ref={composerRef} rows={3} value={question} maxLength={2000}
-                            onChange={(e) => setQuestion(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) submit(e);
-                            }}
-                            placeholder="Describe what happened in your own words: who, what, when. For example, my landlord is keeping my ₹40,000 deposit after I moved out." />
-                        <div className="ws-composer-bar">
-                            <div className="ws-composer-tools">
-                                <label className="ws-lang" title="Answer language">
+                        <form className="dh-composer" onSubmit={submit}>
+                            <textarea ref={composerRef} rows={3} value={question} maxLength={2000}
+                                aria-label="Describe your situation"
+                                onChange={(e) => setQuestion(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) submit(e);
+                                }}
+                                placeholder="What happened? Who was involved, and when? For example: my landlord is keeping my ₹40,000 deposit after I moved out." />
+                            <div className="dh-composer-bar">
+                                <label className="dh-lang" title="Answer language">
                                     <Languages size={14} />
                                     <select value={language} onChange={(e) => setLanguage(e.target.value)} aria-label="Answer language">
                                         {LANGUAGES.map(([code, label]) => <option key={code} value={code}>{label}</option>)}
                                     </select>
                                 </label>
-                                <span className="ws-composer-hint"><BookOpen size={13} /> Every answer cites the exact sections</span>
+                                <span className="dh-composer-hint">Tip: name the Act if you know it</span>
+                                <button type="submit" className="dh-ask" disabled={!question.trim() || starting}>
+                                    {starting ? 'Starting…' : <>Ask <CornerDownLeft size={15} /></>}
+                                </button>
                             </div>
-                            <button type="submit" className="btn btn-primary ws-ask" disabled={!question.trim() || starting}>
-                                {starting ? 'Starting…' : <>Ask <CornerDownLeft size={15} /></>}
-                            </button>
-                        </div>
-                    </form>
-                    <div className="ws-starters">
-                        <span>Try</span>
-                        {STARTERS.map(q => (
-                            <button key={q} type="button" onClick={() => startChat(q)} disabled={starting}>{q}</button>
-                        ))}
-                    </div>
+                        </form>
 
-                    <div className="ws-grid">
-                        <section className="ws-panel ws-conversations" aria-labelledby="ws-conv-title">
-                            <div className="ws-panel-head">
-                                <h2 id="ws-conv-title" className="ws-panel-title">Conversations</h2>
-                                <div className="ws-search">
-                                    <Search size={14} />
-                                    <input ref={searchRef} value={search} onChange={(e) => setSearch(e.target.value)}
-                                        placeholder="Search" aria-label="Search conversations" />
-                                </div>
+                        <div className="dh-starters">
+                            <span>Popular</span>
+                            {STARTERS.map(q => (
+                                <button key={q} type="button" onClick={() => startChat(q)} disabled={starting}>{q}</button>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                <div className="dh-body">
+                    {/* 2. Your cases */}
+                    <section className="dh-section" aria-labelledby="dh-cases-title">
+                        <div className="dh-section-head">
+                            <div>
+                                <h2 id="dh-cases-title">Your cases</h2>
+                                <p>Every question you ask is saved here with its answer and sources.</p>
                             </div>
-                            <div className="ws-tabs" role="tablist" aria-label="Filter conversations">
+                            <div className="dh-search">
+                                <Search size={15} />
+                                <input ref={searchRef} value={search} onChange={(e) => setSearch(e.target.value)}
+                                    placeholder="Search cases" aria-label="Search cases" />
+                                <kbd>/</kbd>
+                            </div>
+                        </div>
+
+                        <div className="dh-cases">
+                            <div className="dh-tabs" role="tablist" aria-label="Filter cases">
                                 {FILTERS.map(([key, label]) => (
                                     <button key={key} type="button" role="tab" aria-selected={filter === key}
-                                        className={filter === key ? 'active' : ''} onClick={() => setFilter(key)}>
-                                        {label} <span>{counts[key]}</span>
+                                        className={`dh-tab dh-tab-${key}${filter === key ? ' active' : ''}`} onClick={() => setFilter(key)}>
+                                        {label} <span className="dh-tab-count">{loading ? '–' : counts[key]}</span>
                                     </button>
                                 ))}
                             </div>
 
                             {error && (
-                                <div className="form-alert form-alert-error ws-error">
+                                <div className="form-alert form-alert-error dh-error">
                                     <AlertTriangle size={16} /> {error}
                                     <button type="button" className="btn btn-secondary btn-sm" onClick={loadSessions}>Retry</button>
                                 </div>
                             )}
 
                             {loading ? (
-                                <div className="ws-list">
-                                    {[1, 2, 3, 4].map(i => (
-                                        <div key={i} className="ws-row ws-row-skeleton">
-                                            <div className="skeleton-box" style={{ width: 8, height: 8, borderRadius: 4 }} />
+                                <ul className="dh-list">
+                                    {[1, 2, 3].map(i => (
+                                        <li key={i} className="dh-row dh-row-skeleton">
                                             <div style={{ flex: 1 }}>
-                                                <div className="skeleton-box" style={{ width: '40%', height: 13, marginBottom: 7 }} />
-                                                <div className="skeleton-box" style={{ width: '75%', height: 11 }} />
+                                                <div className="skeleton-box" style={{ width: '40%', height: 14, marginBottom: 8 }} />
+                                                <div className="skeleton-box" style={{ width: '70%', height: 12 }} />
                                             </div>
-                                        </div>
+                                        </li>
                                     ))}
-                                </div>
+                                </ul>
                             ) : groups.length === 0 ? (
-                                <div className="ws-empty">
-                                    <MessagesSquare size={22} />
+                                <div className="dh-empty">
+                                    <span className="dh-empty-icon"><MessagesSquare size={22} /></span>
                                     {list.length === 0 ? (
                                         <>
-                                            <h3>No conversations yet</h3>
-                                            <p>Your questions and answers are saved here, so you can come back to a case later.</p>
-                                            <button type="button" className="btn btn-secondary btn-sm" onClick={() => focusComposer()}>
-                                                <Plus size={14} /> Ask your first question
-                                            </button>
+                                            <h3>No cases yet</h3>
+                                            <p>Ask your first question above, or pick an Act below to start from.</p>
                                         </>
                                     ) : (
                                         <>
@@ -314,83 +309,79 @@ export default function Dashboard() {
                                     )}
                                 </div>
                             ) : (
-                                <div className="ws-list">
-                                    {groups.map(([label, items]) => (
-                                        <div key={label} className="ws-group">
-                                            <div className="ws-group-label">{label}</div>
-                                            <ul>
-                                                {items.map(s => (
-                                                    <li key={s._id} className="ws-row" role="button" tabIndex={0}
-                                                        onClick={() => navigate(`/chat/${s._id}`)}
-                                                        onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/chat/${s._id}`); }}>
-                                                        <span className={`status-dot ${s.isSolved ? 'resolved' : 'open'}`}
-                                                            title={s.isSolved ? 'Resolved' : 'Open'} />
-                                                        <div className="ws-row-main">
-                                                            <div className="ws-row-title">{s.title || 'New Legal Query'}</div>
-                                                            <div className="ws-row-preview">{plainPreview(s.lastMessage) || 'No messages yet'}</div>
-                                                        </div>
-                                                        <span className="ws-row-count" title="Messages">
-                                                            <MessageSquare size={12} /> {s.messageCount || 0}
+                                groups.map(([label, items]) => (
+                                    <div key={label} className="dh-group">
+                                        <div className="dh-group-label">{label}</div>
+                                        <ul className="dh-list">
+                                            {items.map(s => (
+                                                <li key={s._id} className={`dh-row ${s.isSolved ? 'is-resolved' : 'is-open'}`}
+                                                    role="button" tabIndex={0}
+                                                    onClick={() => navigate(`/chat/${s._id}`)}
+                                                    onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/chat/${s._id}`); }}>
+                                                    <div className="dh-row-main">
+                                                        <div className="dh-row-title">{s.title || 'New Legal Query'}</div>
+                                                        <div className="dh-row-preview">{plainPreview(s.lastMessage) || 'No messages yet'}</div>
+                                                    </div>
+                                                    <div className="dh-row-meta">
+                                                        <span className={`dh-pill ${s.isSolved ? 'resolved' : 'open'}`}>
+                                                            {s.isSolved ? 'Resolved' : 'Open'}
                                                         </span>
-                                                        <span className="ws-row-time">{timeLabel(s.updatedAt)}</span>
-                                                        <div className="ws-row-actions">
-                                                            <button type="button" className="btn-icon" title={s.isSolved ? 'Reopen' : 'Mark resolved'}
-                                                                aria-label={s.isSolved ? 'Reopen' : 'Mark resolved'} onClick={(e) => toggleSolved(e, s)}>
-                                                                {s.isSolved ? <RotateCcw size={15} /> : <CheckCircle2 size={15} />}
-                                                            </button>
-                                                            <button type="button" className="btn-icon btn-icon-danger" title="Delete" aria-label="Delete"
-                                                                onClick={(e) => { e.stopPropagation(); setToDelete(s); }}>
-                                                                <Trash2 size={15} />
-                                                            </button>
-                                                        </div>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    ))}
-                                </div>
+                                                        <span className="dh-row-time">{timeLabel(s.updatedAt)}</span>
+                                                    </div>
+                                                    <div className="dh-row-actions">
+                                                        <button type="button" className="btn-icon" title={s.isSolved ? 'Reopen' : 'Mark resolved'}
+                                                            aria-label={s.isSolved ? 'Reopen' : 'Mark resolved'} onClick={(e) => toggleSolved(e, s)}>
+                                                            {s.isSolved ? <RotateCcw size={15} /> : <CheckCircle2 size={15} />}
+                                                        </button>
+                                                        <button type="button" className="btn-icon btn-icon-danger" title="Delete" aria-label="Delete"
+                                                            onClick={(e) => { e.stopPropagation(); setToDelete(s); }}>
+                                                            <Trash2 size={15} />
+                                                        </button>
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                ))
                             )}
-                        </section>
+                        </div>
+                    </section>
 
-                        <aside className="ws-side">
-                            <section className="ws-panel" aria-labelledby="ws-lib-title">
-                                <div className="ws-panel-head">
-                                    <h2 id="ws-lib-title" className="ws-panel-title"><Library size={15} /> Law library</h2>
-                                    <span className="ws-panel-meta">123 Acts indexed</span>
-                                </div>
-                                <ul className="ws-library">
-                                    {LIBRARY.map(a => (
-                                        <li key={a.short}>
-                                            <button type="button" onClick={() => focusComposer(`Under the ${a.name}, `)}
-                                                title={`Ask about the ${a.name}`}>
-                                                <span className="ws-act-mark">{a.short}</span>
-                                                <span className="ws-act-text">
-                                                    <strong>{a.name}</strong>
-                                                    <span>{a.scope}</span>
-                                                </span>
-                                                <ArrowUpRight size={14} className="ws-act-go" />
-                                            </button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </section>
-
-                            <section className="ws-panel ws-tips" aria-labelledby="ws-tips-title">
-                                <h2 id="ws-tips-title" className="ws-panel-title"><Lightbulb size={15} /> Getting precise answers</h2>
-                                <ol>
-                                    {TIPS.map(([title, text]) => (
-                                        <li key={title}><strong>{title}</strong><span>{text}</span></li>
-                                    ))}
-                                </ol>
-                            </section>
-                        </aside>
-                    </div>
+                    {/* 3. Browse by Act */}
+                    <section className="dh-section" aria-labelledby="dh-acts-title">
+                        <div className="dh-section-head">
+                            <div>
+                                <h2 id="dh-acts-title">Browse by Act</h2>
+                                <p>123 Central Acts are searchable. These are the ones people ask about most.</p>
+                            </div>
+                        </div>
+                        <ul className="dh-acts">
+                            {LIBRARY.map(a => (
+                                <li key={a.short}>
+                                    <button type="button" className={`dh-act area-${a.area}`}
+                                        onClick={() => focusComposer(`Under the ${a.name}, `)}>
+                                        <span className="dh-act-top">
+                                            <span className="dh-act-code">{a.short}</span>
+                                            <span className="dh-act-area">{LAW_AREAS[a.area]}</span>
+                                        </span>
+                                        <strong className="dh-act-name">{a.name}</strong>
+                                        <span className="dh-act-scope">{a.scope}</span>
+                                        <span className="dh-act-go">Ask about this Act <ArrowRight size={13} /></span>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
                 </div>
             </div>
 
+            <button type="button" className="dh-fab" onClick={() => focusComposer('')} aria-label="New question">
+                <Plus size={22} />
+            </button>
+
             <ConfirmDialog
                 open={!!toDelete}
-                title="Delete this conversation?"
+                title="Delete this case?"
                 message={toDelete ? `"${toDelete.title}" and all its messages will be removed. This cannot be undone.` : ''}
                 confirmLabel="Delete"
                 danger
