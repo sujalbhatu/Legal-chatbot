@@ -4,12 +4,9 @@ Branch `week3/memory-and-hardening` (local, not pushed). Everything below was me
 this laptop between 21 and 22 October 2026, against the 18 Acts in the index. Numbers come
 from files in `backend/rag_model/eval/results/`; every table says which.
 
-> **Status of this document.** Retrieval, memory and latency numbers are final. The
-> end-to-end answer comparison (hallucination rate, citation precision, answer language,
-> answer latency) needs about 190K Groq tokens on `gpt-oss-20b`, the same model the
-> baseline was measured with, and the free tier allows 200K per model per day. It runs
-> from `eval/run_answers.sh` once the rolling window frees up; section 5 gets its numbers
-> then.
+> **Status of this document.** All numbers are final (22 Oct 2026). The end-to-end
+> comparison in §5 ran on 22 Oct with the same answer model as the baseline
+> (`gpt-oss-20b`), on the final 123-Act index.
 
 ## 1. What changed, in one paragraph
 
@@ -25,7 +22,7 @@ padded the prompt with web snippets, showed fake "99% match" scores, and could s
 - **Makes the chat feel like a product:** streaming, clickable citations, follow-ups,
   feedback and a language picker.
 
-All 13 code-review findings are fixed with tests (54 Python, 10 Node).
+All 13 code-review findings are fixed with tests (55 Python, 10 Node).
 
 ## 2. Evaluation set
 
@@ -105,7 +102,8 @@ Spot-check list for Sujal (20 random labels, `check_labels.py`, seed 7):
 | Same, int8 reranker weights | 0.504 | 0.809 | 0.861 | 0.625 | 439 ms |
 | Same, bge-reranker-base instead (before margin titles) | 0.513 | 0.783 | 0.835 | 0.627 | 4,287 ms |
 | Same, without act filter / exact section lookup | 0.374 | 0.765 | 0.809 | 0.531 | 623 ms |
-| **Hybrid + rerank + LLM query expansion** (default) | **0.583** | **0.870** | **0.904** | **0.696** | see §6 |
+| Hybrid + rerank + LLM query expansion on every English question | 0.583 | 0.870 | 0.904 | 0.696 | see §6 |
+| **Final default, 123-Act index** (expansion only when no Act/section is named) | **0.548** | **0.870** | **0.904** | **0.668** | see §6 |
 
 Recall@5 by question type:
 
@@ -181,22 +179,44 @@ plain-language scenarios pay most of it. The end-to-end run in §5 uses the 123-
   - Or raise `MemoryMax` to about 700M.
   - Query expansion runs on Groq and costs no server memory.
 
-## 5. Grounded answers (end-to-end): pending quota
+## 5. Grounded answers (end-to-end)
 
-Measured on a 31-question stratified subset, same answer model (`gpt-oss-20b`) and same
-judge for both systems. **Numbers to be filled in from `answer_*_report.json`.**
+31-question stratified subset (every question type represented, including 2 out-of-corpus
+questions). Both systems use the same answer model (`gpt-oss-20b`) and the same judge
+(`qwen3.8-27b`, same prompt, temperature 0). The new system runs through its streaming
+path, as users get it. Files: `eval/results/answer_baseline_report.json`,
+`answer_new_report.json`.
 
 | | Baseline | New |
 |---|---:|---:|
-| Hallucination rate (judge) | _pending_ | _pending_ |
-| Unsupported section mentions | _pending_ | _pending_ |
-| Citation precision (cards shown) | _pending_ | _pending_ |
-| Citation cards per answer | max 2 | all used (≤6) |
-| Out-of-corpus abstention | _pending_ | _pending_ |
-| Right answer language | _pending_ | _pending_ |
-| p50 / p95 latency | _pending_ | _pending_ |
-| Time to first token | n/a (no streaming) | _pending_ |
-| Groq calls / tokens per query | _pending_ | _pending_ |
+| Answers produced | 24 / 31 (7 empty) | **31 / 31** |
+| Hallucination rate (LLM judge, answerable questions) | 72.7% (16 of 22) | **34.5%** (10 of 29) |
+| Section numbers in answers not found in the retrieved text | 75% (21 of 28) | **0%** (0 of 55) |
+| Out-of-corpus questions declined | 0 / 2 | **2 / 2** |
+| Answer in the question's language | 100% | 100% |
+| Citation cards per answer | 0.71 | 6.0 (cited first) |
+| Share of citation cards that are gold sections | 17.6% | 25.3% |
+| Latency p50 / p95 (whole answer) | 2.8 s / 12.5 s | **2.4 s / 2.8 s** |
+| Time to first word p50 / p95 | (no streaming) | **1.95 s / 2.33 s** |
+| Groq calls / tokens per question | 2.04 / 3,208 | 1.65 / 2,466 |
+
+What these mean:
+- **Empty answers.** On 7 of 31 questions the old code got an empty reply from gpt-oss-20b
+  and passed it on: the user would have seen nothing. The new code treats empty content
+  as a failure and falls back to another model (0 of 31).
+- **Hallucinations halved, not gone.** 34.5% of answers still contain at least one claim
+  the judge could not find in the sources. Real examples, not judge noise:
+  - "a minor's contract is voidable" (under Indian law it is void);
+  - "30 days for a second appeal" (it is 90);
+  - helmet fines quoted from the outdated Motor Vehicles PDF or from outside the sources.
+  The deterministic citation check is stronger: none of the 55 section numbers the new
+  system cited was missing from its sources, against 21 of 28 for the old system.
+- **Citation precision is low for both,** because many questions have several reasonable
+  sections and only 1-4 are gold. The new system lists every retrieved section it read
+  (cited ones first), so it shows more non-gold cards.
+- **Latency.** The new system is faster at p50 and far steadier at p95 (the old one's
+  12.5 s tail comes from failed-model fallbacks). With streaming, users see the first
+  words in under 2.5 s for 95% of questions.
 
 Already observed:
 - **Baseline hallucination.** The baseline answered the out-of-corpus cheque-bounce
@@ -210,8 +230,7 @@ Already observed:
   threshold is off by default, and the grounded prompt decides whether the sources answer
   the question. For the same reason the UI does not show "High/Low relevance".
 - **End-to-end smoke test** (local UI on in-memory MongoDB, gpt-oss-120b):
-  - Time to first token 2.0–3.0 s, full answer about 3 s, over 4 queries. That's a small
-    sample; the real numbers come from the run above.
+  - Time to first token 2.0–3.0 s over 4 queries (superseded by the table above).
   - Hindi answers cite correctly once gpt-oss's native `【4】` markers are normalised.
   - A follow-up ("And if he snatched my phone instead?") resolves to BNS s.304.
 
@@ -222,10 +241,12 @@ Already observed:
     translation for non-English) and **3.2 s p50 retrieval**.
   - New, without expansion: 0.21 calls (only non-English or follow-up messages need one;
     translation, follow-up resolution and act naming are a single JSON call) and 0.8 s p50.
-  - With query expansion (default): English first messages also make one call of
-    0.5–0.9 s (measured directly). So retrieval is about 1.3–1.7 s p50 on this laptop.
-- **Answer:** streamed. Users see sources after about 1.5 s and text after about 2–3 s
-  instead of waiting for the whole answer.
+  - With query expansion on every English question, the live expansion call cost 1–3 s,
+    which brought pre-answer time back to about 3 s. So expansion now runs only when the
+    question names no Act and no section (those are found by the act filter anyway); this
+    also raised Recall@5 from 0.843 to 0.870 on the 123-Act index.
+- **Answer:** streamed. First words at 1.95 s p50 / 2.33 s p95; whole answer 2.4 s p50 /
+  2.8 s p95 (old system: 2.8 s / 12.5 s, no streaming).
 - **Dead models:** the old fallback models (`llama-3.3-70b-versatile`, `llama-3.1-8b-instant`)
   and the memory summarizer's model returned 404 on this key, so in production long-term
   memory compaction had silently never run. Model lists are now checked and configurable,
@@ -313,19 +334,19 @@ How it was measured:
 - Found and fixed a section-parsing bug that left 86% of the Bharatiya Nyaya Sanhita
   unindexed. Section-aware chunking plus hybrid BM25/dense retrieval, cross-encoder
   reranking and LLM query expansion raised Recall@5 from 0.30 to 0.87 and MRR from 0.23
-  to 0.70.
-- Cut pre-answer retrieval latency from 3.2 s to 0.8 s p50 (about 1.5 s with query
-  expansion on) by merging translation, act detection and follow-up resolution into one
-  optional JSON LLM call, and streamed answers token-by-token (SSE through Flask → Node
-  → React).
+  to 0.67 (123-Act index).
+- Halved the LLM-judged hallucination rate (72.7% → 34.5%) with grounded prompting and a
+  citation post-check; uncited section numbers fell from 75% to 0%, out-of-scope
+  questions are declined instead of answered, and empty answers fell from 7/31 to 0.
+- Streamed answers token-by-token (SSE through Flask → Node → React): first words in
+  1.95 s p50 / 2.33 s p95, and p95 answer latency cut from 12.5 s to 2.8 s.
 - Designed recursive-summary conversation memory that used 30% fewer tokens than full
   history over a 20-turn consultation while still recalling turn-1 facts that a sliding
   window lost.
 - Hardened a production MERN + Flask service: JWT revocation on password reset, OTP
   brute-force and mail-flood limits, an SSRF-safe downloader, admin-only ingestion and an
-  XSS fix, with 64 automated tests.
+  XSS fix, with 65 automated tests.
 
-(Add the hallucination-rate line after §5 is filled in.)
 
 ## 12. Interview questions and answers
 

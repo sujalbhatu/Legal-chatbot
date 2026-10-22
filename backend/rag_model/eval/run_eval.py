@@ -194,13 +194,16 @@ def run_answers(args):
         if q["id"] in done:
             continue
         captured = {}
-        original = pipeline.format_context
+        # The baseline builds its prompt in format_context(); the new pipeline returns
+        # its context in result["context_sources"] instead.
+        original = getattr(pipeline, "format_context", None)
 
         def capture(sources, _orig=original):
             captured["context"] = list(sources)
             return _orig(sources)
 
-        pipeline.format_context = capture
+        if original:
+            pipeline.format_context = capture
         waited_before = _rate_limiter(wrapper).waited_s
         t0 = time.perf_counter()
         try:
@@ -216,7 +219,8 @@ def run_answers(args):
         except Exception as e:
             result, error = {"answer": None, "sources": [], "usage": {}}, str(e)[:200]
         finally:
-            pipeline.format_context = original
+            if original:
+                pipeline.format_context = original
         rl_wait_ms = (_rate_limiter(wrapper).waited_s - waited_before) * 1000
         ms = (time.perf_counter() - t0) * 1000 - rl_wait_ms
         context = result.get("context_sources") or captured.get("context", [])
@@ -281,6 +285,18 @@ def run_judge(args):
     print(json.dumps(report, indent=1))
 
 
+def _act_name_stems():
+    """Act display name (lower case) -> file stem, from old and current chunk files."""
+    from common import DATA_DIR
+    names = {}
+    for folder in ("chunks_v1", "chunks"):
+        for path in (DATA_DIR / folder).glob("*_chunks.jsonl"):
+            with open(path, encoding="utf-8") as f:
+                meta = json.loads(f.readline())["metadata"]
+            names.setdefault(meta["act_name"].lower(), meta["source_file"].rsplit(".txt", 1)[0])
+    return names
+
+
 def answer_report(recs):
     answered = [r for r in recs if r.get("answer")]
     lat = sorted(r["latency_ms"] for r in answered)
@@ -289,10 +305,15 @@ def answer_report(recs):
     def pct(xs, p):
         return xs[min(len(xs) - 1, int(round(p * (len(xs) - 1))))] if xs else None
 
-    shown = [(s["source_file"].rsplit(".txt", 1)[0] or s["act"], s["section"]) for r in answered
-             for s in r["shown_sources"]]
+    act_stems = _act_name_stems()
+
+    def stem_of(s):
+        # the baseline's citation cards carry only the act's display name
+        return s["source_file"].rsplit(".txt", 1)[0] or act_stems.get((s["act"] or "").lower(), s["act"])
+
+    shown = [(stem_of(s), s["section"]) for r in answered for s in r["shown_sources"]]
     shown_gold = sum(1 for r in answered for s in r["shown_sources"]
-                     if [s["source_file"].rsplit(".txt", 1)[0], str(s["section"])] in r["gold"])
+                     if [stem_of(s), str(s["section"])] in r["gold"])
     cites = unsupported = 0
     for r in answered:
         ctx_secs = {c["key"][1] for c in r["context"]}

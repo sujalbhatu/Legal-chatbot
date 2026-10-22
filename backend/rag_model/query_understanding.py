@@ -141,9 +141,13 @@ def _expand(query: str, llm, model: str) -> Understanding:
 def understand(query: str, history: list, language: str, llm, model: str) -> Understanding:
     recent = [m for m in (history or []) if m.get("role") in ("user", "assistant")][-4:]
     if language == "en" and not recent:
-        if query_expansion_enabled():
+        acts, refs = detect_acts(query), section_refs(query)
+        # A question that names its Act or section is already found by the act filter
+        # (Recall@5 1.00 on section-number questions without expansion), so the
+        # 1-3 s expansion call is only spent on plain-language questions.
+        if query_expansion_enabled() and not acts and not refs:
             return _expand(query, llm, os.getenv("EXPAND_MODEL", "openai/gpt-oss-120b"))
-        return Understanding(search_query=query, acts=detect_acts(query), section_refs=section_refs(query))
+        return Understanding(search_query=query, acts=acts, section_refs=refs)
 
     convo = "\n".join(f"{m['role'].upper()}: {m['content'][:400]}" for m in recent) or "(none)"
     try:

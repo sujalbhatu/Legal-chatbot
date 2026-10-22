@@ -182,6 +182,13 @@ class QueryUnderstandingTests(unittest.TestCase):
         self.assertEqual(u.search_query, "someone stole my bike theft dishonestly")
         self.assertEqual(u.acts, ["bharatiya_nyaya_sanhita_2023"])
 
+    def test_no_expansion_call_when_the_act_or_section_is_named(self):
+        llm = FakeLLM(json.dumps({"act": "", "legal_terms": ["x"]}))
+        with mock.patch.dict(os.environ, {"QUERY_EXPANSION": "1"}):
+            u = qu.understand("What does Section 303 of the BNS say?", [], "en", llm, "m")
+        self.assertEqual(llm.calls, 0)
+        self.assertEqual(u.section_refs, ["303"])
+
     def test_expansion_failure_keeps_the_query(self):
         with mock.patch.dict(os.environ, {"QUERY_EXPANSION": "1"}):
             u = qu.understand("someone stole my bike", [], "en", FakeLLM(error=RuntimeError("timeout")), "m")
