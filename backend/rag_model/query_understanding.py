@@ -146,13 +146,17 @@ def query_expansion_enabled() -> bool:
 
 
 def _expand(query: str, llm, model: str) -> Understanding:
+    # Optional step: the raw query still works, so when the free tier is rate-limited
+    # this gives up at once instead of retrying with backoff (up to ~30 s before).
+    if hasattr(llm, "with_options"):
+        llm = llm.with_options(max_retries=0)
     try:
         with llm_usage.purpose("query_rewrite"):
             resp = llm.chat.completions.create(
                 model=model,
                 messages=[{"role": "system", "content": EXPAND_PROMPT}, {"role": "user", "content": query}],
                 temperature=0, max_tokens=300, reasoning_effort="low",
-                response_format={"type": "json_object"}, timeout=10)
+                response_format={"type": "json_object"}, timeout=5)
         data = json.loads(resp.choices[0].message.content or "{}")
         terms = [str(t).strip() for t in (data.get("legal_terms") or []) if str(t).strip()][:5]
         act = (data.get("act") or "").strip()

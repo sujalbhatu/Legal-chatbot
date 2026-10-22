@@ -94,5 +94,9 @@ class MeteredClient:
         self._client = client
         self.chat = _MeteredChat(client.chat)
 
+    def with_options(self, **options):
+        """Same client with other settings (e.g. max_retries=0), still counted."""
+        return MeteredClient(self._client.with_options(**options))
+
     def __getattr__(self, name):
         return getattr(self._client, name)
