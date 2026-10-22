@@ -39,6 +39,28 @@ router.get('/sessions', async (req, res) => {
                         $substrCP: [
                             { $ifNull: [{ $arrayElemAt: ['$messages.content', -1] }, ''] }, 0, 240
                         ]
+                    },
+                    // sections the answers actually cited, for the dashboard's case cards
+                    citations: {
+                        $slice: [{
+                            $reduce: {
+                                input: '$messages',
+                                initialValue: [],
+                                in: {
+                                    $concatArrays: ['$$value', {
+                                        $map: {
+                                            input: {
+                                                $filter: {
+                                                    input: { $ifNull: ['$$this.sources', []] },
+                                                    as: 's', cond: { $eq: ['$$s.cited', true] }
+                                                }
+                                            },
+                                            as: 's', in: { act: '$$s.act_name', section: '$$s.section' }
+                                        }
+                                    }]
+                                }
+                            }
+                        }, 20]
                     }
                 }
             }
