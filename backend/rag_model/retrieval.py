@@ -157,9 +157,9 @@ class HybridRetriever:
         if variant == "hybrid_rerank" and self.reranker is not None and fused:
             candidates = [i for i, _ in fused[: self.rerank_top_n]]
             rq = rerank_query or query
-            pairs = [(rq, f"{self.docs[i]['header']}\n{self.docs[i]['text'][:1500]}") for i in candidates]
-            logits = self.reranker.predict(pairs, batch_size=16, show_progress_bar=False)
-            scored = sorted(zip(candidates, (sigmoid(float(x)) for x in logits)), key=lambda x: x[1], reverse=True)
+            passages = [f"{self.docs[i]['header']}\n{self.docs[i]['text'][:1500]}" for i in candidates]
+            probs = self.reranker.score(rq, passages)
+            scored = sorted(zip(candidates, probs), key=lambda x: x[1], reverse=True)
             exact_set = set(exact)
             # Explicitly cited sections stay in the result even if the reranker is unsure.
             head = [(i, s) for i, s in scored if i in exact_set]
@@ -179,15 +179,83 @@ class HybridRetriever:
         return out
 
 
+class LocalReranker:
+    """The cross-encoder on this machine. score() returns a probability per passage."""
+
+    def __init__(self, name: str):
+        from sentence_transformers import CrossEncoder
+        self.name = name
+        self.model = CrossEncoder(name, max_length=int(os.getenv("RERANK_MAX_TOKENS", "256")))
+        if os.getenv("RERANKER_INT8", "0") == "1":
+            # int8 weights for the Linear layers: ~4x less memory for the weights and
+            # faster on CPU; the effect on ranking is measured in the eval (ablation).
+            import torch
+            torch.quantization.quantize_dynamic(self.model.model, {torch.nn.Linear}, dtype=torch.qint8, inplace=True)
+
+    def score(self, query: str, passages: List[str]) -> List[float]:
+        logits = self.model.predict([(query, p) for p in passages], batch_size=16, show_progress_bar=False)
+        return [sigmoid(float(x)) for x in logits]
+
+
+JINA_RERANK_URL = "https://api.jina.ai/v1/rerank"
+
+
+class HostedReranker:
+    """
+    Jina's rerank API. On the 1 GB VM the local cross-encoder takes ~8 s per question
+    (CPU-bound); the API takes well under a second. If a call fails (timeout, quota,
+    network), that question uses the local model, which is loaded only the first time it
+    is needed, so the server does not keep an unused model in memory.
+    """
+
+    def __init__(self, api_key: str, model: str, fallback_name: str, timeout: float, max_chars: int):
+        self.api_key = api_key
+        self.max_chars = max_chars
+        self.name = model
+        self.fallback_name = fallback_name
+        self.timeout = timeout
+        self._fallback = None
+        self._fallback_lock = threading.Lock()
+
+    def _local(self) -> LocalReranker:
+        with self._fallback_lock:
+            if self._fallback is None:
+                self._fallback = LocalReranker(self.fallback_name)
+        return self._fallback
+
+    def score(self, query: str, passages: List[str]) -> List[float]:
+        import requests
+        try:
+            resp = requests.post(
+                JINA_RERANK_URL, timeout=self.timeout,
+                headers={"Authorization": f"Bearer {self.api_key}"},
+                json={"model": self.name, "query": query, "documents": [p[:self.max_chars] for p in passages],
+                      "top_n": len(passages), "return_documents": False})
+            if resp.status_code != 200:
+                raise RuntimeError(f"HTTP {resp.status_code}")
+            scores = [0.0] * len(passages)
+            for r in resp.json()["results"]:
+                scores[r["index"]] = float(r["relevance_score"])
+            return scores
+        except Exception as e:   # the status code only: never the key or the response body
+            reason = str(e) if isinstance(e, RuntimeError) else type(e).__name__
+            print(f"  ⚠ Hosted rerank failed ({reason}), using the local model")
+            return self._local().score(query, passages)
+
+
 def load_reranker(name: str):
-    """CrossEncoder, or None when RERANKER_MODEL is 'none'."""
+    """
+    The reranker to use, or None when RERANKER_MODEL is 'none'. With JINA_API_KEY set
+    (and RERANKER_PROVIDER not 'local') reranking goes to Jina's API, with the local
+    model `name` as the fallback.
+    """
     if not name or name.lower() == "none":
         return None
-    from sentence_transformers import CrossEncoder
-    model = CrossEncoder(name, max_length=int(os.getenv("RERANK_MAX_TOKENS", "256")))
-    if os.getenv("RERANKER_INT8", "0") == "1":
-        # int8 weights for the Linear layers: ~4x less memory for the weights and
-        # faster on CPU; the effect on ranking is measured in the eval (ablation).
-        import torch
-        torch.quantization.quantize_dynamic(model.model, {torch.nn.Linear}, dtype=torch.qint8, inplace=True)
-    return model
+    key = os.getenv("JINA_API_KEY", "").strip()
+    if key and os.getenv("RERANKER_PROVIDER", "jina").lower() != "local":
+        return HostedReranker(key, os.getenv("JINA_RERANK_MODEL", "jina-reranker-v2-base-multilingual"),
+                              fallback_name=name, timeout=float(os.getenv("HOSTED_RERANK_TIMEOUT", "4")),
+                              # ~1,000 characters is about what the local model reads (256 tokens),
+                              # and halves the tokens counted against the API's per-minute limit
+                              max_chars=int(os.getenv("HOSTED_RERANK_MAX_CHARS", "1000")))
+    return LocalReranker(name)

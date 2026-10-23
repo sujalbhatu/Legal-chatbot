@@ -488,6 +488,30 @@ Same questions sent to the RAG service on the VM (`/api/query`, not streamed):
 - Through nginx and Node the answer streams (first bytes after about 1.5 s, then the
   status line until search finishes).
 
-Next step for speed: a bigger instance (an Always Free Ampere A1 has 4 cores and 24 GB),
-where the reranker would run in well under a second.
+### Hosted reranker (23 Oct)
+
+The reranker was the 8 s step, so it now runs on Jina's API (`jina-reranker-v2-base-multilingual`)
+when `JINA_API_KEY` is set, with the local cross-encoder as the fallback (loaded only if a
+call fails). Jina's free tier allows 100K tokens per minute; passages are cut to 1,000
+characters (about what the local model reads), so about 19 questions a minute fit before
+the fallback takes over.
+
+Retrieval eval, 115 questions, same settings (expansion off), paced under the rate limit,
+0 fallbacks:
+
+| | Local MiniLM cross-encoder | Jina hosted |
+|---|---:|---:|
+| Recall@1 | 0.522 | **0.583** |
+| Recall@5 | 0.765 | **0.791** |
+| Recall@10 | 0.835 | 0.826 |
+| MRR | 0.631 | **0.676** |
+
+On the server the answer model was also switched to `gpt-oss-120b` first (20b as fallback):
+same speed on Groq (~1 s), and the 20b had declined an answerable question ("fake Instagram
+account" with BNS 319 and IT Act 66C retrieved).
+
+Server, questions spaced like real traffic: **1.4-4.5 s per answer** (retrieval 0.7-2.6 s),
+down from 10-15 s. Bursts above the Groq free tier's ~8K tokens per minute (several
+questions within a minute) still slow the answer step; the first question after a restart
+is slower while memory pages back in.
 

@@ -127,7 +127,8 @@ class LegalRAGPipeline:
         self.reranker = load_reranker(RERANKER_MODEL) if RETRIEVAL_MODE == "hybrid_rerank" else None
         self.retriever = HybridRetriever(self.collection, self.embed_model, self.reranker)
         print(f"  Vector store '{COLLECTION_NAME}': {self.collection.count()} chunks; "
-              f"retrieval={RETRIEVAL_MODE}, reranker={RERANKER_MODEL if self.reranker else 'none'}")
+              f"retrieval={RETRIEVAL_MODE}, reranker={self.reranker.name if self.reranker else 'none'}"
+              f"{' (hosted, local fallback)' if hasattr(self.reranker, 'fallback_name') else ''}")
 
         self.memory_strategy = MEMORY_STRATEGY
         self.memory_config = MemoryConfig()

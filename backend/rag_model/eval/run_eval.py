@@ -150,6 +150,8 @@ def run_retrieval(args):
                      "ranked": ranked, "ms": round(ms), "top_score": context[0].get("score") if context else None, "llm_calls": usage["llm_calls"],
                      "tokens": usage["total_tokens"]})
         print(f"[{i + 1}/{len(questions)}] {q['id']:6} rank={first} ms={ms:.0f} calls={usage['llm_calls']}", flush=True)
+        if args.retrieval_pause:   # stay under a hosted reranker's tokens-per-minute limit
+            time.sleep(args.retrieval_pause)
 
     name = f"retrieval_{args.system}" + (f"_{args.variant}" if args.system != "baseline" else "") + args.tag
     summary = {"system": args.system, "variant": args.variant, "metrics": retrieval_metrics(rows),
@@ -363,6 +365,7 @@ def main():
     ap.add_argument("--subset", type=int, default=30)
     ap.add_argument("--tag", default="")
     ap.add_argument("--pause", type=float, default=2.0)
+    ap.add_argument("--retrieval-pause", type=float, default=0.0)
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--run")
     ap.add_argument("--judge-model", default="qwen/qwen3.8-27b")
