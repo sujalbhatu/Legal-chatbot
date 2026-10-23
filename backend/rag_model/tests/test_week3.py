@@ -272,6 +272,43 @@ class RetrievalTests(unittest.TestCase):
         self.assertEqual(len({h["id"] for h in hits}), len(hits))
 
 
+class HostedRerankerTests(unittest.TestCase):
+    def make(self):
+        from retrieval import HostedReranker
+        r = HostedReranker("jina_secret", "jina-reranker-v2-base-multilingual", fallback_name="local-model",
+                           timeout=1, max_chars=10)
+        local = types.SimpleNamespace(score=mock.Mock(return_value=[0.1, 0.2]))
+        r._local = lambda: local
+        return r, local
+
+    def test_scores_come_back_in_passage_order(self):
+        r, local = self.make()
+        resp = types.SimpleNamespace(status_code=200, json=lambda: {"results": [
+            {"index": 1, "relevance_score": 0.9}, {"index": 0, "relevance_score": 0.3}]})
+        with mock.patch("requests.post", return_value=resp) as post:
+            self.assertEqual(r.score("theft", ["long passage one", "two"]), [0.3, 0.9])
+        sent = post.call_args.kwargs["json"]["documents"]
+        self.assertEqual(sent, ["long passa", "two"])          # trimmed to max_chars
+        local.score.assert_not_called()
+
+    def test_failures_fall_back_to_the_local_model_without_logging_the_key(self):
+        r, local = self.make()
+        for outcome in (types.SimpleNamespace(status_code=429, json=lambda: {}), TimeoutError("slow")):
+            kwargs = {"return_value": outcome} if not isinstance(outcome, Exception) else {"side_effect": outcome}
+            with mock.patch("requests.post", **kwargs), mock.patch("builtins.print") as log:
+                self.assertEqual(r.score("q", ["a", "b"]), [0.1, 0.2])
+            self.assertNotIn("jina_secret", str(log.call_args))
+
+    def test_load_reranker_picks_hosted_only_with_a_key(self):
+        import retrieval
+        with mock.patch.dict(os.environ, {"JINA_API_KEY": "k", "RERANKER_PROVIDER": "jina"}):
+            self.assertIsInstance(retrieval.load_reranker("m"), retrieval.HostedReranker)
+        with mock.patch.dict(os.environ, {"JINA_API_KEY": "k", "RERANKER_PROVIDER": "local"}), \
+                mock.patch.object(retrieval, "LocalReranker", return_value="local") as local:
+            self.assertEqual(retrieval.load_reranker("m"), "local")
+            local.assert_called_once_with("m")
+
+
 class AnswerCheckTests(unittest.TestCase):
     def test_followups_are_split_off(self):
         answer, followups = answer_utils.split_followups(
