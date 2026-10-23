@@ -1,0 +1,293 @@
+{
+ "model": "openai/gpt-oss-120b",
+ "summary_model": "openai/gpt-oss-120b",
+ "turns": [
+  {
+   "turn": 1,
+   "summary_answer_prompt_groq": 679,
+   "summary_answer_prompt_counted": 613,
+   "full_answer_prompt_counted": 613,
+   "window_answer_prompt_counted": 613,
+   "summary_turn_total_groq": 768,
+   "summarizer_tokens": 0,
+   "rewrite_tokens": 0,
+   "answer_completion_tokens": 89,
+   "folded": 0
+  },
+  {
+   "turn": 2,
+   "summary_answer_prompt_groq": 1812,
+   "summary_answer_prompt_counted": 1744,
+   "full_answer_prompt_counted": 1744,
+   "window_answer_prompt_counted": 1744,
+   "summary_turn_total_groq": 2579,
+   "summarizer_tokens": 0,
+   "rewrite_tokens": 485,
+   "answer_completion_tokens": 282,
+   "folded": 0
+  },
+  {
+   "turn": 3,
+   "summary_answer_prompt_groq": 1905,
+   "summary_answer_prompt_counted": 1835,
+   "full_answer_prompt_counted": 1835,
+   "window_answer_prompt_counted": 1835,
+   "summary_turn_total_groq": 2694,
+   "summarizer_tokens": 0,
+   "rewrite_tokens": 529,
+   "answer_completion_tokens": 260,
+   "folded": 0
+  },
+  {
+   "turn": 4,
+   "summary_answer_prompt_groq": 2075,
+   "summary_answer_prompt_counted": 2003,
+   "full_answer_prompt_counted": 2003,
+   "window_answer_prompt_counted": 2003,
+   "summary_turn_total_groq": 2983,
+   "summarizer_tokens": 0,
+   "rewrite_tokens": 597,
+   "answer_completion_tokens": 311,
+   "folded": 0
+  },
+  {
+   "turn": 5,
+   "summary_answer_prompt_groq": 2627,
+   "summary_answer_prompt_counted": 2553,
+   "full_answer_prompt_counted": 2553,
+   "window_answer_prompt_counted": 2471,
+   "summary_turn_total_groq": 3704,
+   "summarizer_tokens": 0,
+   "rewrite_tokens": 574,
+   "answer_completion_tokens": 503,
+   "folded": 0
+  },
+  {
+   "turn": 6,
+   "summary_answer_prompt_groq": 3306,
+   "summary_answer_prompt_counted": 3230,
+   "full_answer_prompt_counted": 3230,
+   "window_answer_prompt_counted": 2893,
+   "summary_turn_total_groq": 4452,
+   "summarizer_tokens": 0,
+   "rewrite_tokens": 611,
+   "answer_completion_tokens": 535,
+   "folded": 0
+  },
+  {
+   "turn": 7,
+   "summary_answer_prompt_groq": 2093,
+   "summary_answer_prompt_counted": 2023,
+   "full_answer_prompt_counted": 2661,
+   "window_answer_prompt_counted": 2107,
+   "summary_turn_total_groq": 4465,
+   "summarizer_tokens": 1262,
+   "rewrite_tokens": 621,
+   "answer_completion_tokens": 489,
+   "folded": 8
+  },
+  {
+   "turn": 8,
+   "summary_answer_prompt_groq": 2269,
+   "summary_answer_prompt_counted": 2197,
+   "full_answer_prompt_counted": 2835,
+   "window_answer_prompt_counted": 1983,
+   "summary_turn_total_groq": 3071,
+   "summarizer_tokens": 0,
+   "rewrite_tokens": 629,
+   "answer_completion_tokens": 173,
+   "folded": 0
+  },
+  {
+   "turn": 9,
+   "summary_answer_prompt_groq": 2407,
+   "summary_answer_prompt_counted": 2333,
+   "full_answer_prompt_counted": 2971,
+   "window_answer_prompt_counted": 1628,
+   "summary_turn_total_groq": 3230,
+   "summarizer_tokens": 0,
+   "rewrite_tokens": 645,
+   "answer_completion_tokens": 178,
+   "folded": 0
+  },
+  {
+   "turn": 10,
+   "summary_answer_prompt_groq": 3611,
+   "summary_answer_prompt_counted": 3535,
+   "full_answer_prompt_counted": 4173,
+   "window_answer_prompt_counted": 2355,
+   "summary_turn_total_groq": 4371,
+   "summarizer_tokens": 0,
+   "rewrite_tokens": 609,
+   "answer_completion_tokens": 151,
+   "folded": 0
+  },
+  {
+   "turn": 11,
+   "summary_answer_prompt_groq": 2932,
+   "summary_answer_prompt_counted": 2862,
+   "full_answer_prompt_counted": 4870,
+   "window_answer_prompt_counted": 2621,
+   "summary_turn_total_groq": 6215,
+   "summarizer_tokens": 2279,
+   "rewrite_tokens": 571,
+   "answer_completion_tokens": 433,
+   "folded": 8
+  },
+  {
+   "turn": 12,
+   "summary_answer_prompt_groq": 1644,
+   "summary_answer_prompt_counted": 1572,
+   "full_answer_prompt_counted": 3580,
+   "window_answer_prompt_counted": 1200,
+   "summary_turn_total_groq": 2635,
+   "summarizer_tokens": 0,
+   "rewrite_tokens": 628,
+   "answer_completion_tokens": 363,
+   "folded": 0
+  },
+  {
+   "turn": 13,
+   "summary_answer_prompt_groq": 1974,
+   "summary_answer_prompt_counted": 1900,
+   "full_answer_prompt_counted": 3908,
+   "window_answer_prompt_counted": 1380,
+   "summary_turn_total_groq": 3015,
+   "summarizer_tokens": 0,
+   "rewrite_tokens": 618,
+   "answer_completion_tokens": 423,
+   "folded": 0
+  },
+  {
+   "turn": 14,
+   "summary_answer_prompt_groq": 2989,
+   "summary_answer_prompt_counted": 2913,
+   "full_answer_prompt_counted": 4921,
+   "window_answer_prompt_counted": 2292,
+   "summary_turn_total_groq": 4088,
+   "summarizer_tokens": 0,
+   "rewrite_tokens": 574,
+   "answer_completion_tokens": 525,
+   "folded": 0
+  },
+  {
+   "turn": 15,
+   "summary_answer_prompt_groq": 2701,
+   "summary_answer_prompt_counted": 2631,
+   "full_answer_prompt_counted": 5555,
+   "window_answer_prompt_counted": 2559,
+   "summary_turn_total_groq": 5595,
+   "summarizer_tokens": 1885,
+   "rewrite_tokens": 551,
+   "answer_completion_tokens": 458,
+   "folded": 8
+  },
+  {
+   "turn": 16,
+   "summary_answer_prompt_groq": 3467,
+   "summary_answer_prompt_counted": 3395,
+   "full_answer_prompt_counted": 6320,
+   "window_answer_prompt_counted": 3000,
+   "summary_turn_total_groq": 4742,
+   "summarizer_tokens": 0,
+   "rewrite_tokens": 633,
+   "answer_completion_tokens": 642,
+   "folded": 0
+  },
+  {
+   "turn": 17,
+   "summary_answer_prompt_groq": 3027,
+   "summary_answer_prompt_counted": 2953,
+   "full_answer_prompt_counted": 5878,
+   "window_answer_prompt_counted": 2133,
+   "summary_turn_total_groq": 3764,
+   "summarizer_tokens": 0,
+   "rewrite_tokens": 623,
+   "answer_completion_tokens": 114,
+   "folded": 0
+  },
+  {
+   "turn": 18,
+   "summary_answer_prompt_groq": 3716,
+   "summary_answer_prompt_counted": 3640,
+   "full_answer_prompt_counted": 6565,
+   "window_answer_prompt_counted": 2346,
+   "summary_turn_total_groq": 4713,
+   "summarizer_tokens": 0,
+   "rewrite_tokens": 533,
+   "answer_completion_tokens": 464,
+   "folded": 0
+  },
+  {
+   "turn": 19,
+   "summary_answer_prompt_groq": 2263,
+   "summary_answer_prompt_counted": 2193,
+   "full_answer_prompt_counted": 7005,
+   "window_answer_prompt_counted": 2337,
+   "summary_turn_total_groq": 6435,
+   "summarizer_tokens": 3020,
+   "rewrite_tokens": 587,
+   "answer_completion_tokens": 565,
+   "folded": 8
+  },
+  {
+   "turn": 20,
+   "summary_answer_prompt_groq": 2167,
+   "summary_answer_prompt_counted": 2095,
+   "full_answer_prompt_counted": 6908,
+   "window_answer_prompt_counted": 1621,
+   "summary_turn_total_groq": 3307,
+   "summarizer_tokens": 0,
+   "rewrite_tokens": 674,
+   "answer_completion_tokens": 466,
+   "folded": 0,
+   "full_answer_prompt_groq": 7012,
+   "window_answer_prompt_groq": 1693
+  }
+ ],
+ "calibration_ratio_groq_over_counted": 1.032,
+ "calibration_ratio_range": [
+  1.021,
+  1.108
+ ],
+ "answer_prompt_tokens_total": {
+  "full": 82678,
+  "window": 42429,
+  "summary": 49664
+ },
+ "summarizer_tokens_total": 8446,
+ "last_turn_answer_prompt": {
+  "full": 7012,
+  "window": 1693,
+  "summary": 2167
+ },
+ "fact_check_turn_20": {
+  "summary": {
+   "passed": true,
+   "patterns": {
+    "Rahul": true,
+    "18,?000": true
+   }
+  },
+  "full": {
+   "passed": true,
+   "patterns": {
+    "Rahul": true,
+    "18,?000": true
+   }
+  },
+  "window": {
+   "passed": false,
+   "patterns": {
+    "Rahul": false,
+    "18,?000": false
+   }
+  }
+ },
+ "final_answers": {
+  "summary": "**Short answer**  \nYour friend Rahul lost ₹18,000 to a fake Instagram profile that impersonated you. The likely offences are cheating by personation (Section 319 of the Bharatiya Nyaya Sanhita) and cyber‑fraud/cheating by personation using a computer (Section 66D of the Information Technology Act). The first step is to go to the nearest police station and lodge a written complaint/FIR, attaching all electronic evidence.\n\n**What the law says**  \n- **Section 319, Bharatiya Nyaya Sanhita** – cheating by personation (punishment up to three years imprisonment and/or fine)【1】.  \n- **Section 66D, Information Technology Act, 2000** – cheating by personation using a computer or communication device (punishment up to three years imprisonment and/or fine)【2】.  \n- **Section 173(4), Bharatiya Nagarik Suraksha Sanhita** – if the police‑station officer refuses to record the information, you may send the substance in writing to the Superintendent of Police, who can order an investigation【5】.  \n- **Section 514, Bharatiya Nagarik Suraksha Sanhita** – limitation periods (generally three years for offences punishable with imprisonment up to three years)【2】.  \n\n**What you can do next**  \n1. **Gather evidence** – screenshots of the fake Instagram profile, chat logs, UPI transaction receipt, device metadata. Keep originals intact and make backup copies.  \n2. **Visit the local police station** and file a written complaint/FIR, citing Sections 319 B.N.S. and 66D IT Act, and attach the evidence.  \n3. **Obtain a copy of the FIR/complaint receipt** with date‑stamp; this starts the limitation clock.  \n4. If the officer **refuses to record** the complaint, send the same information by registered post to the **Superintendent of Police** under Section 173(4) and keep the receipt.  \n\n*This is general information, not legal advice.*",
+  "full": "**Case summary**\n\n- **Loss:** Your friend **Rahul** was deceived and transferred **₹18,000** to a fake Instagram profile that used your photos.  \n- **Applicable sections:**  \n  1. **Section 66D of the Information Technology Act, 2000** – “Punishment for cheating by personation by using computer resource” (up to 3 years imprisonment and fine up to ₹1  lakh).  \n  2. **Section 319 of the Bharatiya Nyaya Sanhita, 2023** – “Cheating by personation” (up to 5 years imprisonment, fine or both).  \n  3. **Section 61 of the Bharatiya Sakshya Adhiniyam, 2023** – electronic records (screenshots, chat logs, UPI receipt) are admissible as evidence.  \n- **First step:** Go to the **nearest police station** and lodge a written complaint/FIR, attaching all electronic evidence (Instagram screenshots, chat logs, UPI transaction receipt) and specifically citing Sections 66D (IT Act) and 319 (Bharatiya Nyaya Sanhita).  \n\n*This is general information, not legal advice.*",
+  "window": "**Summary of your case**\n\n- **Loss:** You were defrauded of **₹ [amount you mentioned]** (the exact figure you gave) by a person who used a fake identity to obtain money from you through a digital transaction.  \n- **Applicable provisions:**  \n  * **Section 319 of the Bharatiya Nagarik Suraksha Sanhita (B.N.S.)** – offence of cheating by personation.  \n  * **Section 514 of the B.N.S.** – sets the limitation period for filing the complaint (six months, one year or three years depending on the maximum punishment).  \n  * **Section 173(4) of the B.N.S.** – if the police‑station officer refuses to record your complaint, you may send the information in writing to the Superintendent of Police.  \n  * **Section 188 of the B.N.S.** – any investigation by a subordinate officer must be reported to the officer in charge of the police station.  \n  * **Section 224 of the B.N.S.** – a complaint presented to an inappropriate magistrate must be returned, confirming that the police station is the proper first forum.  \n\n**First step you should take**\n\n1. **Go to the nearest police station** and file a written complaint/FIR, attaching all evidence (screenshots, transaction details, communication with the fraudster). Obtain a dated, stamped copy of the FIR/complaint receipt.  \n\n*This is general information, not legal advice.*"
+ },
+ "final_summary": "- Fake Instagram profile used your photos, impersonated you, messaged friend Rahul who transferred Rs 18,000 via UPI to the impostor.  \n- Offences: IT Act 2000 Sec 66D (cheating by personation using a computer); Bharatiya Nyaya Sanhita 2023 Sec 319 (cheating by personation); ordinary cheating Sec 318(2). Personation carries higher maximum penalty.  \n- FIR can be lodged by you or Rahul; if police refuse, send written complaint to SP under BNS Sec 173(4) or approach Magistrate. Investigation must be completed within 2 months for listed offences (BNS Sec 193(2)).  \n- Evidence to preserve: full screenshots of the Instagram profile (picture, bio, posts, messages requesting money) with visible date‑time stamps; export chat logs as PDF/text preserving timestamps; UPI transaction receipt (screen capture and PDF/statement showing amount, date, time, VPA); device metadata (IP, device ID, OS version); keep original files intact and back‑up on secure external drive/cloud.  \n- Admissibility: Section 61 Bharatiya Sakshya Adhiniyam gives electronic records same legal effect; Section 58(2)(d) requires the actual copy, not oral description. Screenshots are admissible without a certificate unless used as a “statement”; then a certificate per Section 63 (identifying record, device, signed by custodian/expert) is needed. Certified copies or expert affidavit strengthen authenticity.  \n- If the impostor is a minor (<18 yr), case falls under Juvenile Justice Act 2015 Sec 14 – trial in Juvenile Justice Board, max 3 yr imprisonment/fine, rehabilitative measures; evidence rules unchanged but testimony must follow juvenile safeguards.  \n- Civil recovery: Rahul can sue for Rs 18,000 under Indian Contract Act (fraud makes contract voidable) and Specific Relief Act/CPC.  \n- Next steps: file FIR (mention possible minor), obtain FIR copy, request investigation timeline, preserve and certify evidence, engage lawyer for criminal and civil aspects."
+}

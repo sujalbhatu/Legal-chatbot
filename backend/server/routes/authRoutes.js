@@ -4,19 +4,20 @@ const User = require('../models/User');
 const authMiddleware = require('../middleware/auth');
 
 const { sendOTPEmail } = require('../utils/emailService');
+const { generateOTP, setOTP, consumeOTP, reserveOTPEmail } = require('../utils/otp');
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'LegalQuerySystem_JWT_SuperSecret_2026';
+const { JWT_SECRET } = require('../config');
 
-// Generate a random 6-digit OTP
-function generateOTP() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+// The token carries the user's tokenVersion; a password reset bumps it, which
+// invalidates every token issued before (see middleware/auth.js)
+function generateToken(user) {
+    return jwt.sign({ userId: user._id, tv: user.tokenVersion || 0 }, JWT_SECRET, { expiresIn: '7d' });
 }
 
-// Generate JWT token
-function generateToken(userId) {
-    return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
-}
+// Same answer whether or not the address is registered, so signup can't be used to
+// find out who has an account
+const SIGNUP_SENT = { message: 'If this email can be registered, a verification code has been sent to it.' };
 
 // POST /api/auth/signup
 router.post('/signup', async (req, res) => {
@@ -31,44 +32,44 @@ router.post('/signup', async (req, res) => {
             return res.status(400).json({ error: 'Password must be at least 6 characters.' });
         }
 
-        // Check if user exists
-        let user = await User.findOne({ email: email.toLowerCase() });
-        
-        const otp = generateOTP();
-        const otpExpires = new Date(Date.now() + 10 * 60000); // 10 minutes
-
-        if (user) {
-            if (user.isVerified) {
-                return res.status(400).json({ error: 'An account with this email already exists.' });
-            }
-            // If user exists but is not verified, update their OTP and resend
-            user.name = name;
-            user.password = password;
-            user.otp = otp;
-            user.otpExpires = otpExpires;
-            await user.save();
-        } else {
-            user = new User({ 
-                name, 
-                email: email.toLowerCase(), 
-                password,
-                otp,
-                otpExpires,
-                isVerified: false
-            });
-            await user.save();
+        if (typeof name !== 'string' || typeof email !== 'string' || typeof password !== 'string') {
+            return res.status(400).json({ error: 'Invalid signup details.' });
         }
 
-        // Send OTP email
+        let user = await User.findOne({ email: email.toLowerCase() });
+
+        if (user && user.isVerified) {
+            // Don't reveal that the account exists; the owner can log in or reset the password
+            return res.status(201).json({ ...SIGNUP_SENT, email: user.email });
+        }
+        if (user) {
+            // Unverified account: take the new details and send a fresh code
+            user.name = name;
+            user.password = password;
+        } else {
+            user = new User({
+                name,
+                email: email.toLowerCase(),
+                password,
+                isVerified: false
+            });
+        }
+        const slot = reserveOTPEmail(user);
+        if (!slot.ok) {
+            // A recent code is still valid; don't send another one yet
+            await user.save();
+            return res.status(201).json({ ...SIGNUP_SENT, email: user.email, retryAfterS: slot.retryAfterS });
+        }
+        const otp = generateOTP();
+        setOTP(user, otp);
+        await user.save();
+
         const emailSent = await sendOTPEmail(user.email, otp, 'verify');
         if (!emailSent) {
             return res.status(500).json({ error: 'Failed to send verification email. Please try again later.' });
         }
 
-        res.status(201).json({
-            message: 'Verification code sent to your email.',
-            email: user.email
-        });
+        res.status(201).json({ ...SIGNUP_SENT, email: user.email });
     } catch (err) {
         console.error('Signup error:', err);
         res.status(500).json({ error: 'Server error during signup.' });
@@ -93,8 +94,9 @@ router.post('/verify-email', async (req, res) => {
             return res.status(400).json({ error: 'Account is already verified.' });
         }
 
-        if (user.otp !== otp || user.otpExpires < new Date()) {
-            return res.status(400).json({ error: 'Invalid or expired OTP.' });
+        const otpError = await consumeOTP(User, user._id, otp);
+        if (otpError) {
+            return res.status(otpError.status).json({ error: otpError.error });
         }
 
         // Mark user as verified
@@ -103,7 +105,7 @@ router.post('/verify-email', async (req, res) => {
         user.otpExpires = null;
         await user.save();
 
-        const token = generateToken(user._id);
+        const token = generateToken(user);
 
         res.json({
             message: 'Account verified successfully!',
@@ -131,12 +133,12 @@ router.post('/forgot-password', async (req, res) => {
             return res.json({ message: 'If an account with that email exists, a reset code has been sent.' });
         }
 
-        const otp = generateOTP();
-        user.otp = otp;
-        user.otpExpires = new Date(Date.now() + 10 * 60000); // 10 minutes
-        await user.save();
-
-        await sendOTPEmail(user.email, otp, 'reset');
+        if (reserveOTPEmail(user).ok) {
+            const otp = generateOTP();
+            setOTP(user, otp);
+            await user.save();
+            await sendOTPEmail(user.email, otp, 'reset');
+        }
 
         res.json({ message: 'If an account with that email exists, a reset code has been sent.' });
     } catch (err) {
@@ -163,13 +165,16 @@ router.post('/reset-password', async (req, res) => {
             return res.status(400).json({ error: 'Invalid or expired OTP.' });
         }
 
-        if (user.otp !== otp || user.otpExpires < new Date()) {
-            return res.status(400).json({ error: 'Invalid or expired OTP.' });
+        const otpError = await consumeOTP(User, user._id, otp);
+        if (otpError) {
+            return res.status(otpError.status).json({ error: otpError.error });
         }
 
         user.password = newPassword;
         user.otp = null;
         user.otpExpires = null;
+        // Log out every existing session: whoever knew the old password may hold a token
+        user.tokenVersion = (user.tokenVersion || 0) + 1;
         await user.save();
 
         res.json({ message: 'Password has been successfully reset. You can now log in.' });
@@ -200,22 +205,26 @@ router.post('/login', async (req, res) => {
 
         // Return error if unverified
         if (!user.isVerified) {
-            // Resend OTP automatically
-            const otp = generateOTP();
-            user.otp = otp;
-            user.otpExpires = new Date(Date.now() + 10 * 60000);
-            await user.save();
-            await sendOTPEmail(user.email, otp, 'verify');
+            // Resend a code, but not on every login attempt (inbox flooding)
+            const slot = reserveOTPEmail(user);
+            if (slot.ok) {
+                const otp = generateOTP();
+                setOTP(user, otp);
+                await user.save();
+                await sendOTPEmail(user.email, otp, 'verify');
+            }
 
-            return res.status(403).json({ 
-                error: 'Account not verified.', 
+            return res.status(403).json({
+                error: 'Account not verified.',
                 unverified: true,
                 email: user.email,
-                message: 'A new verification code has been sent to your email.'
+                message: slot.ok
+                    ? 'A new verification code has been sent to your email.'
+                    : 'Use the verification code we already sent to your email.'
             });
         }
 
-        const token = generateToken(user._id);
+        const token = generateToken(user);
 
         res.json({
             message: 'Login successful!',
@@ -260,18 +269,23 @@ router.put('/profile', authMiddleware, async (req, res) => {
             user.name = name;
         }
         
+        let token;
         if (password) {
             if (password.length < 6) {
                 return res.status(400).json({ error: 'Password must be at least 6 characters.' });
             }
             user.password = password;
+            // Other devices are logged out; this one gets a fresh token
+            user.tokenVersion = (user.tokenVersion || 0) + 1;
+            token = generateToken(user);
         }
-        
+
         await user.save();
-        
+
         res.json({
             message: 'Profile updated successfully!',
-            user: user.toJSON()
+            user: user.toJSON(),
+            ...(token ? { token } : {})
         });
     } catch (err) {
         console.error('Profile update error:', err);

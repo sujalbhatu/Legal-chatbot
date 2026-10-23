@@ -25,7 +25,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+        // Only a signed-in user can have an expired session; a guest's 401 is just an error
+        const hadSession = !!localStorage.getItem('legal_token');
+        if (hadSession && error.response && (error.response.status === 401 || error.response.status === 403)) {
             // Clear invalid credentials
             localStorage.removeItem('legal_token');
             localStorage.removeItem('legal_user');
@@ -38,6 +40,56 @@ api.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+/** POST `body` and read the Server-Sent Events answer stream (meta, token, done, error). */
+export async function streamSSE(url, body, handlers, signal, withAuth) {
+    const token = withAuth ? localStorage.getItem('legal_token') : null;
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(body),
+        signal
+    });
+    if (withAuth && response.status === 401) {
+        localStorage.removeItem('legal_token');
+        localStorage.removeItem('legal_user');
+        window.location.href = '/login?expired=true';
+        throw new Error('Session expired');
+    }
+    if (!response.ok || !response.body) {
+        let message = response.status === 429 ? 'Too many questions right now.' : 'Failed to send your question.';
+        try { message = (await response.json()).error || message; } catch { /* not JSON */ }
+        throw new Error(message);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let result = null;
+    for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, '\n');
+        let sep;
+        while ((sep = buffer.indexOf('\n\n')) !== -1) {
+            const block = buffer.slice(0, sep);
+            buffer = buffer.slice(sep + 2);
+            const event = (block.match(/^event: ?(.*)$/m) || [])[1] || 'message';
+            const dataLine = block.split('\n').filter(l => l.startsWith('data:')).map(l => l.slice(5).trimStart()).join('\n');
+            if (!dataLine) continue;
+            const data = JSON.parse(dataLine);
+            if (event === 'meta') handlers.onMeta?.(data);
+            else if (event === 'token') handlers.onToken?.(data.text);
+            else if (event === 'done') result = data;
+            else if (event === 'error') throw new Error(data.error || 'The AI service failed.');
+        }
+    }
+    if (!result) throw new Error('The answer was interrupted.');
+    return result;
+}
 
 // Auth services
 export const authService = {
@@ -77,6 +129,10 @@ export const authService = {
 
     updateProfile: async (userData) => {
         const response = await api.put('/auth/profile', userData);
+        if (response.data.token) {
+            // a password change revokes old tokens and returns a new one for this device
+            localStorage.setItem('legal_token', response.data.token);
+        }
         if (response.data.user) {
             localStorage.setItem('legal_user', JSON.stringify(response.data.user));
         }
@@ -130,8 +186,30 @@ export const chatService = {
         return response.data;
     },
 
-    sendQuery: async (id, query) => {
-        const response = await api.post(`/chat/sessions/${id}/query`, { query });
+    sendQuery: async (id, query, language) => {
+        const response = await api.post(`/chat/sessions/${id}/query`, { query, language });
+        return response.data;
+    },
+
+    /**
+     * Stream an answer. Calls handlers.onMeta({sources, language, grounded}),
+     * handlers.onToken(text) for each piece, then resolves with the final
+     * {messages, session} (or rejects with an Error). `signal` aborts it.
+     */
+    streamQuery: (id, query, language, handlers = {}, signal) =>
+        streamSSE(`/api/chat/sessions/${id}/query/stream`, { query, language }, handlers, signal, true),
+
+    /** Guest mode: same stream, nothing saved; resolves with {message, remainingToday}. */
+    streamGuest: (query, language, history, handlers = {}, signal) =>
+        streamSSE('/api/chat/guest/query/stream', { query, language, history }, handlers, signal, false),
+
+    guestStatus: async () => {
+        const response = await api.get('/chat/guest/status');
+        return response.data;
+    },
+
+    sendFeedback: async (sessionId, messageId, rating) => {
+        const response = await api.post(`/chat/sessions/${sessionId}/messages/${messageId}/feedback`, { rating });
         return response.data;
     }
 };

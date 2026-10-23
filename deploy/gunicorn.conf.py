@@ -22,9 +22,10 @@ worker_class = "sync"
 threads = 2
 
 # === Memory Management ===
-# Auto-restart worker after N requests to prevent memory leaks
-max_requests = 200
-max_requests_jitter = 20  # Randomize restart to avoid thundering herd
+# No periodic worker restarts: on the 1 GB VM a restart reloads the models, which takes
+# about two minutes, and the question that triggers it waits that long. Memory is capped
+# by systemd instead (MemoryHigh/MemoryMax in legal-rag.service).
+max_requests = 0
 
 # === Timeouts ===
 # RAG queries can take 30-60s (LLM generation via Groq API)
@@ -47,3 +48,18 @@ proc_name = "legal-rag-api"
 # === Server Mechanics ===
 # Don't daemonize (systemd manages the process)
 daemon = False
+
+
+def post_worker_init(worker):
+    """Load the models in the background as soon as the worker starts, so the first
+    question after a restart does not pay the load time (about two minutes on the VM).
+    A thread, because loading takes longer than `timeout` and the worker must keep
+    sending heartbeats; a question that arrives meanwhile waits on the pipeline's lock."""
+    import threading
+
+    def warm():
+        from app import get_pipeline
+        get_pipeline()
+        worker.log.info("RAG pipeline loaded")
+
+    threading.Thread(target=warm, name="warm-pipeline", daemon=True).start()

@@ -32,6 +32,29 @@ const userSchema = new mongoose.Schema({
     otpExpires: {
         type: Date,
         default: null
+    },
+    // Wrong guesses against the current OTP; the code is burned after 5 (see authRoutes.js)
+    otpAttempts: {
+        type: Number,
+        default: 0
+    },
+    // OTP e-mails sent recently, so nobody can flood an inbox via signup/login
+    otpSentAt: {
+        type: Date,
+        default: null
+    },
+    otpSendWindowStart: {
+        type: Date,
+        default: null
+    },
+    otpSendCount: {
+        type: Number,
+        default: 0
+    },
+    // Part of every JWT; bumping it (password reset/change) logs out all old tokens
+    tokenVersion: {
+        type: Number,
+        default: 0
     }
 }, { timestamps: true });
 

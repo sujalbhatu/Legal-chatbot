@@ -1,11 +1,41 @@
-frontend/node_modules   
+frontend/node_modules
 credentials.json
 backend/server/node_modules
 *.env
 backend/rag_model/venv
 *__pycache__
-data
 frontend/dist
 node_modules
 .env.remote
-.env.production
+.env.production
+
+# Corpus: only the source PDFs are tracked. Extracted text, chunks and the vector
+# store are rebuilt from them with `python ingest.py` (or `--rechunk`).
+data/*
+!data/raw_pdfs/
+data/raw_pdfs/indiacode_pdfs/
+
+# Build/deploy archives
+*.tar.gz
+*.zip
+
+# Local helper scripts, not part of the app
+/scrap.py
+/read_pdf.py
+/generate_*.py
+/test_rag.py
+/test_retrieval.py
+/package.json
+/package-lock.json
+backend/server/check_chats.js
+
+# Evaluation: LLM response cache and run logs stay local
+backend/rag_model/eval/results/llm_cache.jsonl
+backend/rag_model/eval/results/log_*.txt
+
+# Personal resume drafts (contain contact details) - never commit
+/resume/
+/resume*.tex
+
+# Added Act batches: PDFs stay local (source recorded in MANIFEST.json)
+data/raw_pdfs/*/*.pdf

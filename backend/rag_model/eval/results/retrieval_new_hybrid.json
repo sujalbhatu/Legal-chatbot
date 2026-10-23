@@ -1,0 +1,6517 @@
+{
+ "summary": {
+  "system": "new",
+  "variant": "hybrid",
+  "metrics": {
+   "all": {
+    "n": 115,
+    "recall@1": 0.487,
+    "recall@5": 0.713,
+    "recall@10": 0.791,
+    "mrr": 0.573,
+    "retrieval_ms_p50": 47
+   },
+   "section": {
+    "n": 22,
+    "recall@1": 0.909,
+    "recall@5": 0.955,
+    "recall@10": 0.955,
+    "mrr": 0.918,
+    "retrieval_ms_p50": 57
+   },
+   "acronym": {
+    "n": 16,
+    "recall@1": 0.688,
+    "recall@5": 0.812,
+    "recall@10": 0.875,
+    "mrr": 0.723,
+    "retrieval_ms_p50": 56
+   },
+   "scenario": {
+    "n": 52,
+    "recall@1": 0.327,
+    "recall@5": 0.635,
+    "recall@10": 0.731,
+    "mrr": 0.448,
+    "retrieval_ms_p50": 30
+   },
+   "multilingual": {
+    "n": 15,
+    "recall@1": 0.4,
+    "recall@5": 0.733,
+    "recall@10": 0.867,
+    "mrr": 0.513,
+    "retrieval_ms_p50": 54
+   },
+   "multiturn": {
+    "n": 10,
+    "recall@1": 0.2,
+    "recall@5": 0.4,
+    "recall@10": 0.5,
+    "mrr": 0.317,
+    "retrieval_ms_p50": 57
+   }
+  },
+  "llm_calls_per_query": 0.21,
+  "tokens_per_query": 78,
+  "rate_limit_waits": 0,
+  "rss_mb": 574,
+  "config": {
+   "RETRIEVAL_MODE": "hybrid",
+   "EMBEDDING_MODEL": "all-MiniLM-L6-v2"
+  }
+ },
+ "rows": [
+  {
+   "id": "sec01",
+   "type": "section",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "303"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "303"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "197"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "152"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "2"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "358"
+    ]
+   ],
+   "ms": 72,
+   "top_score": 0.0636,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec02",
+   "type": "section",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "103"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "103"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "240"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "2"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "249"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "212"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "148"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "341"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "199"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "107"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "168"
+    ]
+   ],
+   "ms": 39,
+   "top_score": 0.0641,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec03",
+   "type": "section",
+   "gold": [
+    [
+     "constitution_of_india_2024_english",
+     "21"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "constitution_of_india_2024_english",
+     "21"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "239AB"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "226A"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "257A"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "170"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "144A"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "332"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "228A"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "389"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "56"
+    ]
+   ],
+   "ms": 54,
+   "top_score": 0.0984,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec04",
+   "type": "section",
+   "gold": [
+    [
+     "information_technology_act_2000",
+     "66C"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "information_technology_act_2000",
+     "66C"
+    ],
+    [
+     "information_technology_act_2000",
+     "56"
+    ],
+    [
+     "information_technology_act_2000",
+     "20"
+    ],
+    [
+     "information_technology_act_2000",
+     "53"
+    ],
+    [
+     "information_technology_act_2000",
+     "90"
+    ],
+    [
+     "information_technology_act_2000",
+     "89"
+    ],
+    [
+     "information_technology_act_2000",
+     "51"
+    ],
+    [
+     "information_technology_act_2000",
+     "49"
+    ],
+    [
+     "information_technology_act_2000",
+     "50"
+    ],
+    [
+     "information_technology_act_2000",
+     "52"
+    ]
+   ],
+   "ms": 50,
+   "top_score": 0.0656,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec05",
+   "type": "section",
+   "gold": [
+    [
+     "hindu_marriage_act_1955",
+     "13B"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "hindu_marriage_act_1955",
+     "13B"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "8"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "6"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "1"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "2"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "7"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "4"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "27"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "29"
+    ]
+   ],
+   "ms": 51,
+   "top_score": 0.0766,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec06",
+   "type": "section",
+   "gold": [
+    [
+     "indian_contract_act_1872",
+     "10"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "indian_contract_act_1872",
+     "10"
+    ],
+    [
+     "indian_contract_act_1872",
+     "94"
+    ],
+    [
+     "indian_contract_act_1872",
+     "252"
+    ],
+    [
+     "indian_contract_act_1872",
+     "88"
+    ],
+    [
+     "indian_contract_act_1872",
+     "259"
+    ],
+    [
+     "indian_contract_act_1872",
+     ""
+    ],
+    [
+     "indian_contract_act_1872",
+     "1"
+    ],
+    [
+     "indian_contract_act_1872",
+     "260"
+    ],
+    [
+     "indian_contract_act_1872",
+     "266"
+    ],
+    [
+     "indian_contract_act_1872",
+     "262"
+    ]
+   ],
+   "ms": 52,
+   "top_score": 0.096,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec07",
+   "type": "section",
+   "gold": [
+    [
+     "transfer_of_property_act_1882",
+     "54"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "transfer_of_property_act_1882",
+     "54"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "5"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "18"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "44"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "124"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "74"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "15"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "123"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "39"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "75"
+    ]
+   ],
+   "ms": 44,
+   "top_score": 0.0769,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec08",
+   "type": "section",
+   "gold": [
+    [
+     "motor_vehicles_act_1988",
+     "185"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "motor_vehicles_act_1988",
+     "185"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "118"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "217"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "139"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "181"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "5"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "119"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "161"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "144"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "112"
+    ]
+   ],
+   "ms": 59,
+   "top_score": 0.0636,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec09",
+   "type": "section",
+   "gold": [
+    [
+     "right_to_information_act_2005",
+     "7"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "right_to_information_act_2005",
+     "7"
+    ],
+    [
+     "right_to_information_act_2005",
+     "1"
+    ],
+    [
+     "right_to_information_act_2005",
+     "28"
+    ],
+    [
+     "right_to_information_act_2005",
+     "8"
+    ],
+    [
+     "right_to_information_act_2005",
+     "24"
+    ],
+    [
+     "right_to_information_act_2005",
+     "27"
+    ],
+    [
+     "right_to_information_act_2005",
+     "16"
+    ]
+   ],
+   "ms": 50,
+   "top_score": 0.0719,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec10",
+   "type": "section",
+   "gold": [
+    [
+     "constitution_of_india_2024_english",
+     "32"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "constitution_of_india_2024_english",
+     "32"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "139"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "370"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "243C"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "368"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     ""
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "392"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "226A"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "144A"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "36"
+    ]
+   ],
+   "ms": 57,
+   "top_score": 0.0656,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec11",
+   "type": "section",
+   "gold": [
+    [
+     "code_of_civil_procedure_1908",
+     "11"
+    ]
+   ],
+   "first_gold_rank": 5,
+   "ranked": [
+    [
+     "code_of_civil_procedure_1908",
+     "110"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "158"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "111"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "11"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "9"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "141"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "129"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "131"
+    ]
+   ],
+   "ms": 85,
+   "top_score": 0.0631,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec12",
+   "type": "section",
+   "gold": [
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "12"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "12"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "3"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "28"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "23"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "4"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "2"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "36"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "1"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "22"
+    ]
+   ],
+   "ms": 59,
+   "top_score": 0.0876,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec13",
+   "type": "section",
+   "gold": [
+    [
+     "central_goods_and_services_tax_act_2017",
+     "74"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "central_goods_and_services_tax_act_2017",
+     "74"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "75"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "104"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "83"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "174"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "117"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "21"
+    ]
+   ],
+   "ms": 46,
+   "top_score": 0.0948,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec14",
+   "type": "section",
+   "gold": [
+    [
+     "pocso_act_2012",
+     "4"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "pocso_act_2012",
+     "44"
+    ],
+    [
+     "pocso_act_2012",
+     "46"
+    ],
+    [
+     "pocso_act_2012",
+     "1"
+    ],
+    [
+     "pocso_act_2012",
+     "29"
+    ],
+    [
+     "pocso_act_2012",
+     "42A"
+    ],
+    [
+     "pocso_act_2012",
+     "43"
+    ],
+    [
+     "pocso_act_2012",
+     "40"
+    ],
+    [
+     "pocso_act_2012",
+     "7"
+    ],
+    [
+     "pocso_act_2012",
+     "9"
+    ],
+    [
+     "pocso_act_2012",
+     "45"
+    ]
+   ],
+   "ms": 44,
+   "top_score": 0.062,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec15",
+   "type": "section",
+   "gold": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "480"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "480"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "166"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "190"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "109"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "527"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "307"
+    ]
+   ],
+   "ms": 66,
+   "top_score": 0.0656,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec16",
+   "type": "section",
+   "gold": [
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "63"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "63"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "71"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "120"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "56"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "51"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "59"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "145"
+    ]
+   ],
+   "ms": 55,
+   "top_score": 0.0631,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec17",
+   "type": "section",
+   "gold": [
+    [
+     "specific_relief_act_1963",
+     "10"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "specific_relief_act_1963",
+     "10"
+    ],
+    [
+     "specific_relief_act_1963",
+     "4"
+    ],
+    [
+     "specific_relief_act_1963",
+     "36"
+    ],
+    [
+     "specific_relief_act_1963",
+     "5"
+    ],
+    [
+     "specific_relief_act_1963",
+     "3"
+    ],
+    [
+     "specific_relief_act_1963",
+     "1"
+    ],
+    [
+     "specific_relief_act_1963",
+     "9"
+    ],
+    [
+     "specific_relief_act_1963",
+     "35"
+    ],
+    [
+     "specific_relief_act_1963",
+     "21"
+    ],
+    [
+     "specific_relief_act_1963",
+     "11"
+    ]
+   ],
+   "ms": 58,
+   "top_score": 0.0984,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec18",
+   "type": "section",
+   "gold": [
+    [
+     "constitution_of_india_2024_english",
+     "14"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "constitution_of_india_2024_english",
+     "14"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "31C"
+    ],
+    [
+     "indian_contract_act_1872",
+     "144"
+    ],
+    [
+     "indian_contract_act_1872",
+     "143"
+    ],
+    [
+     "indian_contract_act_1872",
+     "142"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "366"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "293"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "199"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "243ZL"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "15"
+    ]
+   ],
+   "ms": 65,
+   "top_score": 0.0798,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec19",
+   "type": "section",
+   "gold": [
+    [
+     "special_marriage_act_1954",
+     "27"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "special_marriage_act_1954",
+     "27"
+    ],
+    [
+     "special_marriage_act_1954",
+     "30"
+    ],
+    [
+     "special_marriage_act_1954",
+     "11"
+    ],
+    [
+     "special_marriage_act_1954",
+     "51"
+    ],
+    [
+     "special_marriage_act_1954",
+     "21A"
+    ],
+    [
+     "special_marriage_act_1954",
+     "42"
+    ],
+    [
+     "special_marriage_act_1954",
+     "5"
+    ],
+    [
+     "special_marriage_act_1954",
+     "18"
+    ],
+    [
+     "special_marriage_act_1954",
+     "27A"
+    ]
+   ],
+   "ms": 66,
+   "top_score": 0.0741,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec20",
+   "type": "section",
+   "gold": [
+    [
+     "environment_protection_act_1986",
+     "15"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "environment_protection_act_1986",
+     "15"
+    ],
+    [
+     "environment_protection_act_1986",
+     "18"
+    ],
+    [
+     "environment_protection_act_1986",
+     "21"
+    ],
+    [
+     "environment_protection_act_1986",
+     "23"
+    ],
+    [
+     "environment_protection_act_1986",
+     "1"
+    ],
+    [
+     "environment_protection_act_1986",
+     "14"
+    ],
+    [
+     "environment_protection_act_1986",
+     "24"
+    ],
+    [
+     "environment_protection_act_1986",
+     "20"
+    ],
+    [
+     "environment_protection_act_1986",
+     "8"
+    ],
+    [
+     "environment_protection_act_1986",
+     "9"
+    ]
+   ],
+   "ms": 75,
+   "top_score": 0.0751,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec21",
+   "type": "section",
+   "gold": [
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "7"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "7"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "57"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "2"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "54"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "5"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "23A"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "56"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "33D"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "49"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "1"
+    ]
+   ],
+   "ms": 65,
+   "top_score": 0.0645,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "sec22",
+   "type": "section",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "318"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "318"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "341"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "199"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "335"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "2"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "147"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "145"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "212"
+    ]
+   ],
+   "ms": 57,
+   "top_score": 0.0648,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "acr01",
+   "type": "acronym",
+   "gold": [
+    [
+     "central_goods_and_services_tax_act_2017",
+     "22"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "central_goods_and_services_tax_act_2017",
+     "22"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "25"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "40"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "139"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "29"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "18"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "122"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "23"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "140"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "31"
+    ]
+   ],
+   "ms": 54,
+   "top_score": 0.0633,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "acr02",
+   "type": "acronym",
+   "gold": [
+    [
+     "pocso_act_2012",
+     "8"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "pocso_act_2012",
+     "8"
+    ],
+    [
+     "pocso_act_2012",
+     "10"
+    ],
+    [
+     "pocso_act_2012",
+     "6"
+    ],
+    [
+     "pocso_act_2012",
+     "4"
+    ],
+    [
+     "pocso_act_2012",
+     "5"
+    ],
+    [
+     "pocso_act_2012",
+     "7"
+    ],
+    [
+     "pocso_act_2012",
+     "9"
+    ],
+    [
+     "pocso_act_2012",
+     "18"
+    ]
+   ],
+   "ms": 53,
+   "top_score": 0.0656,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "acr03",
+   "type": "acronym",
+   "gold": [
+    [
+     "right_to_information_act_2005",
+     "6"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "right_to_information_act_2005",
+     "6"
+    ],
+    [
+     "right_to_information_act_2005",
+     "2"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "256"
+    ],
+    [
+     "right_to_information_act_2005",
+     "5"
+    ],
+    [
+     "right_to_information_act_2005",
+     "19"
+    ],
+    [
+     "information_technology_act_2000",
+     "22"
+    ],
+    [
+     "information_technology_act_2000",
+     "24"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "447"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "290"
+    ]
+   ],
+   "ms": 58,
+   "top_score": 0.0431,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "acr04",
+   "type": "acronym",
+   "gold": [
+    [
+     "central_goods_and_services_tax_act_2017",
+     "16"
+    ]
+   ],
+   "first_gold_rank": 5,
+   "ranked": [
+    [
+     "central_goods_and_services_tax_act_2017",
+     "20"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "18"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "140"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "41"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "16"
+    ]
+   ],
+   "ms": 66,
+   "top_score": 0.0614,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "acr05",
+   "type": "acronym",
+   "gold": [
+    [
+     "right_to_information_act_2005",
+     "7"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "right_to_information_act_2005",
+     "7"
+    ],
+    [
+     "right_to_information_act_2005",
+     "18"
+    ],
+    [
+     "right_to_information_act_2005",
+     "19"
+    ],
+    [
+     "right_to_information_act_2005",
+     "8"
+    ],
+    [
+     "right_to_information_act_2005",
+     "10"
+    ],
+    [
+     "right_to_information_act_2005",
+     "6"
+    ],
+    [
+     "right_to_information_act_2005",
+     "9"
+    ],
+    [
+     "right_to_information_act_2005",
+     "20"
+    ]
+   ],
+   "ms": 56,
+   "top_score": 0.0627,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "acr06",
+   "type": "acronym",
+   "gold": [
+    [
+     "information_technology_act_2000",
+     "66D"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "information_technology_act_2000",
+     "66D"
+    ],
+    [
+     "information_technology_act_2000",
+     "65"
+    ],
+    [
+     "information_technology_act_2000",
+     "66B"
+    ],
+    [
+     "information_technology_act_2000",
+     "43"
+    ],
+    [
+     "information_technology_act_2000",
+     "66F"
+    ],
+    [
+     "information_technology_act_2000",
+     "66"
+    ],
+    [
+     "information_technology_act_2000",
+     "75"
+    ],
+    [
+     "information_technology_act_2000",
+     "66A"
+    ],
+    [
+     "information_technology_act_2000",
+     "69B"
+    ]
+   ],
+   "ms": 56,
+   "top_score": 0.0656,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "acr07",
+   "type": "acronym",
+   "gold": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "35"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "57"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "55"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "82"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "47"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "78"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "58"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "45"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "75"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "77"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "170"
+    ]
+   ],
+   "ms": 60,
+   "top_score": 0.0643,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "acr08",
+   "type": "acronym",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "111"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "111"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "112"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "113"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "47"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "190"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "48"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "56"
+    ]
+   ],
+   "ms": 49,
+   "top_score": 0.0648,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "acr09",
+   "type": "acronym",
+   "gold": [
+    [
+     "code_of_civil_procedure_1908",
+     "89"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "code_of_civil_procedure_1908",
+     "89"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "21"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "45"
+    ]
+   ],
+   "ms": 70,
+   "top_score": 0.065,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "acr10",
+   "type": "acronym",
+   "gold": [
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "23"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "23"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "22"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "24"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "79"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "183"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "203"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "180"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "130"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "173"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "55"
+    ]
+   ],
+   "ms": 60,
+   "top_score": 0.0656,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "acr11",
+   "type": "acronym",
+   "gold": [
+    [
+     "pocso_act_2012",
+     "19"
+    ]
+   ],
+   "first_gold_rank": 5,
+   "ranked": [
+    [
+     "pocso_act_2012",
+     "5"
+    ],
+    [
+     "pocso_act_2012",
+     "12"
+    ],
+    [
+     "pocso_act_2012",
+     "7"
+    ],
+    [
+     "pocso_act_2012",
+     "9"
+    ],
+    [
+     "pocso_act_2012",
+     "19"
+    ],
+    [
+     "pocso_act_2012",
+     "35"
+    ],
+    [
+     "pocso_act_2012",
+     "20"
+    ],
+    [
+     "pocso_act_2012",
+     "40"
+    ],
+    [
+     "pocso_act_2012",
+     "18"
+    ]
+   ],
+   "ms": 59,
+   "top_score": 0.0606,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "acr12",
+   "type": "acronym",
+   "gold": [
+    [
+     "right_to_information_act_2005",
+     "20"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "right_to_information_act_2005",
+     "20"
+    ],
+    [
+     "right_to_information_act_2005",
+     "7"
+    ],
+    [
+     "right_to_information_act_2005",
+     "10"
+    ],
+    [
+     "right_to_information_act_2005",
+     "18"
+    ],
+    [
+     "right_to_information_act_2005",
+     "8"
+    ],
+    [
+     "right_to_information_act_2005",
+     "19"
+    ],
+    [
+     "right_to_information_act_2005",
+     "11"
+    ],
+    [
+     "right_to_information_act_2005",
+     "14"
+    ],
+    [
+     "right_to_information_act_2005",
+     "16"
+    ]
+   ],
+   "ms": 51,
+   "top_score": 0.0651,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "acr13",
+   "type": "acronym",
+   "gold": [
+    [
+     "motor_vehicles_act_1988",
+     "146"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "motor_vehicles_act_1988",
+     "146"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "149"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "150"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "147"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "152"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "153"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "144"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "145"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "154"
+    ]
+   ],
+   "ms": 50,
+   "top_score": 0.0645,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "acr14",
+   "type": "acronym",
+   "gold": [
+    [
+     "central_goods_and_services_tax_act_2017",
+     "10"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "central_goods_and_services_tax_act_2017",
+     "10"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "22"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "20"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "8"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "171"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "143"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "43"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "15"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "23"
+    ]
+   ],
+   "ms": 46,
+   "top_score": 0.0553,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "acr15",
+   "type": "acronym",
+   "gold": [
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "18"
+    ]
+   ],
+   "first_gold_rank": 6,
+   "ranked": [
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "25"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "22"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "19"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "23"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "27"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "18"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "9"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "31"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "21"
+    ]
+   ],
+   "ms": 55,
+   "top_score": 0.0645,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "acr16",
+   "type": "acronym",
+   "gold": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "482"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "483"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "480"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "430"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "479"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "478"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "485"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "487"
+    ]
+   ],
+   "ms": 57,
+   "top_score": 0.06,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn01",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "303"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "356"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "329"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "41"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "208"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     ""
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "331"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "134"
+    ],
+    [
+     "information_technology_act_2000",
+     "75"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "305"
+    ]
+   ],
+   "ms": 31,
+   "top_score": 0.0306,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn02",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "85"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "86"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "12"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "3"
+    ]
+   ],
+   "first_gold_rank": 3,
+   "ranked": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "80"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "118"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "85"
+    ],
+    [
+     "special_marriage_act_1954",
+     "44"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "2"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "31"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "27"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "146"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "3"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "177"
+    ]
+   ],
+   "ms": 30,
+   "top_score": 0.032,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn03",
+   "type": "scenario",
+   "gold": [
+    [
+     "motor_vehicles_act_1988",
+     "185"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "motor_vehicles_act_1988",
+     "19"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "25"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "22"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "24"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "186"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "17"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "182"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "203"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "196"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "181"
+    ]
+   ],
+   "ms": 25,
+   "top_score": 0.0272,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn04",
+   "type": "scenario",
+   "gold": [
+    [
+     "information_technology_act_2000",
+     "66C"
+    ],
+    [
+     "information_technology_act_2000",
+     "66D"
+    ]
+   ],
+   "first_gold_rank": 2,
+   "ranked": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "319"
+    ],
+    [
+     "information_technology_act_2000",
+     "66D"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "318"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "132"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "246"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "48"
+    ],
+    [
+     "information_technology_act_2000",
+     "66C"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "159"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "45"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     ""
+    ]
+   ],
+   "ms": 34,
+   "top_score": 0.0325,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn05",
+   "type": "scenario",
+   "gold": [
+    [
+     "information_technology_act_2000",
+     "43"
+    ],
+    [
+     "information_technology_act_2000",
+     "66"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     ""
+    ],
+    [
+     "information_technology_act_2000",
+     "66C"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ],
+    [
+     "information_technology_act_2000",
+     "66F"
+    ],
+    [
+     "information_technology_act_2000",
+     "72A"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "57"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "244"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "38"
+    ]
+   ],
+   "ms": 28,
+   "top_score": 0.0279,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn06",
+   "type": "scenario",
+   "gold": [
+    [
+     "indian_contract_act_1872",
+     "27"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "42"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "32"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "356"
+    ],
+    [
+     "indian_contract_act_1872",
+     "28"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "143"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "5"
+    ]
+   ],
+   "ms": 37,
+   "top_score": 0.0256,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn07",
+   "type": "scenario",
+   "gold": [
+    [
+     "specific_relief_act_1963",
+     "10"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "67"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "69"
+    ]
+   ],
+   "ms": 39,
+   "top_score": 0.0315,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn08",
+   "type": "scenario",
+   "gold": [
+    [
+     "hindu_marriage_act_1955",
+     "5"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "hindu_marriage_act_1955",
+     "17"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "2"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "13"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "14"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "7"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "8"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "12"
+    ],
+    [
+     "special_marriage_act_1954",
+     "43"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "25"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "4"
+    ]
+   ],
+   "ms": 29,
+   "top_score": 0.031,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn09",
+   "type": "scenario",
+   "gold": [
+    [
+     "hindu_marriage_act_1955",
+     "13B"
+    ],
+    [
+     "special_marriage_act_1954",
+     "28"
+    ]
+   ],
+   "first_gold_rank": 5,
+   "ranked": [
+    [
+     "hindu_marriage_act_1955",
+     "27"
+    ],
+    [
+     "special_marriage_act_1954",
+     "44"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "13"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "17"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "13B"
+    ],
+    [
+     "special_marriage_act_1954",
+     "12"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "10"
+    ],
+    [
+     "special_marriage_act_1954",
+     "28"
+    ],
+    [
+     "special_marriage_act_1954",
+     "46"
+    ],
+    [
+     "special_marriage_act_1954",
+     "23"
+    ]
+   ],
+   "ms": 28,
+   "top_score": 0.0315,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn10",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "173"
+    ]
+   ],
+   "first_gold_rank": 3,
+   "ranked": [
+    [
+     "motor_vehicles_act_1988",
+     "48"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "45"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "173"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "2"
+    ],
+    [
+     "right_to_information_act_2005",
+     "18"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "5"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "233"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "176"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "59"
+    ]
+   ],
+   "ms": 29,
+   "top_score": 0.0325,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn11",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "47"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "47"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "57"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "59"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "55"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "60"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "82"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "36"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "48"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "49"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "77"
+    ]
+   ],
+   "ms": 25,
+   "top_score": 0.0315,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn12",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "58"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "22"
+    ]
+   ],
+   "first_gold_rank": 3,
+   "ranked": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "187"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "190"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "58"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "78"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "57"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "232"
+    ]
+   ],
+   "ms": 32,
+   "top_score": 0.0325,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn13",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "144"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "24"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "25"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "hindu_marriage_act_1955",
+     "24"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "144"
+    ],
+    [
+     "special_marriage_act_1954",
+     "37"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "146"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "25"
+    ],
+    [
+     "special_marriage_act_1954",
+     "27"
+    ]
+   ],
+   "ms": 22,
+   "top_score": 0.0312,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn14",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "351"
+    ]
+   ],
+   "first_gold_rank": 2,
+   "ranked": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     ""
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "351"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "101"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "232"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "78"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "12"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "100"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "32"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "113"
+    ]
+   ],
+   "ms": 23,
+   "top_score": 0.0238,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn15",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "356"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "356"
+    ],
+    [
+     "pocso_act_2012",
+     "22"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "318"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "228"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "351"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "233"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "246"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "227"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "12"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "232"
+    ]
+   ],
+   "ms": 20,
+   "top_score": 0.0313,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn16",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "78"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "78"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "335"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "144"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "45"
+    ],
+    [
+     "indian_contract_act_1872",
+     "159"
+    ],
+    [
+     "information_technology_act_2000",
+     "66A"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "148"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "90"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "63"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "156"
+    ]
+   ],
+   "ms": 28,
+   "top_score": 0.028,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn17",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "124"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "124"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "90"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "85"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "89"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     ""
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "88"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "66"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "84"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "103"
+    ]
+   ],
+   "ms": 26,
+   "top_score": 0.0325,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn18",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "106"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "134"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "161"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "motor_vehicles_act_1988",
+     "134"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "125"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "126"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "131"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "132"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "95"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "163"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "206"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "161"
+    ]
+   ],
+   "ms": 38,
+   "top_score": 0.0307,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn19",
+   "type": "scenario",
+   "gold": [
+    [
+     "pocso_act_2012",
+     "10"
+    ],
+    [
+     "pocso_act_2012",
+     "7"
+    ],
+    [
+     "pocso_act_2012",
+     "8"
+    ],
+    [
+     "pocso_act_2012",
+     "9"
+    ]
+   ],
+   "first_gold_rank": 3,
+   "ranked": [
+    [
+     "pocso_act_2012",
+     "22"
+    ],
+    [
+     "pocso_act_2012",
+     "5"
+    ],
+    [
+     "pocso_act_2012",
+     "9"
+    ],
+    [
+     "pocso_act_2012",
+     "3"
+    ],
+    [
+     "pocso_act_2012",
+     "2"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "93"
+    ],
+    [
+     "pocso_act_2012",
+     "33"
+    ],
+    [
+     "pocso_act_2012",
+     "11"
+    ]
+   ],
+   "ms": 30,
+   "top_score": 0.0293,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn20",
+   "type": "scenario",
+   "gold": [
+    [
+     "right_to_information_act_2005",
+     "6"
+    ],
+    [
+     "right_to_information_act_2005",
+     "7"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "motor_vehicles_act_1988",
+     "215"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "2"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "174"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "65"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "99"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "160"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "135"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "243U"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "168"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     ""
+    ]
+   ],
+   "ms": 32,
+   "top_score": 0.029,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn21",
+   "type": "scenario",
+   "gold": [
+    [
+     "indian_contract_act_1872",
+     "11"
+    ]
+   ],
+   "first_gold_rank": 4,
+   "ranked": [
+    [
+     "indian_contract_act_1872",
+     "198"
+    ],
+    [
+     "indian_contract_act_1872",
+     "179"
+    ],
+    [
+     "indian_contract_act_1872",
+     "144"
+    ],
+    [
+     "indian_contract_act_1872",
+     "11"
+    ],
+    [
+     "indian_contract_act_1872",
+     "62"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ],
+    [
+     "special_marriage_act_1954",
+     "16"
+    ],
+    [
+     "indian_contract_act_1872",
+     "247"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "106"
+    ]
+   ],
+   "ms": 24,
+   "top_score": 0.032,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn22",
+   "type": "scenario",
+   "gold": [
+    [
+     "indian_contract_act_1872",
+     "15"
+    ],
+    [
+     "indian_contract_act_1872",
+     "19"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ],
+    [
+     "special_marriage_act_1954",
+     "4"
+    ],
+    [
+     "indian_contract_act_1872",
+     "26"
+    ],
+    [
+     "indian_contract_act_1872",
+     "25"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "147"
+    ],
+    [
+     "specific_relief_act_1963",
+     "35"
+    ],
+    [
+     "indian_contract_act_1872",
+     "200"
+    ],
+    [
+     "indian_contract_act_1872",
+     "23"
+    ]
+   ],
+   "ms": 26,
+   "top_score": 0.0301,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn23",
+   "type": "scenario",
+   "gold": [
+    [
+     "indian_contract_act_1872",
+     "73"
+    ]
+   ],
+   "first_gold_rank": 5,
+   "ranked": [
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ],
+    [
+     "indian_contract_act_1872",
+     "168"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "55"
+    ],
+    [
+     "indian_contract_act_1872",
+     "97"
+    ],
+    [
+     "indian_contract_act_1872",
+     "73"
+    ],
+    [
+     "indian_contract_act_1872",
+     "75"
+    ],
+    [
+     "indian_contract_act_1872",
+     "121"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "162"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "140"
+    ]
+   ],
+   "ms": 30,
+   "top_score": 0.0313,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn24",
+   "type": "scenario",
+   "gold": [
+    [
+     "specific_relief_act_1963",
+     "6"
+    ]
+   ],
+   "first_gold_rank": 7,
+   "ranked": [
+    [
+     "transfer_of_property_act_1882",
+     "119"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "303"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "76"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "499"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "126"
+    ],
+    [
+     "specific_relief_act_1963",
+     "6"
+    ]
+   ],
+   "ms": 38,
+   "top_score": 0.0164,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn25",
+   "type": "scenario",
+   "gold": [
+    [
+     "transfer_of_property_act_1882",
+     "106"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "111"
+    ]
+   ],
+   "first_gold_rank": 2,
+   "ranked": [
+    [
+     "transfer_of_property_act_1882",
+     "116"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "106"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "108"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "122"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "111"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "110"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "65A"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "71"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "115"
+    ]
+   ],
+   "ms": 32,
+   "top_score": 0.0323,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn26",
+   "type": "scenario",
+   "gold": [
+    [
+     "transfer_of_property_act_1882",
+     "122"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "123"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "transfer_of_property_act_1882",
+     "122"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "126"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "125"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "124"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "128"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "123"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "127"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "204"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "114"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "44"
+    ]
+   ],
+   "ms": 30,
+   "top_score": 0.0313,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn27",
+   "type": "scenario",
+   "gold": [
+    [
+     "environment_protection_act_1986",
+     "15"
+    ],
+    [
+     "environment_protection_act_1986",
+     "7"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "environment_protection_act_1986",
+     "2"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "17"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     ""
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "132"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "152"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "288"
+    ],
+    [
+     "indian_contract_act_1872",
+     "134"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "279"
+    ],
+    [
+     "indian_contract_act_1872",
+     "19"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "262"
+    ]
+   ],
+   "ms": 29,
+   "top_score": 0.0311,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn28",
+   "type": "scenario",
+   "gold": [
+    [
+     "motor_vehicles_act_1988",
+     "181"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "3"
+    ]
+   ],
+   "first_gold_rank": 5,
+   "ranked": [
+    [
+     "motor_vehicles_act_1988",
+     "6"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "9"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "7"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "10"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "3"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "18"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "19"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "4"
+    ]
+   ],
+   "ms": 24,
+   "top_score": 0.0315,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn29",
+   "type": "scenario",
+   "gold": [
+    [
+     "motor_vehicles_act_1988",
+     "129"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "motor_vehicles_act_1988",
+     "129"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "178"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "190"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "186"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "146"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "128"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "31"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "7"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "21A"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "38"
+    ]
+   ],
+   "ms": 23,
+   "top_score": 0.0328,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn30",
+   "type": "scenario",
+   "gold": [
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "29"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "29"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "2"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "37"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "54"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "36"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "23"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "8A"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "40"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "43"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "3"
+    ]
+   ],
+   "ms": 54,
+   "top_score": 0.064,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn31",
+   "type": "scenario",
+   "gold": [
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "7"
+    ]
+   ],
+   "first_gold_rank": 2,
+   "ranked": [
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "24"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "7"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "53"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "57"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "58"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "5"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "2"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "3A"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "1"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "54"
+    ]
+   ],
+   "ms": 52,
+   "top_score": 0.0628,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn32",
+   "type": "scenario",
+   "gold": [
+    [
+     "constitution_of_india_2024_english",
+     "226"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "32"
+    ]
+   ],
+   "first_gold_rank": 2,
+   "ranked": [
+    [
+     "constitution_of_india_2024_english",
+     "22"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "32"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "215"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "139A"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "241"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "115"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "130"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "226"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "125"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "220"
+    ]
+   ],
+   "ms": 30,
+   "top_score": 0.0289,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn33",
+   "type": "scenario",
+   "gold": [
+    [
+     "constitution_of_india_2024_english",
+     "24"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "constitution_of_india_2024_english",
+     "24"
+    ],
+    [
+     "indian_contract_act_1872",
+     "183"
+    ],
+    [
+     "indian_contract_act_1872",
+     "190"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "21"
+    ],
+    [
+     "indian_contract_act_1872",
+     "19"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "20"
+    ],
+    [
+     "environment_protection_act_1986",
+     "11"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "4"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "93"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "95"
+    ]
+   ],
+   "ms": 30,
+   "top_score": 0.0318,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn34",
+   "type": "scenario",
+   "gold": [
+    [
+     "constitution_of_india_2024_english",
+     "51A"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "constitution_of_india_2024_english",
+     "51A"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "8"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "10"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     ""
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "51"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "33"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "15"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "11"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "29"
+    ]
+   ],
+   "ms": 23,
+   "top_score": 0.0328,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn35",
+   "type": "scenario",
+   "gold": [
+    [
+     "special_marriage_act_1954",
+     "4"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "hindu_marriage_act_1955",
+     "5"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "2"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "8"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "1"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "7"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "15"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "18"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "3"
+    ]
+   ],
+   "ms": 26,
+   "top_score": 0.032,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn36",
+   "type": "scenario",
+   "gold": [
+    [
+     "hindu_marriage_act_1955",
+     "9"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "144"
+    ],
+    [
+     "special_marriage_act_1954",
+     "36"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "6"
+    ],
+    [
+     "special_marriage_act_1954",
+     "37"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "13"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "84"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "24"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "219"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "146"
+    ],
+    [
+     "special_marriage_act_1954",
+     "22"
+    ]
+   ],
+   "ms": 30,
+   "top_score": 0.0297,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn37",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "82"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "17"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "5"
+    ]
+   ],
+   "first_gold_rank": 10,
+   "ranked": [
+    [
+     "hindu_marriage_act_1955",
+     "25"
+    ],
+    [
+     "special_marriage_act_1954",
+     "43"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "81"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "128"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "83"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "44"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "144"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "13"
+    ],
+    [
+     "special_marriage_act_1954",
+     "37"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "82"
+    ]
+   ],
+   "ms": 23,
+   "top_score": 0.0317,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn38",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "318"
+    ],
+    [
+     "information_technology_act_2000",
+     "66D"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "indian_contract_act_1872",
+     "97"
+    ],
+    [
+     "indian_contract_act_1872",
+     "88"
+    ],
+    [
+     "indian_contract_act_1872",
+     "121"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "55"
+    ],
+    [
+     "indian_contract_act_1872",
+     "94"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "142"
+    ],
+    [
+     "indian_contract_act_1872",
+     "54"
+    ],
+    [
+     "indian_contract_act_1872",
+     "119"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ]
+   ],
+   "ms": 28,
+   "top_score": 0.0297,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn39",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "77"
+    ],
+    [
+     "information_technology_act_2000",
+     "66E"
+    ],
+    [
+     "information_technology_act_2000",
+     "67A"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "information_technology_act_2000",
+     "66E"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "63"
+    ],
+    [
+     "pocso_act_2012",
+     "23"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "44"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "77"
+    ],
+    [
+     "information_technology_act_2000",
+     "42"
+    ],
+    [
+     "information_technology_act_2000",
+     "67B"
+    ],
+    [
+     "indian_contract_act_1872",
+     "157"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "16"
+    ],
+    [
+     "indian_contract_act_1872",
+     "156"
+    ]
+   ],
+   "ms": 31,
+   "top_score": 0.0328,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn40",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "61"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "62"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "63"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "information_technology_act_2000",
+     "79"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "67"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "327"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "79"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "55"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "21"
+    ],
+    [
+     "information_technology_act_2000",
+     "79A"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "147"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "2"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "2"
+    ]
+   ],
+   "ms": 26,
+   "top_score": 0.0286,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn41",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "26"
+    ]
+   ],
+   "first_gold_rank": 5,
+   "ranked": [
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "107"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "79"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "141"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "147"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "26"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "229"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "228"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "33"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "227"
+    ]
+   ],
+   "ms": 30,
+   "top_score": 0.031,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn42",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "104"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "104"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "106"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "141"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "107"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "27"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "2"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "53"
+    ]
+   ],
+   "ms": 27,
+   "top_score": 0.0318,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn43",
+   "type": "scenario",
+   "gold": [
+    [
+     "central_goods_and_services_tax_act_2017",
+     "50"
+    ]
+   ],
+   "first_gold_rank": 7,
+   "ranked": [
+    [
+     "central_goods_and_services_tax_act_2017",
+     "13"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "43"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "12"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "47"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "42"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "54"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "50"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "49"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "51"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "115"
+    ]
+   ],
+   "ms": 58,
+   "top_score": 0.0623,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn44",
+   "type": "scenario",
+   "gold": [
+    [
+     "central_goods_and_services_tax_act_2017",
+     "122"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "31"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "central_goods_and_services_tax_act_2017",
+     "122"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "132"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "127"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "92"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "67"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "13"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "91"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "93"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "12"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "31"
+    ]
+   ],
+   "ms": 58,
+   "top_score": 0.064,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn45",
+   "type": "scenario",
+   "gold": [
+    [
+     "code_of_civil_procedure_1908",
+     "100"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "code_of_civil_procedure_1908",
+     "100"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "103"
+    ],
+    [
+     "information_technology_act_2000",
+     "62"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "118"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "106"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "100A"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "420"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "133"
+    ]
+   ],
+   "ms": 35,
+   "top_score": 0.032,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn46",
+   "type": "scenario",
+   "gold": [
+    [
+     "code_of_civil_procedure_1908",
+     "80"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "code_of_civil_procedure_1908",
+     "80"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "84"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "79"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "14"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "76"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ],
+    [
+     "environment_protection_act_1986",
+     "17"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "51"
+    ]
+   ],
+   "ms": 26,
+   "top_score": 0.0315,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn47",
+   "type": "scenario",
+   "gold": [
+    [
+     "code_of_civil_procedure_1908",
+     "114"
+    ]
+   ],
+   "first_gold_rank": 4,
+   "ranked": [
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "33"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "14"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "114"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "235"
+    ]
+   ],
+   "ms": 25,
+   "top_score": 0.0325,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn48",
+   "type": "scenario",
+   "gold": [
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "17"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "19"
+    ]
+   ],
+   "first_gold_rank": 7,
+   "ranked": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "144"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "2"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "9"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "219"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "85"
+    ],
+    [
+     "special_marriage_act_1954",
+     "37"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "17"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "19"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "104"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "55"
+    ]
+   ],
+   "ms": 32,
+   "top_score": 0.0323,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn49",
+   "type": "scenario",
+   "gold": [
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "20"
+    ]
+   ],
+   "first_gold_rank": 8,
+   "ranked": [
+    [
+     "constitution_of_india_2024_english",
+     "109"
+    ],
+    [
+     "special_marriage_act_1954",
+     "37"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "59"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "198"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "146"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "24"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "20"
+    ]
+   ],
+   "ms": 32,
+   "top_score": 0.0267,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn50",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "304"
+    ]
+   ],
+   "first_gold_rank": 2,
+   "ranked": [
+    [
+     "motor_vehicles_act_1988",
+     "123"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "304"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "129"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "303"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "293"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "281"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "134"
+    ],
+    [
+     "indian_contract_act_1872",
+     "153"
+    ]
+   ],
+   "ms": 38,
+   "top_score": 0.0259,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn51",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "316"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "316"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     ""
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "499"
+    ],
+    [
+     "information_technology_act_2000",
+     "44"
+    ]
+   ],
+   "ms": 32,
+   "top_score": 0.0287,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "scn52",
+   "type": "scenario",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "308"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "information_technology_act_2000",
+     "66E"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "31"
+    ],
+    [
+     "information_technology_act_2000",
+     "72A"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "6"
+    ],
+    [
+     "pocso_act_2012",
+     "23"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "330"
+    ],
+    [
+     "information_technology_act_2000",
+     "67B"
+    ],
+    [
+     "indian_contract_act_1872",
+     "15"
+    ],
+    [
+     "right_to_information_act_2005",
+     "7"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "244"
+    ]
+   ],
+   "ms": 27,
+   "top_score": 0.0164,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "ooc01",
+   "type": "ooc",
+   "gold": [],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "central_goods_and_services_tax_act_2017",
+     "127"
+    ],
+    [
+     "information_technology_act_2000",
+     "81A"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "112"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "73"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "137"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "51"
+    ],
+    [
+     "information_technology_act_2000",
+     "91"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ]
+   ],
+   "ms": 38,
+   "top_score": 0.0164,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "ooc02",
+   "type": "ooc",
+   "gold": [],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "environment_protection_act_1986",
+     "19"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "216"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "163B"
+    ],
+    [
+     "environment_protection_act_1986",
+     "18"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "224"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "5"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "381"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "34"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "112"
+    ],
+    [
+     "pocso_act_2012",
+     "22"
+    ]
+   ],
+   "ms": 34,
+   "top_score": 0.0315,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "ooc03",
+   "type": "ooc",
+   "gold": [],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "central_goods_and_services_tax_act_2017",
+     "10"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "44"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "276"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "57"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "19"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "16"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "25"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "38"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "73"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "29"
+    ]
+   ],
+   "ms": 26,
+   "top_score": 0.0287,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "ooc04",
+   "type": "ooc",
+   "gold": [],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "218"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "224"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "2"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "221"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "204"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "255"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "31"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "37"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "202"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "158"
+    ]
+   ],
+   "ms": 33,
+   "top_score": 0.0307,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "ooc05",
+   "type": "ooc",
+   "gold": [],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "code_of_civil_procedure_1908",
+     "89"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ],
+    [
+     "indian_contract_act_1872",
+     "28"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     "88"
+    ],
+    [
+     "specific_relief_act_1963",
+     "25"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "257"
+    ]
+   ],
+   "ms": 27,
+   "top_score": 0.0325,
+   "llm_calls": 0,
+   "tokens": 0
+  },
+  {
+   "id": "ml01",
+   "type": "multilingual",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "303"
+    ]
+   ],
+   "first_gold_rank": 6,
+   "ranked": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "112"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "307"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "134"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "306"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "328"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "303"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "62"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "304"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "305"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "309"
+    ]
+   ],
+   "ms": 80,
+   "top_score": 0.0613,
+   "llm_calls": 1,
+   "tokens": 332
+  },
+  {
+   "id": "ml02",
+   "type": "multilingual",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "85"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "86"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "12"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "3"
+    ]
+   ],
+   "first_gold_rank": 3,
+   "ranked": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "80"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "118"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "85"
+    ],
+    [
+     "special_marriage_act_1954",
+     "44"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "31"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "144"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "24"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "146"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "221"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "17"
+    ]
+   ],
+   "ms": 21,
+   "top_score": 0.0323,
+   "llm_calls": 1,
+   "tokens": 359
+  },
+  {
+   "id": "ml03",
+   "type": "multilingual",
+   "gold": [
+    [
+     "right_to_information_act_2005",
+     "6"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "right_to_information_act_2005",
+     "24"
+    ],
+    [
+     "right_to_information_act_2005",
+     "3"
+    ],
+    [
+     "right_to_information_act_2005",
+     "19"
+    ],
+    [
+     "right_to_information_act_2005",
+     "27"
+    ],
+    [
+     "right_to_information_act_2005",
+     "1"
+    ],
+    [
+     "right_to_information_act_2005",
+     "26"
+    ],
+    [
+     "right_to_information_act_2005",
+     "16"
+    ],
+    [
+     "right_to_information_act_2005",
+     "2"
+    ],
+    [
+     "right_to_information_act_2005",
+     "31"
+    ]
+   ],
+   "ms": 47,
+   "top_score": 0.0626,
+   "llm_calls": 1,
+   "tokens": 342
+  },
+  {
+   "id": "ml04",
+   "type": "multilingual",
+   "gold": [
+    [
+     "motor_vehicles_act_1988",
+     "185"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "motor_vehicles_act_1988",
+     "185"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "186"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "19"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "194"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "22"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "196"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "203"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "184"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "181"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "21"
+    ]
+   ],
+   "ms": 53,
+   "top_score": 0.0656,
+   "llm_calls": 1,
+   "tokens": 396
+  },
+  {
+   "id": "ml05",
+   "type": "multilingual",
+   "gold": [
+    [
+     "constitution_of_india_2024_english",
+     "21"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "constitution_of_india_2024_english",
+     "21"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "226A"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "368"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "257A"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "170"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "144A"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "69"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "228A"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "326"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "256"
+    ]
+   ],
+   "ms": 69,
+   "top_score": 0.0984,
+   "llm_calls": 1,
+   "tokens": 352
+  },
+  {
+   "id": "ml06",
+   "type": "multilingual",
+   "gold": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "173"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "303"
+    ]
+   ],
+   "first_gold_rank": 4,
+   "ranked": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     ""
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "176"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "185"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "173"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "35"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "97"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "2"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "94"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "64"
+    ]
+   ],
+   "ms": 81,
+   "top_score": 0.0656,
+   "llm_calls": 1,
+   "tokens": 382
+  },
+  {
+   "id": "ml07",
+   "type": "multilingual",
+   "gold": [
+    [
+     "hindu_marriage_act_1955",
+     "13B"
+    ],
+    [
+     "special_marriage_act_1954",
+     "28"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "hindu_marriage_act_1955",
+     "13B"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "14"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "13A"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "13"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "10"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "15"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "5"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "12"
+    ]
+   ],
+   "ms": 42,
+   "top_score": 0.0648,
+   "llm_calls": 1,
+   "tokens": 352
+  },
+  {
+   "id": "ml08",
+   "type": "multilingual",
+   "gold": [
+    [
+     "information_technology_act_2000",
+     "66C"
+    ],
+    [
+     "information_technology_act_2000",
+     "66D"
+    ]
+   ],
+   "first_gold_rank": 5,
+   "ranked": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "72"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "112"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "303"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "337"
+    ],
+    [
+     "information_technology_act_2000",
+     "66C"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "336"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "143"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "46"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "339"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "182"
+    ]
+   ],
+   "ms": 73,
+   "top_score": 0.0601,
+   "llm_calls": 1,
+   "tokens": 517
+  },
+  {
+   "id": "ml09",
+   "type": "multilingual",
+   "gold": [
+    [
+     "pocso_act_2012",
+     "10"
+    ],
+    [
+     "pocso_act_2012",
+     "4"
+    ],
+    [
+     "pocso_act_2012",
+     "6"
+    ],
+    [
+     "pocso_act_2012",
+     "8"
+    ]
+   ],
+   "first_gold_rank": 3,
+   "ranked": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "95"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "68"
+    ],
+    [
+     "pocso_act_2012",
+     "8"
+    ],
+    [
+     "pocso_act_2012",
+     "6"
+    ],
+    [
+     "pocso_act_2012",
+     "10"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "96"
+    ],
+    [
+     "pocso_act_2012",
+     "4"
+    ],
+    [
+     "pocso_act_2012",
+     "12"
+    ],
+    [
+     "pocso_act_2012",
+     "18"
+    ],
+    [
+     "pocso_act_2012",
+     "5"
+    ]
+   ],
+   "ms": 55,
+   "top_score": 0.0503,
+   "llm_calls": 1,
+   "tokens": 338
+  },
+  {
+   "id": "ml10",
+   "type": "multilingual",
+   "gold": [
+    [
+     "motor_vehicles_act_1988",
+     "129"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "motor_vehicles_act_1988",
+     "129"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "178"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "193"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "128"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "192"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "190"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "123"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "184"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "192A"
+    ]
+   ],
+   "ms": 66,
+   "top_score": 0.065,
+   "llm_calls": 1,
+   "tokens": 354
+  },
+  {
+   "id": "ml11",
+   "type": "multilingual",
+   "gold": [
+    [
+     "right_to_information_act_2005",
+     "7"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "right_to_information_act_2005",
+     "24"
+    ],
+    [
+     "right_to_information_act_2005",
+     "19"
+    ],
+    [
+     "right_to_information_act_2005",
+     "18"
+    ],
+    [
+     "right_to_information_act_2005",
+     "5"
+    ],
+    [
+     "right_to_information_act_2005",
+     "11"
+    ],
+    [
+     "right_to_information_act_2005",
+     "6"
+    ],
+    [
+     "right_to_information_act_2005",
+     "3"
+    ]
+   ],
+   "ms": 60,
+   "top_score": 0.062,
+   "llm_calls": 1,
+   "tokens": 404
+  },
+  {
+   "id": "ml12",
+   "type": "multilingual",
+   "gold": [
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "12"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "18"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "3"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "3"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "36"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "17"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "1"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "11"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "10"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "4"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "22"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "29"
+    ]
+   ],
+   "ms": 54,
+   "top_score": 0.0645,
+   "llm_calls": 1,
+   "tokens": 379
+  },
+  {
+   "id": "ml13",
+   "type": "multilingual",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "303"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "303"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "62"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "307"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "112"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "313"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "305"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "328"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "306"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "134"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "317"
+    ]
+   ],
+   "ms": 50,
+   "top_score": 0.061,
+   "llm_calls": 1,
+   "tokens": 382
+  },
+  {
+   "id": "ml14",
+   "type": "multilingual",
+   "gold": [
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "29"
+    ]
+   ],
+   "first_gold_rank": 6,
+   "ranked": [
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "28"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "6"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "23"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "30"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "54"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "29"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "31"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "8"
+    ],
+    [
+     "BENEFITS AND SERVICES) ACT, 2016",
+     "3"
+    ]
+   ],
+   "ms": 51,
+   "top_score": 0.0656,
+   "llm_calls": 1,
+   "tokens": 344
+  },
+  {
+   "id": "ml15",
+   "type": "multilingual",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "85"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "86"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "3"
+    ]
+   ],
+   "first_gold_rank": 4,
+   "ranked": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "80"
+    ],
+    [
+     "bharatiya_sakshya_adhiniyam_2023",
+     "118"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "31"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "3"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     ""
+    ],
+    [
+     "pocso_act_2012",
+     "12"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "17"
+    ],
+    [
+     "special_marriage_act_1954",
+     "44"
+    ],
+    [
+     "pocso_act_2012",
+     "17"
+    ],
+    [
+     "pocso_act_2012",
+     "42"
+    ]
+   ],
+   "ms": 29,
+   "top_score": 0.0328,
+   "llm_calls": 1,
+   "tokens": 410
+  },
+  {
+   "id": "mt01",
+   "type": "multiturn",
+   "gold": [
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "304"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "387"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     ""
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "242"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "220"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "293"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "334"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "155"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "200"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "359"
+    ]
+   ],
+   "ms": 81,
+   "top_score": 0.0596,
+   "llm_calls": 1,
+   "tokens": 375
+  },
+  {
+   "id": "mt02",
+   "type": "multiturn",
+   "gold": [
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "18"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "23"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "22"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "5"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "3"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "29"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "9"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "25"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "1"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "15"
+    ],
+    [
+     "protection_of_women_from_domestic_violence_act_2005",
+     "10"
+    ]
+   ],
+   "ms": 66,
+   "top_score": 0.062,
+   "llm_calls": 1,
+   "tokens": 421
+  },
+  {
+   "id": "mt03",
+   "type": "multiturn",
+   "gold": [
+    [
+     "right_to_information_act_2005",
+     "19"
+    ],
+    [
+     "right_to_information_act_2005",
+     "20"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "right_to_information_act_2005",
+     "19"
+    ],
+    [
+     "right_to_information_act_2005",
+     "6"
+    ],
+    [
+     "right_to_information_act_2005",
+     "7"
+    ],
+    [
+     "right_to_information_act_2005",
+     "20"
+    ],
+    [
+     "right_to_information_act_2005",
+     "18"
+    ],
+    [
+     "right_to_information_act_2005",
+     "25"
+    ],
+    [
+     "right_to_information_act_2005",
+     "5"
+    ],
+    [
+     "right_to_information_act_2005",
+     "8"
+    ]
+   ],
+   "ms": 58,
+   "top_score": 0.0438,
+   "llm_calls": 1,
+   "tokens": 371
+  },
+  {
+   "id": "mt04",
+   "type": "multiturn",
+   "gold": [
+    [
+     "hindu_marriage_act_1955",
+     "13B"
+    ]
+   ],
+   "first_gold_rank": 2,
+   "ranked": [
+    [
+     "hindu_marriage_act_1955",
+     "10"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "13B"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "13A"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "14"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "13"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "15"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "29"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "1"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "5"
+    ],
+    [
+     "hindu_marriage_act_1955",
+     "27"
+    ]
+   ],
+   "ms": 69,
+   "top_score": 0.0645,
+   "llm_calls": 1,
+   "tokens": 363
+  },
+  {
+   "id": "mt05",
+   "type": "multiturn",
+   "gold": [
+    [
+     "information_technology_act_2000",
+     "66C"
+    ]
+   ],
+   "first_gold_rank": 1,
+   "ranked": [
+    [
+     "information_technology_act_2000",
+     "66C"
+    ],
+    [
+     "information_technology_act_2000",
+     "84C"
+    ],
+    [
+     "information_technology_act_2000",
+     "77"
+    ],
+    [
+     "information_technology_act_2000",
+     "66B"
+    ],
+    [
+     "information_technology_act_2000",
+     "66D"
+    ],
+    [
+     "information_technology_act_2000",
+     "84B"
+    ],
+    [
+     "information_technology_act_2000",
+     "72A"
+    ],
+    [
+     "information_technology_act_2000",
+     "67A"
+    ],
+    [
+     "information_technology_act_2000",
+     "60"
+    ],
+    [
+     "information_technology_act_2000",
+     "56"
+    ]
+   ],
+   "ms": 56,
+   "top_score": 0.0973,
+   "llm_calls": 1,
+   "tokens": 369
+  },
+  {
+   "id": "mt06",
+   "type": "multiturn",
+   "gold": [
+    [
+     "motor_vehicles_act_1988",
+     "185"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "motor_vehicles_act_1988",
+     "187"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "22"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "20"
+    ],
+    [
+     "motor_vehicles_act_1988",
+     "183"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "337"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "394"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "142"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "23"
+    ],
+    [
+     "bharatiya_nyaya_sanhita_2023",
+     "262"
+    ]
+   ],
+   "ms": 45,
+   "top_score": 0.0457,
+   "llm_calls": 1,
+   "tokens": 352
+  },
+  {
+   "id": "mt07",
+   "type": "multiturn",
+   "gold": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "58"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "22"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "157"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "172"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "187"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "190"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     ""
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "183"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "285"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "277"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "251"
+    ],
+    [
+     "bharatiya_nagarik_suraksha_sanhita_2023",
+     "210"
+    ]
+   ],
+   "ms": 53,
+   "top_score": 0.0328,
+   "llm_calls": 1,
+   "tokens": 382
+  },
+  {
+   "id": "mt08",
+   "type": "multiturn",
+   "gold": [
+    [
+     "specific_relief_act_1963",
+     "10"
+    ]
+   ],
+   "first_gold_rank": null,
+   "ranked": [
+    [
+     "indian_contract_act_1872",
+     "97"
+    ],
+    [
+     "indian_contract_act_1872",
+     "81"
+    ],
+    [
+     "indian_contract_act_1872",
+     "121"
+    ],
+    [
+     "indian_contract_act_1872",
+     "80"
+    ],
+    [
+     "indian_contract_act_1872",
+     "27"
+    ],
+    [
+     "indian_contract_act_1872",
+     "103"
+    ],
+    [
+     "transfer_of_property_act_1882",
+     "55"
+    ],
+    [
+     "code_of_civil_procedure_1908",
+     ""
+    ],
+    [
+     "indian_contract_act_1872",
+     "94"
+    ],
+    [
+     "indian_contract_act_1872",
+     "176"
+    ]
+   ],
+   "ms": 72,
+   "top_score": 0.0555,
+   "llm_calls": 1,
+   "tokens": 402
+  },
+  {
+   "id": "mt09",
+   "type": "multiturn",
+   "gold": [
+    [
+     "constitution_of_india_2024_english",
+     "21A"
+    ]
+   ],
+   "first_gold_rank": 2,
+   "ranked": [
+    [
+     "constitution_of_india_2024_english",
+     "21"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "21A"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "45"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "41"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "24"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "371D"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "350A"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "38"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "31A"
+    ],
+    [
+     "constitution_of_india_2024_english",
+     "337"
+    ]
+   ],
+   "ms": 52,
+   "top_score": 0.089,
+   "llm_calls": 1,
+   "tokens": 351
+  },
+  {
+   "id": "mt10",
+   "type": "multiturn",
+   "gold": [
+    [
+     "central_goods_and_services_tax_act_2017",
+     "16"
+    ]
+   ],
+   "first_gold_rank": 6,
+   "ranked": [
+    [
+     "central_goods_and_services_tax_act_2017",
+     "155"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "140"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "18"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "142"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "20"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "16"
+    ],
+    [
+     "central_goods_and_services_tax_act_2017",
+     "54"
+    ]
+   ],
+   "ms": 55,
+   "top_score": 0.065,
+   "llm_calls": 1,
+   "tokens": 350
+  }
+ ]
+}

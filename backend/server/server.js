@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const guestRoutes = require('./routes/guestRoutes');
 
 const app = express();
 
@@ -14,11 +15,20 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Middleware
-app.use(cors());
+// Only the site itself may call the API from a browser (comma-separated list;
+// the Vite dev server is allowed outside production)
+const allowedOrigins = (process.env.CORS_ORIGINS || 'https://openforge.online,https://www.openforge.online')
+    .split(',').map(s => s.trim()).filter(Boolean);
+if (process.env.NODE_ENV !== 'production') {
+    allowedOrigins.push('http://localhost:5173', 'http://127.0.0.1:5173');
+}
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json({ limit: '1mb' })); // Limit payload size
 
 // Routes
 app.use('/api/auth', authRoutes);
+// Guest mode (no login) is mounted before the signed-in chat routes, which require auth
+app.use('/api/chat/guest', guestRoutes);
 app.use('/api/chat', chatRoutes);
 
 // Health check
@@ -28,13 +38,15 @@ app.get('/api/health', (req, res) => {
 
 // Connect to MongoDB and start server
 const PORT = process.env.PORT || 3001;
+// Nginx is the public entry point; Node only needs to accept local connections
+const HOST = process.env.HOST || '127.0.0.1';
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/legal_query_system';
 
 mongoose.connect(MONGODB_URI)
     .then(() => {
         console.log('Connected to MongoDB');
-        const server = app.listen(PORT, () => {
-            console.log(`Server running on port ${PORT} (${process.env.NODE_ENV || 'development'})`);
+        const server = app.listen(PORT, HOST, () => {
+            console.log(`Server running on ${HOST}:${PORT} (${process.env.NODE_ENV || 'development'})`);
         });
 
         // Graceful shutdown (systemd sends SIGTERM)

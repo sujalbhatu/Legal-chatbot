@@ -16,9 +16,12 @@ ExecStart=/opt/legal-query/backend/rag_model/venv/bin/gunicorn -c /opt/legal-que
 Restart=always
 RestartSec=10
 
-# Memory limit — allows up to 500MB (embedding model + ChromaDB)
-# Swap allowed for overflow during model loading
-MemoryMax=500M
+# Memory: embedder + reranker + ChromaDB + BM25 for 123 Acts is estimated at 500-550 MB.
+# Above MemoryHigh the kernel reclaims and swaps this service's colder pages first;
+# MemoryMax is the hard stop. The models are used on every query, so if `free -m`
+# shows the service swapping during normal use, set RETRIEVAL_MODE=hybrid (no reranker).
+MemoryHigh=650M
+MemoryMax=800M
 MemorySwapMax=1G
 
 # Security hardening
