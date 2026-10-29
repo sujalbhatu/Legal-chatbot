@@ -123,6 +123,28 @@ def section_refs(*texts: str) -> List[str]:
     return refs
 
 
+# Messages that are not a legal question at all. "can i ask?" used to be searched like
+# any question, matched Evidence Act sections about asking witnesses questions, and got
+# a full cited answer. These skip retrieval. The whole message must match, so "can I ask
+# my landlord for the deposit?" is still a legal question.
+_SMALL_TALK_RE = re.compile(r"""^(?:
+    (?:hi+|hello+|hey+|hiya|yo|namaste|namaskar|hola|greetings)(?:\s+(?:there|bot|openforge|sir|ma'?am|bhai|ji))?
+  | good\s+(?:morning|afternoon|evening|night)
+  | how\s+are\s+(?:you|u)(?:\s+doing)?
+  | (?:thanks?|thank\s+(?:you|u)|thx|ty|ok(?:ay)?|k|cool|great|nice|got\s+it|alright|bye|goodbye|see\s+you)(?:\s+(?:so\s+much|a\s+lot|very\s+much))?
+  | (?:can|may|could)\s+i\s+ask(?:\s+(?:you|u))?(?:\s+(?:a|one|some|few|a\s+few)?\s*(?:questions?|things?|doubts?)|\s+(?:something|anything))?
+  | i\s+(?:have|got)\s+(?:a|one|some)\s+(?:questions?|doubts?)
+  | (?:who|what)\s+are\s+(?:you|u)
+  | what\s+(?:can|do)\s+(?:you|u)\s+do
+  | (?:how\s+can\s+you\s+)?help(?:\s+me)?
+)(?:\s+(?:please|pls|plz))?$""", re.IGNORECASE | re.VERBOSE)
+
+
+def is_small_talk(query: str) -> bool:
+    text = re.sub(r"[^\w\s']", " ", query or "").strip()
+    return bool(_SMALL_TALK_RE.match(re.sub(r"\s+", " ", text)))
+
+
 @dataclass
 class Understanding:
     search_query: str                       # English, standalone
@@ -130,6 +152,7 @@ class Understanding:
     section_refs: List[str] = field(default_factory=list)
     llm_used: bool = False
     error: Optional[str] = None
+    small_talk: bool = False                # nothing to search for
 
 
 REWRITE_PROMPT = """You prepare search queries for a database of Indian statutes.
@@ -188,7 +211,9 @@ def understand(query: str, history: list, language: str, llm, model: str) -> Und
 
 
 def _understand(query: str, history: list, language: str, llm, model: str) -> Understanding:
-    recent = [m for m in (history or []) if m.get("role") in ("user", "assistant")][-4:]
+    if is_small_talk(query):
+        return Understanding(search_query=query, small_talk=True)
+    recent =[m for m in (history or []) if m.get("role") in ("user", "assistant")][-4:]
     if language == "en" and not recent:
         acts, refs = detect_acts(query), section_refs(query)
         # A question that names its Act or section is already found by the act filter
