@@ -218,6 +218,18 @@ class QueryUnderstandingTests(unittest.TestCase):
         self.assertIn("66C", u.section_refs)
         self.assertEqual(u.acts, ["information_technology_act_2000"])
 
+    def test_small_talk_is_not_searched(self):
+        for q in ("can i ask?", "Can I ask you a question?", "may i ask something", "hi", "Hello there!",
+                  "thank you so much", "ok", "who are you?", "what can you do", "good morning", "I have a doubt"):
+            llm = FakeLLM(json.dumps({"query": "x", "act": ""}))
+            u = qu.understand(q, [{"role": "user", "content": "earlier"}], "en", llm, "m")
+            self.assertTrue(u.small_talk, q)
+            self.assertEqual(llm.calls, 0, q)
+        for q in ("Can I ask my landlord to return the deposit?", "can i ask the police for a copy of the FIR",
+                  "hi, my employer has not paid my salary", "what can you do if a cheque bounces",
+                  "help me file a complaint against my neighbour"):
+            self.assertFalse(qu.is_small_talk(q), q)
+
     def test_rewrite_failure_falls_back_to_the_raw_query(self):
         llm = FakeLLM(error=RuntimeError("429"))
         u = qu.understand("चोरी की सज़ा", [], "hi", llm, "m")
